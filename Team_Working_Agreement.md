@@ -88,7 +88,7 @@ By confirming this agreement, each member agrees to complete their assigned resp
 
 | Student       | Signature or GitHub Confirmation   | Date |
 | ------------- | ---------------------------------- | ---- |
-| Sherap Hyolmo | @daydevil80 — (confirmed)   |      |9/8/2026
+| Sherap Hyolmo | @daydevil80 — (confirmed)          |9/8/2026|
 | Samir Lama    | @Sammygit15 — Pending confirmation |      |
 | Ulsan Tamang  | @Ualson — Pending confirmation     |      |
 | Shuzita Majhi | @shuzita — Pending confirmation    |      |
