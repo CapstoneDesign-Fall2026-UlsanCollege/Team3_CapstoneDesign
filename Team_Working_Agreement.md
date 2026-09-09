@@ -92,4 +92,4 @@ By confirming this agreement, each member agrees to complete their assigned resp
 | Lama Muskan   | @Sammygit15 — (confirmed)          |9/9/2026|
 | Ualson Tamang | @Ualson — (Confirmed)              |9/9/2026|
 | Shuzita Majhi | @shuzita — (Confirmed)              |9/9/2026|
-| Shreya        | @shrey776 — Pending confirmation   |      |
+| Shreya        | @shrey776 — (Confirmed)              |9/9/2026|
