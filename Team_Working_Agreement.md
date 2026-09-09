@@ -3,7 +3,7 @@
 ## Team and Project
 
 * **Team name:** Team 3
-* **Project working title:** TBD — will be updated after the team selects a final project idea
+* **Project working title:** Livelingo Assistant and Chimeki Market Nepal
 * **Date agreed:** 2026-09-08
 
 ## Members, Strengths, and Availability
