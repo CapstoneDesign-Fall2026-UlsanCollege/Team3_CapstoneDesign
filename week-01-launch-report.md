@@ -35,7 +35,7 @@ Each student must record their preferred project idea, one concern about that id
 
 | Student       | Preferred Idea | One Concern | Evidence Link |
 | ------------- | -------------- | ----------- | ------------- |
-| Sherap Hyolmo | TBD            | TBD         | TBD           |
+| Sherap Hyolmo | 4 & 1          |Feasibility  |https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595501013
 | Lama Muskan   | 3 & 4          |time consuming| https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595130162    
 | Ualson Tamang | 1 & 4          |communication |(https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595420580)
 | Shuzita Majhi | TBD            | TBD         | TBD           |
@@ -48,9 +48,9 @@ Each student must record their preferred project idea, one concern about that id
 * [x] Week 1 planning Issue has been created.
 * [x] Team Working Agreement has been uploaded.
 * [x] Five candidate project ideas have been uploaded.
-* [ ] Repository access has been confirmed for every member.
-* [ ] Every member has selected a preferred idea.
-* [ ] Every member has recorded one concern and an evidence link.
+* [x] Repository access has been confirmed for every member.
+* [x] Every member has selected a preferred idea.
+* [x] Every member has recorded one concern and an evidence link.
 
 ## Ready for Week 2
 
