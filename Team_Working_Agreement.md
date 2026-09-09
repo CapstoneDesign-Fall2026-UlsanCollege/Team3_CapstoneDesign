@@ -12,7 +12,7 @@
 | ------------- | --------------- | ----------------------------------------------- | --------------------------------------------------------- |
 | Sherap Hyolmo | @daydevil80     | Project organization, coding, and brainstorming | Mostly available in the afternoon                         |
 | Lama Muskan   | @Sammygit15     | Coding and brainstorming                        | Available at night and on Monday, Wednesday, and Thursday |
-| Ulsan Tamang  | @Ualson         | Research and design support                     | Mostly available in the afternoon                         |
+| Ualson Tamang | @Ualson         | Research and design support                     | Mostly available in the afternoon                         |
 | Shuzita Majhi | @shuzita        | Documentation and design                        | Available throughout the weekdays                         |
 | Shreya        | @shrey776       | Testing and documentation                       | Mostly available in the morning                           |
 
@@ -22,7 +22,7 @@
 | ---------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Project coordinator and development lead | Sherap Hyolmo | Organize the project board, create and assign Issues, monitor deadlines, coordinate technical decisions, and contribute to coding       |
 | Development and debugging lead           | Lama Muskan   | Develop core features, debug technical problems, review code, and support system integration                                            |
-| Research and design support              | Ulsan Tamang  | Research existing solutions, collect project requirements and references, summarize findings, and provide feedback on interface designs |
+| Research and design support              | Ualson Tamang | Research existing solutions, collect project requirements and references, summarize findings, and provide feedback on interface designs |
 | Documentation and design lead            | Shuzita Majhi | Maintain project documentation and help create interface designs, diagrams, and presentation materials                                  |
 | Testing and quality lead                 | Shreya        | Prepare test cases, test completed features, document results, report bugs, and verify that fixed features work correctly               |
 
@@ -90,6 +90,6 @@ By confirming this agreement, each member agrees to complete their assigned resp
 | ------------- | ---------------------------------- | ---- |
 | Sherap Hyolmo | @daydevil80 — (confirmed)          |9/8/2026|
 | Lama Muskan   | @Sammygit15 — (confirmed)          |9/9/2026|
-| Ulsan Tamang  | @Ualson — Pending confirmation     |      |
+| Ualson Tamang | @Ualson — (Confirmed)              |9/9/2026|
 | Shuzita Majhi | @shuzita — Pending confirmation    |      |
 | Shreya        | @shrey776 — Pending confirmation   |      |
