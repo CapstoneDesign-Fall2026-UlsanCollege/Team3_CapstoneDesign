@@ -36,7 +36,7 @@ Each student must record their preferred project idea, one concern about that id
 | Student       | Preferred Idea | One Concern | Evidence Link |
 | ------------- | -------------- | ----------- | ------------- |
 | Sherap Hyolmo | TBD            | TBD         | TBD           |
-| Samir Lama    | TBD            | TBD         | TBD           |
+| Lama Muskan   | 3 & 4          |time consuming| https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595130162    
 | Ulsan Tamang  | TBD            | TBD         | TBD           |
 | Shuzita Majhi | TBD            | TBD         | TBD           |
 | Shreya        | TBD            | TBD         | TBD           |
