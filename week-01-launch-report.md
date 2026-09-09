@@ -39,7 +39,7 @@ Each student must record their preferred project idea, one concern about that id
 | Lama Muskan   | 3 & 4          |time consuming| https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595130162    
 | Ualson Tamang | 1 & 4          |communication |(https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595420580)
 | Shuzita Majhi | 3 & 4          |Development complexity|https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595796992
-| Shreya        | TBD            | TBD         | TBD           |
+| Shreya        | 1 & 4          |Keeping the system accurate and reliable|https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5596180013
 
 ## Current Progress
 
