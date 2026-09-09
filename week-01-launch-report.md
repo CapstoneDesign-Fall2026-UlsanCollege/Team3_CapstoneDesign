@@ -37,7 +37,7 @@ Each student must record their preferred project idea, one concern about that id
 | ------------- | -------------- | ----------- | ------------- |
 | Sherap Hyolmo | TBD            | TBD         | TBD           |
 | Lama Muskan   | 3 & 4          |time consuming| https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595130162    
-| Ulsan Tamang  | TBD            | TBD         | TBD           |
+| Ualson Tamang | 1 & 4          |communication | [TBD           |](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1#issuecomment-5595420580)
 | Shuzita Majhi | TBD            | TBD         | TBD           |
 | Shreya        | TBD            | TBD         | TBD           |
 
