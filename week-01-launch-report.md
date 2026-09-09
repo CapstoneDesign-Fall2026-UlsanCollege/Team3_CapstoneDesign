@@ -11,7 +11,7 @@ This is the Week 1 Launch Report. It replaces the standard Weekly Report for thi
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
 | Team repository exists             | [Team3_CapstoneDesign](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign)                                       | @daydevil80  |
 | Project board exists               | [Team 3 Workspace](https://github.com/orgs/CapstoneDesign-Fall2026-UlsanCollege/projects/4)                                                | @daydevil80  |
-| Every member has repository access | TBD — confirm through repository settings                                                                                                  | TBD          |
+| Every member has repository access | Confirmed through repository access settings | @daydevil80 |
 | One planning Issue exists          | [Week 1 Planning Issue #1](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/1)                          | @daydevil80  |
 | Team Working Agreement is complete | [Team Working Agreement](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/Team_Working_Agreement.md) | @daydevil80  |
 
