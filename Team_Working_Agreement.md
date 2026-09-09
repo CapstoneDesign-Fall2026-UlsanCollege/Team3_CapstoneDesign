@@ -91,5 +91,5 @@ By confirming this agreement, each member agrees to complete their assigned resp
 | Sherap Hyolmo | @daydevil80 — (confirmed)          |9/8/2026|
 | Lama Muskan   | @Sammygit15 — (confirmed)          |9/9/2026|
 | Ualson Tamang | @Ualson — (Confirmed)              |9/9/2026|
-| Shuzita Majhi | @shuzita — Pending confirmation    |      |
+| Shuzita Majhi | @shuzita — (Confirmed)              |9/9/2026|
 | Shreya        | @shrey776 — Pending confirmation   |      |
