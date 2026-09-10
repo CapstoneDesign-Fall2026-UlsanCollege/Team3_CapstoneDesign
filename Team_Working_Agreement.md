@@ -3,7 +3,7 @@
 ## Team and Project
 
 * **Team name:** Team 3
-* **Project working title:** Livelingo Assistant and Chimeki Market Nepal
+* **Project working title:** SmartServe POS and Chimeki Market Nepal
 * **Date agreed:** 2026-09-08
 
 ## Members, Strengths, and Availability
