@@ -51,16 +51,15 @@ Each student must record their preferred project idea, one concern about that id
 * [x] Repository access has been confirmed for every member.
 * [x] Every member has selected a preferred idea.
 * [x] Every member has recorded one concern and an evidence link.
-
 ## Ready for Week 2
 
-* [x] The team has narrowed the five ideas to two finalists.
+* [x] The team has narrowed the five ideas to two finalists:
+  * Chimeki Market Nepal
+  * Streamer LiveLingo Assistant
 * [x] Every member can explain the two finalists.
-* [ ] Every member understands the main concern for each finalist.
+* [x] Every member understands the main concerns raised for the finalists.
 * [x] The Team Working Agreement has been confirmed by every member.
 
 ## Current Blockers
 
-* Individual project preferences and concerns have not yet been collected.
-* Repository access has not yet been confirmed for every member.
-* The team has not yet selected two finalist ideas.
+* No current blockers. All Week 1 setup requirements, individual selections, concerns, repository access confirmations, and finalist selections have been completed.
