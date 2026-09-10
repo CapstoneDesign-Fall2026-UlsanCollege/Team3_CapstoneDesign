@@ -55,7 +55,7 @@ Each student must record their preferred project idea, one concern about that id
 ## Ready for Week 2
 
 * [x] The team has narrowed the five ideas to two finalists.
-* [ ] Every member can explain the two finalists.
+* [x] Every member can explain the two finalists.
 * [ ] Every member understands the main concern for each finalist.
 * [x] The Team Working Agreement has been confirmed by every member.
 
