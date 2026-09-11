@@ -68,16 +68,16 @@ Our final demo will prove:
 
 ## 8. MVP features
 
-| Feature | Required for MVP? | Owner | Issue link |
-|---|---|---|---|
-| Ingredient and recipe management | Yes | Lama Muskan | To be added |
-| Menu item management | Yes | Sherap Hyolmo | To be added |
-| Cashier order creation | Yes | Lama Muskan | To be added |
-| Simulated payment | Yes | Sherap Hyolmo | To be added |
-| Receipt generation | Yes | Shuzita Majhi | To be added |
-| Inventory deduction and audit record | Yes | Lama Muskan | To be added |
-| Sales and low-stock dashboard | Yes | Shuzita Majhi | To be added |
-| Manual test cases and verification | Yes | Shreya | To be added |
+| Feature | Required for MVP? | Primary implementation owner | Research, design, or testing support | Issue link |
+|---|---|---|---|---|
+| Ingredient and recipe management | Yes | Lama Muskan | Ualson Tamang: requirements research | To be added |
+| Menu item management | Yes | Sherap Hyolmo | Shuzita Majhi: interface design and documentation | To be added |
+| Cashier order creation | Yes | Lama Muskan | Shuzita Majhi: cashier-view design; Ualson Tamang: workflow research | To be added |
+| Simulated payment | Yes | Sherap Hyolmo | Ualson Tamang: payment-flow research | To be added |
+| Receipt generation | Yes | Sherap Hyolmo | Shuzita Majhi: receipt layout and documentation | To be added |
+| Inventory deduction and audit record | Yes | Lama Muskan | Shreya: test-case preparation and verification | To be added |
+| Sales and low-stock dashboard | Yes | Sherap Hyolmo | Shuzita Majhi: dashboard design; Ualson Tamang: reporting requirements research | To be added |
+| Manual test cases and verification | Yes | Shreya | Lama Muskan and Sherap Hyolmo: fix implementation defects | To be added |
 
 ## 9. Functional requirements
 

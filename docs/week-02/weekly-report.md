@@ -31,7 +31,7 @@ The team compared the two finalist projects, selected one primary direction, and
 
 ## Evidence links
 
-If it is not linked, it does not count.
+
 
 | Evidence | Link |
 |---|---|
