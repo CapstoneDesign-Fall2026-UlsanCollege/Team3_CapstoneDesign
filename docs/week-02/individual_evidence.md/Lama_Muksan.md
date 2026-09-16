@@ -1,8 +1,11 @@
 # Individual Evidence Receipt
 
-Student: Sam
-Team: TEAM 3
-Week: WEEK 2
+Student: Lama Muskan
+
+Team: 3
+
+Week: 2
+
 Date: 9/16/2026
 
 Post 2–3 receipts per week when contribution tracking matters.
