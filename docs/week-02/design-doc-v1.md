@@ -148,38 +148,170 @@ System completes order in one controlled operation
     +--> Save inventory transactions
     +--> Record sale and generate receipt
 ```
-
 ## 13. Risks and Unknowns
 
-| Risk or unknown | Why it matters | Plan |
+| Risk or unknown | Why it matters | Evidence or response |
 |---|---|---|
-| Duplicate or missing inventory deductions | Stock and sales records could become inaccurate after payment. | Check the order status before completion, allow only one `Paid` to `Completed` transition, and link every deduction to the order ID. |
-| Insufficient stock during checkout | A cashier could accept an order that cannot be prepared. | Check recipe quantities before payment and keep the order open when stock is insufficient. |
-| Scope becoming too large | Authentication and advanced management features could delay the core demo. | Prioritize the order-to-inventory workflow and use seeded demonstration roles if necessary. |
-| Technical stack not yet confirmed | Implementation cannot begin efficiently without a shared setup. | Agree on the framework and database before creating implementation Issues. |
+| Duplicate inventory deductions | Repeated payment requests could deduct ingredients more than once. | Use a database transaction, lock the order during payment, and enforce unique database constraints. |
+| Partial order completion | A failure could save the payment without updating inventory or sales. | Process the payment, inventory deductions, order status, and sales update in one PostgreSQL transaction. |
+| Insufficient stock | A cashier could accept an order that cannot be prepared. | Lock and check the required ingredient rows before completing payment. |
+| Scope becoming too large | Additional features could delay the main demonstration. | Prioritize menu, ordering, simulated payment, receipt, inventory deduction, and the basic dashboard. |
+| Refund handling | Restoring ingredients after a completed order would require additional transaction logic. | Refunds and completed-order cancellation are outside the midterm scope. |
 
-## 14. Main Risk-Mitigation Detail
+## 14. Important Uncertainty Check
 
-**Initial mitigation:** The order-completion operation will check the order status before changing inventory. Only a transition from `Paid` to `Completed` may create inventory deductions.
+### Question Checked
 
-Each deduction will reference the order ID, and the dashboard will expose the resulting stock and sales values for manual verification.
+Can SmartServe POS update the payment, order, ingredient inventory, inventory audit records, and daily sales as one controlled operation while preventing duplicate deductions?
 
-## 15. Midterm Demonstration Scenario
+### Options Considered
 
-The team will configure a latte menu item using coffee beans and milk.
+| Option | Description | Main benefit | Main concern |
+|---|---|---|---|
+| Option A: Application-only status check | The backend checks whether the order is already paid before deducting inventory. | Simple to understand and implement. | Two requests arriving at nearly the same time could both pass the status check. |
+| Option B: PostgreSQL transaction, row locking, and unique constraints | The database locks the order, performs all related updates in one transaction, and rejects duplicate payment or inventory records. | Provides stronger protection against partial updates and duplicate deductions. | Requires additional database design and transaction handling. |
 
-A cashier will create an order for two lattes, complete a simulated payment, show the receipt, and then compare the before-and-after inventory quantities. The sales dashboard will show the completed order and updated daily total.
+### Evidence Checked
 
-## 16. Evidence Links
+1. [PostgreSQL Transactions](https://www.postgresql.org/docs/current/tutorial-transactions.html)
 
-- Planning Issue: To be added.
-- Weekly Report: [Week 2 Weekly Report](./weekly-report.md)
-- Idea Selection: [Week 2 Idea Selection Table](./idea-selection-table.md)
-- User-flow sketch: [SmartServe POS User-Flow Sketch](./user-flow-sketch.png)
+   PostgreSQL explains that a transaction combines several database operations into one all-or-nothing operation. If one step fails, none of the changes need to remain.
 
-## 17. Open Questions for Team Review
+2. [PostgreSQL Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html)
 
-- Which web framework and database will the team use?
-- Will the first version include login screens, or will it use seeded demonstration roles?
-- What currency and sample prices should be used in the demonstration?
-- Which team member will own the order-completion and inventory-transaction implementation?
+   PostgreSQL supports row-level locks. SmartServe can lock the order and affected ingredient records while payment completion is being processed, preventing two requests from updating the same records simultaneously.
+
+3. [PostgreSQL Unique Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-UNIQUE-CONSTRAINTS)
+
+   PostgreSQL unique constraints prevent duplicate values or duplicate combinations of values. SmartServe can use these constraints to allow only one payment per order and only one inventory-deduction record for each order-and-ingredient combination.
+
+4. [Sherap’s Inventory-Deduction Investigation](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/2)
+
+   This Issue compares deducting inventory when an order is created against deducting inventory after payment is completed.
+
+### What We Found
+
+The official documentation confirms that PostgreSQL provides the required capabilities:
+
+- Transactions can make the payment, order completion, inventory deduction, audit records, and sales update succeed or fail together.
+- Row-level locking can stop concurrent requests from completing the same order at the same time.
+- Unique constraints can reject duplicate payment and inventory-deduction records.
+- An application-only status check would not provide the same database-level protection against simultaneous requests.
+
+### Decision
+
+Team 3 will use **Option B: PostgreSQL transaction, row locking, and unique constraints**.
+
+Inventory will only be deducted after a simulated payment is successfully completed. The payment and inventory updates will be processed as one controlled database transaction.
+
+### Changes Resulting From This Check
+
+The SmartServe design will include:
+
+- A unique order ID.
+- One payment record per order.
+- A controlled order-status transition.
+- An inventory transaction linked to both the order and ingredient.
+- A unique constraint on the payment’s `order_id`.
+- A unique constraint on the combination of `order_id` and `ingredient_id` in inventory deductions.
+- An order lock while payment is being completed.
+- An ingredient-stock check before the transaction is committed.
+- A safe response when the same payment request is submitted again.
+
+## 15. Main Risk-Mitigation Design
+
+The system will complete a sale using the following controlled process:
+
+```text
+1. Receive the payment request.
+2. Begin a database transaction.
+3. Lock the selected order.
+4. Check whether the order is already paid or completed.
+5. Lock and check the required ingredient records.
+6. Create one simulated payment record.
+7. Deduct each recipe ingredient.
+8. Create the inventory audit records.
+9. Mark the order as completed.
+10. Commit all changes together.
+```
+
+If any step fails, the transaction will be rolled back so that the payment, inventory, order, and sales records do not become partially synchronized.
+
+### Database Rules
+
+The planned database will enforce:
+
+```text
+UNIQUE (payment.order_id)
+```
+
+This prevents more than one payment from being stored for the same order.
+
+```text
+UNIQUE (inventory_transaction.order_id, inventory_transaction.ingredient_id)
+```
+
+This prevents the same order from deducting the same ingredient more than once.
+
+### Expected Duplicate-Payment Behaviour
+
+If the cashier clicks the payment button twice:
+
+1. The first valid request completes the transaction.
+2. The second request finds that the order is already completed.
+3. The system returns the existing completed-order result.
+4. No additional payment or inventory-deduction record is created.
+
+## 16. Midterm Demonstration Scenario
+
+The team will configure a latte menu item that uses coffee beans and milk.
+
+The demonstration will follow these steps:
+
+1. Display the starting quantities of milk and coffee beans.
+2. Create an order for two lattes.
+3. Complete a simulated payment.
+4. Generate and display the receipt.
+5. Display the updated ingredient quantities.
+6. Display the completed sale on the daily dashboard.
+7. Attempt to complete the same order again.
+8. Verify that the second request does not deduct inventory again.
+
+### Expected Inventory Result
+
+For example, if one latte uses `200 ml` of milk and `18 g` of coffee beans, two lattes should deduct:
+
+- `400 ml` of milk
+- `36 g` of coffee beans
+
+Repeating the payment request must not create another deduction.
+
+## 17. Evidence Links
+
+### Team Planning Evidence
+
+- [Week 2 Idea Selection Table](./idea-selection-table.md)
+- [Week 2 Weekly Report](./weekly-report.md)
+- [SmartServe POS User-Flow Sketch](./user-flow-sketch.png)
+- [Sherap’s Inventory-Deduction Investigation](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/2)
+
+### Official Technical Evidence
+
+- [PostgreSQL Transactions](https://www.postgresql.org/docs/current/tutorial-transactions.html)
+- [PostgreSQL Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html)
+- [PostgreSQL Unique Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-UNIQUE-CONSTRAINTS)
+
+### Evidence Summary
+
+The user-flow sketch documents the planned cashier journey. The investigation Issue compares two inventory-deduction approaches. The official PostgreSQL documentation confirms that the selected database supports atomic transactions, row locking, and unique constraints required to prevent partial or duplicate inventory deductions.
+
+## 18. Confirmed Technical Direction
+
+The current planned stack is:
+
+- **Frontend:** React, TypeScript, and Vite
+- **Backend:** FastAPI
+- **Database:** PostgreSQL
+- **Development environment:** Docker Compose
+
+This choice may be reviewed if the team’s implementation investigations identify a major limitation.
