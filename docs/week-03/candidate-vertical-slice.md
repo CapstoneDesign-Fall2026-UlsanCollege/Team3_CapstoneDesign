@@ -34,9 +34,9 @@ This is a planning candidate, not a promise that the whole feature will be built
 
 | Issue | Owner | Definition of Done |
 |---|---|---|
-| Create order and calculate total | TBD | A user can select menu items and quantities, and the backend calculates the total using the stored menu prices. A test confirms that the calculated total is correct. |
-| Simulate payment and update order status | TBD | An order can be submitted for simulated payment, receives a unique order ID, and changes to `paid` after successful payment. |
-| Deduct recipe inventory after payment | TBD | When an order becomes `paid`, the required recipe ingredients are deducted from inventory. A Latte test confirms the correct ingredients are deducted, and `inventory_deducted` prevents duplicate deduction. |
+| Create order and calculate total | Lama Muskan | A user can select menu items and quantities, and the backend calculates the total using the stored menu prices. A test confirms that the calculated total is correct. |
+| Simulate payment and update order status | Hyolmo Sherap | An order can be submitted for simulated payment, receives a unique order ID, and changes to `paid` after successful payment. |
+| Deduct recipe inventory after payment | Lama Muskan | When an order becomes `paid`, the required recipe ingredients are deducted from inventory. A Latte test confirms the correct ingredients are deducted, and `inventory_deducted` prevents duplicate deduction. |
 
 ## Biggest Risk or Uncertainty
 
@@ -46,7 +46,7 @@ What could prevent this path from working, and what is the smallest test that wo
 >
 > **Smallest test:** Create one Latte order, simulate payment, verify that the order becomes `paid`, and confirm that the correct Latte ingredients are deducted exactly once.
 >
-> **Owner:** TBD
+> **Owner:** Lama Muskan
 
 ## Evidence Links
 
