@@ -18,4 +18,5 @@ class OrderCreate(BaseModel):
 
 
 class PaymentCreate(BaseModel):
+    result: str = Field(default="paid", pattern="^(paid|failed)$")
     method: str = Field(pattern="^(cash|card|qr)$")

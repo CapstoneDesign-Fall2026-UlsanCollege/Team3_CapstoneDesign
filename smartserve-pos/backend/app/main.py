@@ -39,6 +39,13 @@ def list_menu(db: Session = Depends(get_db)):
     return db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
 
 
+def inventory_was_deducted(order_id: int, db: Session) -> bool:
+    # The durable movement ledger is the source of truth; no schema migration needed.
+    return db.scalar(select(models.InventoryMovement.id).where(
+        models.InventoryMovement.order_id == order_id
+    ).limit(1)) is not None
+
+
 def order_view(order: models.Order, db: Session) -> dict:
     lines = db.scalars(select(models.OrderItem).where(models.OrderItem.order_id == order.id)).all()
     menu = {item.id: item for item in db.scalars(select(models.MenuItem).where(models.MenuItem.id.in_([line.menu_item_id for line in lines]))).all()} if lines else {}
@@ -47,6 +54,7 @@ def order_view(order: models.Order, db: Session) -> dict:
         "id": order.id,
         "order_type": order.order_type,
         "status": order.status,
+        "inventory_deducted": inventory_was_deducted(order.id, db),
         "total": float(order.total),
         "created_at": order.created_at,
         "paid_at": order.paid_at,
@@ -89,8 +97,11 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.status == "paid":
-        return {"message": "Order was already paid; inventory was not deducted again.", "order": order_view(order, db)}
+    inventory_deducted = inventory_was_deducted(order.id, db)
+    if order.status == "paid" or inventory_deducted:
+        raise HTTPException(status_code=409, detail="This order has already been processed. Inventory was not deducted again.")
+    if payload.result == "failed":
+        raise HTTPException(status_code=402, detail="Simulated payment failed. Inventory is unchanged; you can retry this order.")
 
     lines = db.scalars(select(models.OrderItem).where(models.OrderItem.order_id == order.id)).all()
     quantities_by_menu: dict[int, int] = {}
@@ -101,19 +112,20 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     for recipe in recipe_rows:
         required[recipe.ingredient_id] = required.get(recipe.ingredient_id, Decimal("0")) + Decimal(str(recipe.quantity)) * quantities_by_menu[recipe.menu_item_id]
 
-    ingredients = db.scalars(select(models.Ingredient).where(models.Ingredient.id.in_(required)).with_for_update()).all()
+    ingredients = db.scalars(select(models.Ingredient).where(models.Ingredient.id.in_(required)).order_by(models.Ingredient.id).with_for_update()).all()
     ingredient_by_id = {ingredient.id: ingredient for ingredient in ingredients}
     shortages = [f"{ingredient_by_id[i].name} needs {amount}{ingredient_by_id[i].unit}" for i, amount in required.items() if Decimal(str(ingredient_by_id[i].stock_quantity)) < amount]
     if shortages:
         raise HTTPException(status_code=409, detail={"message": "Insufficient inventory", "shortages": shortages})
 
+    # Successful simulated payment and stock changes commit atomically.
+    order.status = "paid"
+    order.paid_at = datetime.now(timezone.utc)
     for ingredient_id, amount in required.items():
         ingredient = ingredient_by_id[ingredient_id]
         ingredient.stock_quantity = Decimal(str(ingredient.stock_quantity)) - amount
         db.add(models.InventoryMovement(ingredient_id=ingredient_id, order_id=order.id, quantity_change=-amount, reason="paid_order"))
     db.add(models.Payment(order_id=order.id, method=payload.method, amount=order.total, simulated_reference=f"SIM-{uuid4().hex[:10].upper()}"))
-    order.status = "paid"
-    order.paid_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(order)
     return {"message": "Simulated payment successful. Ingredients deducted once.", "order": order_view(order, db)}
