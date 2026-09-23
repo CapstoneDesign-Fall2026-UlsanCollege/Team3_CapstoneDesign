@@ -1,0 +1,28 @@
+{
+  "runAt": "2026-09-23T06:34:01.170Z",
+  "database": "isolated PostgreSQL 16",
+  "results": [
+    {
+      "test": "10 concurrent payments",
+      "order": 1,
+      "success": 1,
+      "duplicateRejected": 9,
+      "result": "PASS"
+    },
+    {
+      "test": "failed payment then successful retry",
+      "order": 2,
+      "result": "PASS"
+    },
+    {
+      "test": "three rapid Pay clicks",
+      "ordersCreated": 1,
+      "result": "PASS"
+    },
+    {
+      "test": "refresh after server payment, then retry same order",
+      "order": 4,
+      "result": "PASS"
+    }
+  ]
+}
