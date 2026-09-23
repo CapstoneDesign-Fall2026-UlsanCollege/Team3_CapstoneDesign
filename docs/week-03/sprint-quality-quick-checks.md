@@ -5,10 +5,10 @@ Complete the section for your current sprint at its final class meeting. These a
 ## Sprint 0 - Launch and Scope (Week 3)
 
 * [x] Every member can access the repository and board.
-* [ ] Meaningful work has an Issue, owner, and Definition of Done.
+* [x] Meaningful work has an Issue, owner, and Definition of Done.
 * [x] The project purpose, target user, and scope boundary are visible.
 * [x] The team agreement is linked and current.
-* [ ] No personal data, secrets, or unapproved real-user data has been posted.
+* [x] No personal data, secrets, or unapproved real-user data has been posted.
 
 ### Sprint 0 Evidence
 
