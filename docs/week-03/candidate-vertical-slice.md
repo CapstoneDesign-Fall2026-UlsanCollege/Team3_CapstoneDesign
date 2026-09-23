@@ -1,13 +1,14 @@
-
 # Candidate Vertical Slice — Week 3
 
-**Team:** Team 3  
-**Project:** SmartServe POS  
-**Last updated:** September 21, 2026
+**Team:** Team 3
+**Project:** SmartServe POS
+**Last updated:** September 23, 2026
 
 This is a planning candidate, not a promise that the whole feature will be built. Revisit it in Week 5 when the implementation plan is more detailed.
 
 ## Midterm Demo Sentence
+
+At the midterm demo, the team will demonstrate a complete SmartServe order flow: selecting menu items and quantities, calculating the total from stored menu prices, simulating payment, changing the order status to `paid`, and deducting the required recipe ingredients from inventory exactly once.
 
 ## User Path
 
@@ -17,26 +18,26 @@ This is a planning candidate, not a promise that the whole feature will be built
 
 ## In Scope for This Slice
 
-- Create an order with menu items and quantities.
-- Calculate the total using the stored menu price.
-- Simulate payment and change the order status to `paid`.
-- Deduct the required recipe ingredients from inventory after successful payment.
-- Prevent inventory from being deducted more than once for the same order.
+* Create an order with menu items and quantities.
+* Calculate the total using the stored menu price.
+* Simulate payment and change the order status to `paid`.
+* Deduct the required recipe ingredients from inventory after successful payment.
+* Prevent inventory from being deducted more than once for the same order.
 
 ## Out of Scope for This Slice
 
-- Real payment gateway integration.
-- Customer accounts or loyalty features.
-- Advanced inventory management or supplier management.
-- Full production-ready UI design.
+* Real payment gateway integration.
+* Customer accounts or loyalty features.
+* Advanced inventory management or supplier management.
+* Full production-ready UI design.
 
 ## First Three Build Issues
 
-| Issue | Owner | Definition of Done |
-|---|---|---|
-| Create order and calculate total | Lama Muskan | A user can select menu items and quantities, and the backend calculates the total using the stored menu prices. A test confirms that the calculated total is correct. |
-| Simulate payment and update order status | Hyolmo Sherap | An order can be submitted for simulated payment, receives a unique order ID, and changes to `paid` after successful payment. |
-| Deduct recipe inventory after payment | Lama Muskan | When an order becomes `paid`, the required recipe ingredients are deducted from inventory. A Latte test confirms the correct ingredients are deducted, and `inventory_deducted` prevents duplicate deduction. |
+| Issue                                    | Owner         | Definition of Done                                                                                                                                                                                            |
+| ---------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create order and calculate total         | Lama Muskan   | A user can select menu items and quantities, and the backend calculates the total using the stored menu prices. A test confirms that the calculated total is correct.                                         |
+| Simulate payment and update order status | Hyolmo Sherap | An order can be submitted for simulated payment, receives a unique order ID, and changes to `paid` after successful payment.                                                                                  |
+| Deduct recipe inventory after payment    | Lama Muskan   | When an order becomes `paid`, the required recipe ingredients are deducted from inventory. A Latte test confirms the correct ingredients are deducted, and `inventory_deducted` prevents duplicate deduction. |
 
 ## Biggest Risk or Uncertainty
 
@@ -50,16 +51,19 @@ What could prevent this path from working, and what is the smallest test that wo
 
 ## Evidence Links
 
-- Issue list:
-- Wireframe:
-- Architecture sketch:
-- Stack comparison:
+* Issue #8: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/8
+* Issue #9: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/9
+* Issue #10: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/10
+* Issue #14: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/14
+* Wireframe: Three screens covering menu selection, order/payment, and payment completion/inventory update.
+* Architecture sketch: To be linked when the team's architecture sketch is finalized.
+* Stack comparison: To be linked to the team's stack comparison document.
 
 ## Week 5 Restart Move
 
 When this candidate becomes an implementation plan, the team will:
 
-- break the path into build Issues;
-- confirm owners and Definitions of Done;
-- name the shared preview or test path; and
-- update the risk and bridge task.
+* break the path into build Issues;
+* confirm owners and Definitions of Done;
+* name the shared preview or test path; and
+* update the risk and bridge task.
