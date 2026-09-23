@@ -2,9 +2,7 @@
 
 **Team:** Team 3
 **Project:** SmartServe POS
-**Last updated:** September 23, 2026
-
-This is a planning candidate, not a promise that the whole feature will be built. Revisit it in Week 5 when the implementation plan is more detailed.
+**Last updated:** September 23, 202
 
 ## Midterm Demo Sentence
 
