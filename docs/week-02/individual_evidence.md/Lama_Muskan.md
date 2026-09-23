@@ -16,10 +16,10 @@ Post 2–3 receipts per week when contribution tracking matters.
 
 ## Receipt 2
 
-- **What I did:** Designed a practical test scenario to verify SmartServe's order-total calculation and how the total responds to quantity changes and item removal.
-- **Evidence link:** [SmartServe Order Total Calculation Issue](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/4#issue-5426348197)
-- **How I checked it:** Defined a test using 2 Latte items at ₩4,000 each and 1 Americano at ₩3,000. The expected initial total is ₩11,000. I then planned to change the Latte quantity to 3, remove the Americano, and verify that the final total becomes ₩12,000 and matches the simulated payment amount.
-- **What I learned or changed:** I established the expected calculation and identified that the displayed total should update whenever the quantity changes or an item is removed. The final amount used for simulated payment should match the calculated order total.
+* **What I did:** Reviewed the payment and inventory protection approach and identified the remaining testing needed to verify that inventory is not deducted more than once.
+* **Evidence link:** [SmartServePOS Industry Standards Issue #17](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/17)
+* **How I checked it:** Reviewed the current approach using payment status checks, database transactions, row locks, and unique database constraints. I also identified repeated payment and insufficient-stock scenarios that should be tested.
+* **What I learned or changed:** I confirmed that the current implementation does not use an `inventory_deducted` field. Instead, duplicate protection is handled through the paid-status check, transaction handling, row locking, and database constraints. The remaining verification should be recorded through repeatable tests before claiming the protection has been fully demonstrated.
 
 ## Receipt 3, optional
 
