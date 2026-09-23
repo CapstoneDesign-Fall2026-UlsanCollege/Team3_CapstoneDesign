@@ -5,7 +5,7 @@
 
 ## One-sentence architecture
 
-SmartServe uses a **React + TypeScript + Vite frontend**, a **Django REST API backend**, **PostgreSQL for persistent data**, and **Docker for consistent development and deployment environments**.
+SmartServe uses a **React + TypeScript + Vite frontend**, a **Fast API backend**, **PostgreSQL for persistent data**, and **Docker for consistent development and deployment environments**.
 
 ## How the product works
 
@@ -33,8 +33,8 @@ flowchart TD
         Payment["Payment / Order Status"]
     end
 
-    subgraph Backend ["Django + Django REST Framework"]
-        API["REST API"]
+    subgraph Backend ["Fast API + Fast API REST Framework"]
+        API["Fast API"]
         OrderService["Order & Total Calculation"]
         PaymentService["Payment Simulation"]
         InventoryService["Inventory Deduction"]
@@ -70,7 +70,7 @@ flowchart TD
 | Recipe / Inventory | Deducts the required recipe ingredients after successful payment. | Sherap | Incorrect recipe data could cause incorrect inventory deductions. |
 | Duplicate Prevention | Uses `inventory_deducted` to prevent inventory from being deducted more than once. | Lama Muskan | Duplicate requests could cause inventory to be deducted multiple times if not handled correctly. |
 | Database | Stores menu items, prices, orders, order items, recipes, and inventory data. | Sujita | Database relationships and transactions must remain consistent. |
-| REST API | Connects the frontend with the backend and handles order, payment, and inventory operations. | Shreya | API validation and error handling need to be implemented correctly. |
+| Fast API | Connects the frontend with the backend and handles order, payment, and inventory operations. | Shreya | API validation and error handling need to be implemented correctly. |
 
 ## Data flow for the vertical slice
 
@@ -107,8 +107,8 @@ Menu Items + Quantities
 | Layer | Technology | Purpose |
 |---|---|---|
 | Frontend | React + TypeScript + Vite | POS interface and user interaction |
-| Backend | Django | Server-side application logic |
-| API | Django REST Framework | Communication between frontend and backend |
+| Backend | Fast API | Server-side application logic |
+| API | Fast API REST Framework | Communication between frontend and backend |
 | Database | PostgreSQL | Persistent storage for menu, orders, recipes, and inventory |
 | Containerization | Docker | Consistent development and deployment environment |
 | Version Control | Git + GitHub | Source control and team collaboration |
@@ -126,7 +126,7 @@ Menu Items + Quantities
 | Decision | Why | Risk |
 |---|---|---|
 | React + TypeScript + Vite for frontend | Provides a modern frontend structure suitable for a POS interface and supports TypeScript type safety. | Team needs to maintain clear frontend/backend API boundaries. |
-| Django + Django REST Framework | Provides backend logic and a REST API for communicating with the frontend. | API design and validation need to be implemented consistently. |
+| Fast API + Fast API REST Framework | Provides backend logic and a REST API for communicating with the frontend. | API design and validation need to be implemented consistently. |
 | PostgreSQL | Suitable for relational data such as menu items, orders, order items, recipes, and inventory. | Database relationships need to be designed correctly. |
 | Backend calculates the order total | Prevents the frontend from being the source of truth for menu prices. | Backend must retrieve the correct stored menu prices. |
 | Inventory deducted after successful payment | Prevents inventory from being deducted for unpaid orders. | Payment and inventory operations must be handled reliably. |
