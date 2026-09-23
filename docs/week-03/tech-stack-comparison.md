@@ -6,8 +6,6 @@
 
 **Week:** 3
 
-Compare two buildable stacks for the SmartServe POS midterm path.
-
 ## Comparison table
 
 | Criteria | Stack A: React + FastAPI + PostgreSQL | Stack B: Django full stack + PostgreSQL |
