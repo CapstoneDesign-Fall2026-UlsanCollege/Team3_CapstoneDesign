@@ -37,7 +37,7 @@ Define a small midterm demo path, describe its main screens, and connect the Wee
 | Sherap Hyolmo | Added the SmartServe POS prototype and documented the payment and inventory approach. | [MVP commit `c78af82`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c78af82); [Week 2 individual receipt](../week-02/individual_evidence.md/sherap_Hyolmo.md). Confirm the Week 3 ownership split before submission. |
 | Lama Muskan | Proposed owner for order creation and inventory deduction. Week 3 contribution receipt pending. | Add a Week 3 issue, commit, review, or test link. |
 | Ualson Tamang | Week 3 contribution receipt pending. | Add an issue, sketch, review, or research link. |
-| Shuzita Majhi | Week 3 contribution receipt pending. | Add a screen sketch, review, or documentation link. |
+| Shuzita Majhi | Created the Week 4 Chuseok checkpoint, linking the sketches, midterm-demo sentence, Week 5 question, and first action after the break. | [Chuseok checkpoint](../week-04-chuseok/chuseok-checkpoint.md) |
 | Shreya | Proposed verification support. Week 3 contribution receipt pending. | Add a test note, issue, or review link. |
 
 ## Blockers or risks
