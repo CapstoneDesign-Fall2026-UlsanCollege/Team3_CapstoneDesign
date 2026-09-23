@@ -1,71 +1,69 @@
 # Candidate Vertical Slice — Week 3
 
 **Team:** Team 3
-
 **Project:** SmartServe POS
+**Last updated:** September 23, 2026
 
-**Last updated:** 2026-09-22
+This is a planning candidate, not a promise that the whole feature will be built. Revisit it in Week 5 when the implementation plan is more detailed.
 
-This is a planning candidate for the midterm demonstration. The Week 5 implementation plan should confirm its scope, owners, tests, and shared preview path.
+## Midterm Demo Sentence
 
-## Midterm demo sentence
+At the midterm demo, the team will demonstrate a complete SmartServe order flow: selecting menu items and quantities, calculating the total from stored menu prices, simulating payment, changing the order status to `paid`, and deducting the required recipe ingredients from inventory exactly once.
 
-> A cashier creates a two-latte order, completes a simulated payment, sees a receipt, and verifies that the correct milk and coffee quantities were deducted once and the sale appears on the daily dashboard.
+## User Path
 
-## User path
+1. The user selects menu items and quantities to create an order.
+2. The system calculates the order total using the stored menu prices and creates a unique order.
+3. The user can see the order total, simulate payment, and see the order status change to `paid` while the required inventory is deducted.
 
-1. The cashier selects menu items and quantities and creates an order.
-2. The backend calculates the total from stored menu prices and creates a unique order ID.
-3. The cashier completes a simulated payment and sees the order status change to `paid`.
-4. The receipt appears; recipe ingredients are deducted once and the sale appears on the daily dashboard.
+## In Scope for This Slice
 
-## In scope for this slice
+* Create an order with menu items and quantities.
+* Calculate the total using the stored menu price.
+* Simulate payment and change the order status to `paid`.
+* Deduct the required recipe ingredients from inventory after successful payment.
+* Prevent inventory from being deducted more than once for the same order.
 
-- Create an order with menu items and quantities.
-- Calculate the total using stored menu prices.
-- Simulate payment and mark the order `paid`.
-- Show a receipt and the resulting daily sale.
-- Deduct the required recipe ingredients after payment, exactly once per order and ingredient.
+## Out of Scope for This Slice
 
-## Out of scope for this slice
+* Real payment gateway integration.
+* Customer accounts or loyalty features.
+* Advanced inventory management or supplier management.
+* Full production-ready UI design.
 
-- Real payment gateway integration.
-- Customer accounts or loyalty features.
-- Supplier management and advanced inventory management.
-- Production-ready interface design.
+## First Three Build Issues
 
-## First three build issues
+| Issue                                    | Owner         | Definition of Done                                                                                                                                                                                            |
+| ---------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create order and calculate total         | Lama Muskan   | A user can select menu items and quantities, and the backend calculates the total using the stored menu prices. A test confirms that the calculated total is correct.                                         |
+| Simulate payment and update order status | Hyolmo Sherap | An order can be submitted for simulated payment, receives a unique order ID, and changes to `paid` after successful payment.                                                                                  |
+| Deduct recipe inventory after payment    | Lama Muskan   | When an order becomes `paid`, the required recipe ingredients are deducted from inventory. A Latte test confirms the correct ingredients are deducted, and `inventory_deducted` prevents duplicate deduction. |
 
-These are proposed issue scopes. Link the actual GitHub issues when they exist.
+## Biggest Risk or Uncertainty
 
-| Issue | Proposed owner | Definition of done |
-|---|---|---|
-| Create order and calculate total | Lama Muskan | A cashier can select menu items and quantities. The backend calculates the total from stored prices, and a check confirms the expected total. |
-| Simulate payment and update order status | Sherap Hyolmo | A created order can receive a simulated payment, becomes `paid`, and returns a receipt. A repeated payment request returns the existing paid order. |
-| Deduct recipe inventory after payment | Lama Muskan | A two-latte payment deducts the expected recipe quantities once. A repeated request creates no extra payment or inventory movement. Insufficient stock prevents payment. |
+What could prevent this path from working, and what is the smallest test that would reduce the uncertainty?
 
-## Biggest risk or uncertainty
-
-> **Risk:** Order payment, recipe data, and stock updates could become inconsistent or deduct ingredients twice.
+> **Risk:** The order, payment status, recipe information, and inventory deduction may not be connected correctly, which could cause incorrect totals or duplicate inventory deductions.
 >
-> **Smallest check:** Record the initial stock, pay for two lattes, compare the final stock with the recipe quantities, and repeat the payment request.
+> **Smallest test:** Create one Latte order, simulate payment, verify that the order becomes `paid`, and confirm that the correct Latte ingredients are deducted exactly once.
 >
-> **Proposed owner:** Lama Muskan, with Sherap Hyolmo supporting payment handling and Shreya supporting verification.
+> **Owner:** Lama Muskan
 
-The current backend uses a transaction, row locks, and unique database constraints for this rule. The check above still needs a recorded result.
+## Evidence Links
 
-## Evidence links
+* Issue #8: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/8
+* Issue #9: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/9
+* Issue #10: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/10
+* Issue #14: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/14
+* Wireframe: Three screens covering menu selection, order/payment, and payment completion/inventory update.
+* Architecture sketch: To be linked when the team's architecture sketch is finalized.
+* Stack comparison: To be linked to the team's stack comparison document.
 
-- [Design Doc v1](../week-02/design-doc-v1.md)
-- [User-flow sketch](../week-02/user-flow-sketch.png)
-- [SmartServe MVP README](../../smartserve-pos/README.md)
-- [Backend order and payment implementation](../../smartserve-pos/backend/app/main.py)
-- [Cashier, inventory, and owner screens](../../smartserve-pos/frontend/src/main.tsx)
-- GitHub build issue list: link after issue scopes and ownership are confirmed.
-- Demo or test result: link after the slice is run and recorded.
+## Week 5 Restart Move
 
-## Week 5 restart move
+When this candidate becomes an implementation plan, the team will:
 
-- Confirm the build issues, owners, and definitions of done.
-- Record a shared run or preview path and the two-latte test result.
-- Update the risk and next bridge task based on that result.
+* break the path into build Issues;
+* confirm owners and Definitions of Done;
+* name the shared preview or test path; and
+* update the risk and bridge task.
