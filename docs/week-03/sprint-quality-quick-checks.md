@@ -21,7 +21,7 @@ The primary target users are restaurant staff who need to create and process cus
 **Scope boundary:**
 The initial scope focuses on the core order workflow:
 
-> Select menu item → Create order → Calculate total → Simulated payment → Mark order as paid → Deduct inventory → Generate unique order ID.
+> Select menu item → Calculate total and create order with a unique ID → Successful simulated payment → Mark order as paid and deduct inventory once.
 
 The initial Sprint 0 scope does not include real payment gateway integration, advanced restaurant management, loyalty systems, complex reporting, or other features outside the candidate vertical slice.
 
@@ -29,7 +29,9 @@ The initial Sprint 0 scope does not include real payment gateway integration, ad
 The first implementation work is divided into GitHub Issues covering the menu, order/cart flow, order totals, simulated payment, inventory deduction, and order recording.
 
 **Team agreement:**
-The team agreement is maintained as part of the project documentation and is used to guide responsibilities and collaboration.
+The [team working agreement](../week-01/team-working-agreement.md) is maintained as part of the project documentation and is used to guide responsibilities and collaboration.
+
+**Linked evidence:** [work checklist](week-03-work-checklist.md), [Sprint 0 report](sprint-0-report.md), [shared Weekly Report](weekly-report.md), and [Issue #3 test results](issue-3-test-results.md). The backend tests and frontend build passed locally; browser and PostgreSQL concurrency verification remain pending. Existing checked boxes reflect the team's submitted checklist and have not been independently reverified here.
 
 **Data and security check:**
 The team will use safe demo/sample data during development. No real customer information, passwords, payment information, API keys, or other private credentials should be included in GitHub evidence.

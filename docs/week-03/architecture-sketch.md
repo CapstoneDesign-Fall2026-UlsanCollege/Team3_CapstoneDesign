@@ -3,16 +3,20 @@
 **Team:** Team 3  
 **Project:** SmartServe POS   
 
+**Stack clarification (2026-09-23):** The latest team update confirms FastAPI, matching the [backend implementation](../../smartserve-pos/backend/app/main.py) and [Week 3 stack comparison](tech-stack-comparison.md). The backend uses SQLAlchemy to access PostgreSQL.
+
+**Inventory clarification:** The local Issue #3 update derives `inventory_deducted` from recorded inventory movements. Payment, stock changes, and movement records commit together. See [test results and remaining checks](issue-3-test-results.md).
+
 ## One-sentence architecture
 
-SmartServe uses a **React + TypeScript + Vite frontend**, a **Fast API backend**, **PostgreSQL for persistent data**, and **Docker for consistent development and deployment environments**.
+SmartServe uses a **React + TypeScript + Vite frontend**, a **FastAPI backend**, **PostgreSQL for persistent data**, and **Docker for consistent development and deployment environments**.
 
 ## How the product works
 
 | Step | What happens |
 |---|---|
 | 1 | Staff selects menu items and quantities from the POS interface. |
-| 2 | The frontend sends the selected items and quantities to the Django REST API. |
+| 2 | The frontend sends the selected items and quantities to the FastAPI REST API. |
 | 3 | The backend retrieves the stored menu prices and calculates the order total. |
 | 4 | The backend creates a unique order and stores the order information. |
 | 5 | The user simulates payment for the order. |
@@ -33,8 +37,8 @@ flowchart TD
         Payment["Payment / Order Status"]
     end
 
-    subgraph Backend ["Fast API + Fast API REST Framework"]
-        API["Fast API"]
+    subgraph Backend ["FastAPI + SQLAlchemy"]
+        API["FastAPI"]
         OrderService["Order & Total Calculation"]
         PaymentService["Payment Simulation"]
         InventoryService["Inventory Deduction"]
@@ -70,7 +74,7 @@ flowchart TD
 | Recipe / Inventory | Deducts the required recipe ingredients after successful payment. | Sherap | Incorrect recipe data could cause incorrect inventory deductions. |
 | Duplicate Prevention | Uses `inventory_deducted` to prevent inventory from being deducted more than once. | Lama Muskan | Duplicate requests could cause inventory to be deducted multiple times if not handled correctly. |
 | Database | Stores menu items, prices, orders, order items, recipes, and inventory data. | Sujita | Database relationships and transactions must remain consistent. |
-| Fast API | Connects the frontend with the backend and handles order, payment, and inventory operations. | Shreya | API validation and error handling need to be implemented correctly. |
+| FastAPI | Connects the frontend with the backend and handles order, payment, and inventory operations. | Shreya | API validation and error handling need to be implemented correctly. |
 
 ## Data flow for the vertical slice
 
@@ -107,8 +111,8 @@ Menu Items + Quantities
 | Layer | Technology | Purpose |
 |---|---|---|
 | Frontend | React + TypeScript + Vite | POS interface and user interaction |
-| Backend | Fast API | Server-side application logic |
-| API | Fast API REST Framework | Communication between frontend and backend |
+| Backend | FastAPI | Server-side application logic |
+| API | FastAPI REST endpoints | Communication between frontend and backend |
 | Database | PostgreSQL | Persistent storage for menu, orders, recipes, and inventory |
 | Containerization | Docker | Consistent development and deployment environment |
 | Version Control | Git + GitHub | Source control and team collaboration |
@@ -117,16 +121,16 @@ Menu Items + Quantities
 
 - Architecture diagram: this document
 - Candidate Vertical Slice: [candidate-vertical-slice.md](candidate-vertical-slice.md)
-- Tech Stack Comparison: [Stack Comparison](../week-02/stack-comparison.md)
+- Tech Stack Comparison: [Week 3 Stack Comparison](tech-stack-comparison.md)
 - GitHub Issues: [Issues Board](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues)
-- Wireframe: To be added after the three wireframe screens are completed.
+- Wireframes: [screen descriptions and three sketches](wireframe-notes.md).
 
 ## Important decisions
 
 | Decision | Why | Risk |
 |---|---|---|
 | React + TypeScript + Vite for frontend | Provides a modern frontend structure suitable for a POS interface and supports TypeScript type safety. | Team needs to maintain clear frontend/backend API boundaries. |
-| Fast API + Fast API REST Framework | Provides backend logic and a REST API for communicating with the frontend. | API design and validation need to be implemented consistently. |
+| FastAPI + SQLAlchemy | Provides backend logic and a REST API for communicating with the frontend. | API design and validation need to be implemented consistently. |
 | PostgreSQL | Suitable for relational data such as menu items, orders, order items, recipes, and inventory. | Database relationships need to be designed correctly. |
 | Backend calculates the order total | Prevents the frontend from being the source of truth for menu prices. | Backend must retrieve the correct stored menu prices. |
 | Inventory deducted after successful payment | Prevents inventory from being deducted for unpaid orders. | Payment and inventory operations must be handled reliably. |

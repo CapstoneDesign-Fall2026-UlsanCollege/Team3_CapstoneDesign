@@ -32,14 +32,14 @@ Team 3 has selected SmartServe POS, defined a candidate midterm path, and built 
 |---|---|---|
 | Team repository and Project board work | [Team repository](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign), [Team 3 Project board](https://github.com/orgs/CapstoneDesign-Fall2026-UlsanCollege/projects/4) | Repository and board are recorded in the Week 1 report; current board state needs confirmation. |
 | Team Working Agreement is linked and current | [Team Working Agreement](../week-01/team-working-agreement.md) | Document exists; team should confirm it is still current. |
-| Six to ten next-work Issues exist | Add GitHub Issues link | Issues exist according to the team; count and links need verification. |
-| Important Issues have first owners | Add GitHub Issues link | Pending verification of issue assignees. |
+| Six to ten next-work Issues exist | [Team Issues](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues) | Issues exist according to the team; count and links need verification. |
+| Important Issues have first owners | [Team Issues](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues) | Pending verification of issue assignees. |
 | At least three Issues have a checkable Definition of Done | [Candidate Vertical Slice](candidate-vertical-slice.md), [duplicate-deduction investigation #2](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/2), [implementation issue #3](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/3) | Two issue Definitions of Done were provided. A third issue Definition of Done is pending. |
 | Tech stack comparison is recorded | [Tech Stack Comparison](tech-stack-comparison.md) | Two stacks and the selected FastAPI stack are documented; team review link remains pending. |
 | Rough wireframe placeholders are linked | [Wireframe Notes](wireframe-notes.md), [cashier wireframe](wireframe-Landing-page.jpg), [inventory wireframe](wireframe-Inventory.jpg), [owner dashboard wireframe](wireframe-Owner-dashboard.jpg) | Three pen-drawn screen wireframes are linked; prototype screenshots or a recorded demo are pending. |
-| Rough architecture placeholder is linked | [Architecture Sketch](architecture-sketch.md) | Complete as a planning sketch. |
+| Rough architecture placeholder is linked | [Architecture Sketch](architecture-sketch.md) | Planning sketch reflects the latest team FastAPI update and matches the current prototype. |
 | Candidate vertical slice is linked | [Candidate Vertical Slice](candidate-vertical-slice.md) | Complete as a planning candidate. |
-| Sprint 0 Quality Quick Checks are complete | Add check document or result link | Pending: no recorded quick-check result is linked here. |
+| Sprint 0 Quality Quick Checks are complete | [Quality Quick Checks](sprint-quality-quick-checks.md), [Issue #3 test results](issue-3-test-results.md) | Checklist linked; unchecked items remain pending. Five backend tests and the frontend build passed locally. |
 | Week 3 Weekly Report is complete | [Week 3 Weekly Report](weekly-report.md) | Draft exists; demo results and individual evidence remain pending. |
 
 ## Candidate vertical slice

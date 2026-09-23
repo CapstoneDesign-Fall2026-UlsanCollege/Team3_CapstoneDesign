@@ -55,9 +55,10 @@ What could prevent this path from working, and what is the smallest test that wo
 * Issue #9: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/9
 * Issue #10: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/10
 * Issue #14: https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/14
-* Wireframe: Three screens covering menu selection, order/payment, and payment completion/inventory update.
-* Architecture sketch: To be linked when the team's architecture sketch is finalized.
-* Stack comparison: To be linked to the team's stack comparison document.
+* Wireframes: [screen notes](wireframe-notes.md), [cashier](wireframe-Landing-page.jpg), [inventory](wireframe-Inventory.jpg), and [owner dashboard](wireframe-Owner-dashboard.jpg).
+* Architecture sketch: [architecture and confirmed stack](architecture-sketch.md).
+* Stack comparison: [Week 3 comparison](tech-stack-comparison.md).
+* Inventory/payment verification: [Issue #3 local test results](issue-3-test-results.md); browser and PostgreSQL concurrency checks remain pending.
 
 ## Week 5 Restart Move
 
