@@ -15,6 +15,7 @@ function deduction(before, after, count = 1) {
   assert.equal(before['Coffee beans'] - after['Coffee beans'], 18 * count);
 }
 async function main() {
+  fs.mkdirSync(path.join(__dirname, 'screenshots'), {recursive:true});
   assert.equal((await request('/health')).status, 200);
   const menu = (await request('/menu')).body;
   const latte = menu.find(i => i.name.includes('Latte'));
@@ -47,7 +48,7 @@ async function main() {
     await page.getByRole('heading',{name:/Receipt #/}).waitFor();
     assert.equal(created,1);
     deduction(before,await stock());
-    await page.screenshot({path:path.join(__dirname,'issue-3-paid-once.png'), fullPage:true});
+    await page.screenshot({path:path.join(__dirname,'screenshots/paid-once.png'), fullPage:true});
     results.push({test:'three rapid Pay clicks',ordersCreated:created,result:'PASS'});
 
     await page.getByRole('button',{name:/Caffè Latte/}).click();
@@ -75,10 +76,10 @@ async function main() {
     assert.equal(created,2);
     deduction(before,await stock());
     assert.equal(await page.evaluate(() => sessionStorage.getItem('smartserve.pendingOrder')),null);
-    await page.screenshot({path:path.join(__dirname,'issue-3-refresh-retry.png'),fullPage:true});
+    await page.screenshot({path:path.join(__dirname,'screenshots/refresh-retry.png'),fullPage:true});
     results.push({test:'refresh after server payment, then retry same order',order:Number(pending),result:'PASS'});
   } finally { await browser.close(); }
-  fs.writeFileSync(path.join(__dirname,'issue-3-live-results.json'),JSON.stringify({runAt:new Date().toISOString(),database:'isolated PostgreSQL 16',results},null,2)+'\n');
+  fs.writeFileSync(path.join(__dirname,'live-results.json'),JSON.stringify({runAt:new Date().toISOString(),database:'isolated PostgreSQL 16',results},null,2)+'\n');
   console.log(JSON.stringify(results,null,2));
 }
 main().catch(error => { console.error(error); process.exitCode=1; });

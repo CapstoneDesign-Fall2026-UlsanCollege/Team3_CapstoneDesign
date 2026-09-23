@@ -3,7 +3,7 @@
 **Date:** Thu 2026-09-17 to Wed 2026-09-23
 **Team:** Team 3 — SmartServe
 
-**Evidence navigation:** [Weekly Report](weekly-report.md) · [Sprint 0 Report](sprint-0-report.md) · [Quality Quick Checks](sprint-quality-quick-checks.md) · [Stack Comparison](tech-stack-comparison.md) · [Architecture](architecture-sketch.md) · [Wireframes](wireframe-notes.md) · [Candidate Slice](candidate-vertical-slice.md) · [Issue #3 tests](issue-3-test-results.md).
+**Evidence navigation:** [Weekly Report](weekly-report.md) · [Sprint 0 Report](sprint-0-report.md) · [Quality Quick Checks](sprint-quality-quick-checks.md) · [Stack Comparison](tech-stack-comparison.md) · [Architecture](architecture-sketch.md) · [Wireframes](wireframe-notes.md) · [Candidate Slice](candidate-vertical-slice.md) · [Issue #3 tests](issues/issue-03/README.md).
 
 Existing completion marks are retained from the team's submitted checklist. Open checks and ownership decisions still need team confirmation; linking a document does not mean all of its checks have passed.
 

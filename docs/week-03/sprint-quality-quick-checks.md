@@ -31,7 +31,7 @@ The first implementation work is divided into GitHub Issues covering the menu, o
 **Team agreement:**
 The [team working agreement](../week-01/team-working-agreement.md) is maintained as part of the project documentation and is used to guide responsibilities and collaboration.
 
-**Linked evidence:** [work checklist](week-03-work-checklist.md), [Sprint 0 report](sprint-0-report.md), [shared Weekly Report](weekly-report.md), and [Issue #3 test results](issue-3-test-results.md). The backend tests and frontend build passed locally; browser and PostgreSQL concurrency verification remain pending. Existing checked boxes reflect the team's submitted checklist and have not been independently reverified here.
+**Linked evidence:** [work checklist](week-03-work-checklist.md), [Sprint 0 report](sprint-0-report.md), [shared Weekly Report](weekly-report.md), and [Issue #3 test results](issues/issue-03/README.md). The backend tests and frontend build passed locally; browser and PostgreSQL concurrency verification remain pending. Existing checked boxes reflect the team's submitted checklist and have not been independently reverified here.
 
 **Data and security check:**
 The team will use safe demo/sample data during development. No real customer information, passwords, payment information, API keys, or other private credentials should be included in GitHub evidence.

@@ -56,7 +56,7 @@ What could prevent this path from working, and what is the smallest test that wo
 * Wireframes: [screen notes](wireframe-notes.md), [cashier](wireframe-Landing-page.jpg), [inventory](wireframe-Inventory.jpg), and [owner dashboard](wireframe-Owner-dashboard.jpg).
 * Architecture sketch: [architecture and confirmed stack](architecture-sketch.md).
 * Stack comparison: [Week 3 comparison](tech-stack-comparison.md).
-* Inventory/payment verification: [Issue #3 local test results](issue-3-test-results.md); browser and PostgreSQL concurrency checks remain pending.
+* Inventory/payment verification: [Issue #3 local test results](issues/issue-03/README.md); browser and PostgreSQL concurrency checks remain pending.
 
 ## Week 5 Restart Move
 

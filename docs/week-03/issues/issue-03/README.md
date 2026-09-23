@@ -2,6 +2,8 @@
 
 Date: 2026-09-23
 
+[GitHub Issue #3](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/3) · [Week 3 index](../../README.md) · [Weekly Report](../../weekly-report.md)
+
 Prepared for Team 3 / `daydevil80`. The initial unit-test evidence was pushed in commit `67cf5d0`. The live verification below was completed locally on 2026-09-23. Its results and screenshots are included alongside this report; attaching their links to Issue #3 remains pending.
 
 ## Implementation
@@ -16,7 +18,7 @@ Prepared for Team 3 / `daydevil80`. The initial unit-test evidence was pushed in
 
 ## Automated backend results
 
-Test source: [test_issue3.py](../../smartserve-pos/backend/test_issue3.py).
+Test source: [test_issue3.py](../../../../smartserve-pos/backend/test_issue3.py).
 
 Executed with Python 3.12, FastAPI 0.115.8, SQLAlchemy 2.0.38, and an isolated SQLite database. No application data was changed.
 
@@ -59,11 +61,11 @@ The isolated Docker Compose project `smartserve-issue3` ran the actual FastAPI s
 | Refresh after payment commits but before its response reaches the browser | Saved order ID reused; HTTP 409 displayed safely; original receipt recovered; stock deducted only once | PASS |
 | PostgreSQL payment and movement records | Each of the four tested orders has exactly one payment and two ingredient movements | PASS |
 
-Evidence: [machine-readable results](issue-3-live-results.json), [repeatable test script](verify-issue3.cjs), [rapid-click screenshot](issue-3-paid-once.png), and [refresh/retry screenshot](issue-3-refresh-retry.png).
+Evidence: [machine-readable results](live-results.json), [repeatable test script](verify.cjs), [rapid-click screenshot](screenshots/paid-once.png), and [refresh/retry screenshot](screenshots/refresh-retry.png).
 
-![Safe duplicate message and recovered original receipt](issue-3-refresh-retry.png)
+![Safe duplicate message and recovered original receipt](screenshots/refresh-retry.png)
 
-To repeat, start a separate test instance with `docker compose -p smartserve-issue3 up -d --build db api` from `smartserve-pos`, then start the frontend with `npm run dev -- --host 127.0.0.1`. Run `node docs/week-03/verify-issue3.cjs` from the repository root with Playwright available. `PLAYWRIGHT_MODULE` and `CHROMIUM_PATH` can point to an existing Playwright installation and Chromium executable. The test creates and pays four demo orders, so use only the isolated test instance with sufficient seeded stock.
+To repeat, start a separate test instance with `docker compose -p smartserve-issue3 up -d --build db api` from `smartserve-pos`, then start the frontend with `npm run dev -- --host 127.0.0.1`. Run `node docs/week-03/issues/issue-03/verify.cjs` from the repository root with Playwright available. `PLAYWRIGHT_MODULE` and `CHROMIUM_PATH` can point to an existing Playwright installation and Chromium executable. The test creates and pays four demo orders, so use only the isolated test instance with sufficient seeded stock.
 
 ## Definition of Done status
 

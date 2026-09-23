@@ -5,7 +5,7 @@
 
 **Stack clarification (2026-09-23):** The latest team update confirms FastAPI, matching the [backend implementation](../../smartserve-pos/backend/app/main.py) and [Week 3 stack comparison](tech-stack-comparison.md). The backend uses SQLAlchemy to access PostgreSQL.
 
-**Inventory clarification:** The local Issue #3 update derives `inventory_deducted` from recorded inventory movements. Payment, stock changes, and movement records commit together. See [test results and remaining checks](issue-3-test-results.md).
+**Inventory clarification:** The local Issue #3 update derives `inventory_deducted` from recorded inventory movements. Payment, stock changes, and movement records commit together. See [test results and remaining checks](issues/issue-03/README.md).
 
 ## One-sentence architecture
 

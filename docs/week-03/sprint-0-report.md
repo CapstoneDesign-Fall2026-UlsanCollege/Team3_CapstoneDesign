@@ -39,7 +39,7 @@ Team 3 has selected SmartServe POS, defined a candidate midterm path, and built 
 | Rough wireframe placeholders are linked | [Wireframe Notes](wireframe-notes.md), [cashier wireframe](wireframe-Landing-page.jpg), [inventory wireframe](wireframe-Inventory.jpg), [owner dashboard wireframe](wireframe-Owner-dashboard.jpg) | Three pen-drawn screen wireframes are linked; prototype screenshots or a recorded demo are pending. |
 | Rough architecture placeholder is linked | [Architecture Sketch](architecture-sketch.md) | Planning sketch reflects the latest team FastAPI update and matches the current prototype. |
 | Candidate vertical slice is linked | [Candidate Vertical Slice](candidate-vertical-slice.md) | Complete as a planning candidate. |
-| Sprint 0 Quality Quick Checks are complete | [Quality Quick Checks](sprint-quality-quick-checks.md), [Issue #3 test results](issue-3-test-results.md) | Checklist linked; unchecked items remain pending. Five backend tests and the frontend build passed locally. |
+| Sprint 0 Quality Quick Checks are complete | [Quality Quick Checks](sprint-quality-quick-checks.md), [Issue #3 test results](issues/issue-03/README.md) | Checklist linked; unchecked items remain pending. Five backend tests and the frontend build passed locally. |
 | Week 3 Weekly Report is complete | [Week 3 Weekly Report](weekly-report.md) | Draft exists; demo results and individual evidence remain pending. |
 
 ## Candidate vertical slice

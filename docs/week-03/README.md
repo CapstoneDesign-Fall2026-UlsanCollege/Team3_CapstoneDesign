@@ -12,7 +12,7 @@ Start with the team's [shared Weekly Report](weekly-report.md). Each member shou
 | [Candidate vertical slice](candidate-vertical-slice.md) | Small midterm demonstration path |
 | [Wireframe notes](wireframe-notes.md) | Three screen sketches and interactions |
 | [Risk or blocker](risk-or-blocker.md) | Payment/inventory risk and next actions |
-| [Issue #3 test results](issue-3-test-results.md) | Local test evidence and remaining verification |
+| [Issue #3 test results](issues/issue-03/README.md) | Local test evidence and remaining verification |
 
 ## Items still requiring team action
 
