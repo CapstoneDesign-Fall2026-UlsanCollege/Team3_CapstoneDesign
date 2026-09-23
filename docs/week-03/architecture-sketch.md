@@ -1,82 +1,145 @@
 # Architecture Sketch
 
-**Team:** Team 3
-
-**Project:** SmartServe POS
-
-**Last updated:** 2026-09-22
+**Team:** Team 3  
+**Project:** SmartServe POS   
 
 ## One-sentence architecture
 
-> **Frontend:** React, TypeScript, and Vite / **Backend:** FastAPI / **Data:** PostgreSQL through SQLAlchemy / **Local setup:** Docker Compose / **External services:** None in the current MVP
+SmartServe uses a **React + TypeScript + Vite frontend**, a **Django REST API backend**, **PostgreSQL for persistent data**, and **Docker for consistent development and deployment environments**.
 
-## Simple diagram
+## How the product works
 
-```text
-Cashier or manager
-       ↓
-SmartServe POS website
-       ↓
-React frontend
-  ├── Cashier order and receipt
-  ├── Ingredient inventory
-  └── Owner sales dashboard
-       ↓ HTTP requests
-FastAPI backend
-  ├── Menu and order endpoints
-  ├── Simulated payment and receipt data
-  ├── Recipe-based inventory deduction
-  └── Daily sales summary
-       ↓
-PostgreSQL
-  ├── Menu items and recipes
-  ├── Ingredients and stock
-  ├── Orders and order items
-  ├── Payments
-  └── Inventory movements
+| Step | What happens |
+|---|---|
+| 1 | Staff selects menu items and quantities from the POS interface. |
+| 2 | The frontend sends the selected items and quantities to the Django REST API. |
+| 3 | The backend retrieves the stored menu prices and calculates the order total. |
+| 4 | The backend creates a unique order and stores the order information. |
+| 5 | The user simulates payment for the order. |
+| 6 | The backend changes the order status to `paid`. |
+| 7 | After successful payment, the backend deducts the required recipe ingredients from inventory. |
+| 8 | The system uses `inventory_deducted` to prevent the same order from deducting inventory more than once. |
+| 9 | The frontend displays the order status and result to the user. |
+
+## System diagram
+
+```mermaid
+flowchart TD
+    User["Staff / POS User"]
+
+    subgraph Frontend ["React + TypeScript + Vite"]
+        Menu["Menu Selection"]
+        Order["Order Creation"]
+        Payment["Payment / Order Status"]
+    end
+
+    subgraph Backend ["Django + Django REST Framework"]
+        API["REST API"]
+        OrderService["Order & Total Calculation"]
+        PaymentService["Payment Simulation"]
+        InventoryService["Inventory Deduction"]
+    end
+
+    DB["PostgreSQL Database"]
+
+    User --> Menu
+    Menu --> Order
+    Order --> API
+
+    API --> OrderService
+    OrderService --> DB
+
+    API --> PaymentService
+    PaymentService --> DB
+
+    PaymentService --> InventoryService
+    InventoryService --> DB
+
+    API --> Payment
+    Payment --> User
 ```
 
 ## Main parts
 
-| Part | What it does | Proposed owner | Risk / uncertainty |
+| Part | What it does | Owner | Risk / uncertainty |
 |---|---|---|---|
-| UI | Lets a cashier select items, review the total, simulate payment, and view a receipt; also shows inventory and sales screens. | Sherap Hyolmo, with Shuzita Majhi supporting screen design | The current screens have not yet been recorded in a shared demo or screenshot. |
-| Data | Stores menu items, recipes, ingredients, orders, payments, and inventory movements in PostgreSQL. | Lama Muskan | Recipe quantities and stock must stay accurate. |
-| Logic/API | Calculates totals from stored prices, creates orders, processes simulated payments, checks stock, deducts ingredients, and returns sales data. | Sherap Hyolmo and Lama Muskan | A failed or repeated payment must not leave partial records or deduct stock twice. |
-| Setup/docs | Starts the frontend, API, and database with Docker Compose and records the design and demo path. | Sherap Hyolmo, with team documentation support | Startup and the full demo still need a recorded check on another team member's machine. |
+| Menu Selection | Allows the user to select menu items and quantities. | Lama Muskan | Menu and quantity data must be sent correctly to the backend. |
+| Order Creation | Creates a unique order and stores the selected items and quantities. | sherap | Order data must remain consistent between frontend and backend. |
+| Order Total Calculation | Calculates the total using the stored menu prices rather than trusting a frontend total. | Lama Muskan | Incorrect price or quantity handling could produce an incorrect total. |
+| Payment Simulation | Simulates a successful payment and changes the order status to `paid`. | Ualson | Payment and order status must remain consistent. |
+| Recipe / Inventory | Deducts the required recipe ingredients after successful payment. | Sherap | Incorrect recipe data could cause incorrect inventory deductions. |
+| Duplicate Prevention | Uses `inventory_deducted` to prevent inventory from being deducted more than once. | Lama Muskan | Duplicate requests could cause inventory to be deducted multiple times if not handled correctly. |
+| Database | Stores menu items, prices, orders, order items, recipes, and inventory data. | Sujita | Database relationships and transactions must remain consistent. |
+| REST API | Connects the frontend with the backend and handles order, payment, and inventory operations. | Shreya | API validation and error handling need to be implemented correctly. |
 
-Owner names follow the proposed roles in the Team 3 design and candidate slice. Confirm them with the team before submission.
+## Data flow for the vertical slice
+
+```text
+Menu Items + Quantities
+          |
+          v
+     Create Order
+          |
+          v
+ Stored Menu Prices
+          |
+          v
+    Calculate Total
+          |
+          v
+   Unique Order ID
+          |
+          v
+   Simulate Payment
+          |
+          v
+     Status = paid
+          |
+          v
+ Deduct Recipe Ingredients
+          |
+          v
+ inventory_deducted = true
+```
+
+## Technology stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Frontend | React + TypeScript + Vite | POS interface and user interaction |
+| Backend | Django | Server-side application logic |
+| API | Django REST Framework | Communication between frontend and backend |
+| Database | PostgreSQL | Persistent storage for menu, orders, recipes, and inventory |
+| Containerization | Docker | Consistent development and deployment environment |
+| Version Control | Git + GitHub | Source control and team collaboration |
 
 ## Evidence links
 
-- [SmartServe POS MVP README](../../smartserve-pos/README.md)
-- [Frontend implementation](../../smartserve-pos/frontend/src/main.tsx)
-- [FastAPI implementation](../../smartserve-pos/backend/app/main.py)
-- [Database models](../../smartserve-pos/backend/app/models.py)
-- [Docker Compose setup](../../smartserve-pos/docker-compose.yml)
-- [Week 2 design doc](../week-02/design-doc-v1.md)
-- GitHub build issues and Week 3 demo evidence: links pending verification.
+- Architecture diagram: this document
+- Candidate Vertical Slice: [candidate-vertical-slice.md](candidate-vertical-slice.md)
+- Tech Stack Comparison: [Stack Comparison](../week-02/stack-comparison.md)
+- GitHub Issues: [Issues Board](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues)
+- Wireframe: To be added after the three wireframe screens are completed.
 
 ## Important decisions
 
-| Decision | Why we chose it | Risk |
+| Decision | Why | Risk |
 |---|---|---|
-| React and TypeScript | Organize the cashier, inventory, and owner views in one web frontend. | State and API errors must be clear to users. |
-| FastAPI | Provide endpoints for orders, simulated payments, inventory, and sales. | Frontend and backend behavior must stay aligned. |
-| PostgreSQL | Store related sale and stock records and support transactions, row locks, and unique constraints. | Transaction handling must be checked with repeated and failed requests. |
-| Simulated payment | Demonstrate a complete sale without a real payment provider. | Demo results must be clearly identified as simulated. |
-| Deduct inventory after payment | Unpaid orders should not reduce stock. | A repeated request must never cause another deduction. |
-| One complete midterm path | Show an order, payment, receipt, stock change, and dashboard result together. | Other management features may remain outside the midterm demo. |
+| React + TypeScript + Vite for frontend | Provides a modern frontend structure suitable for a POS interface and supports TypeScript type safety. | Team needs to maintain clear frontend/backend API boundaries. |
+| Django + Django REST Framework | Provides backend logic and a REST API for communicating with the frontend. | API design and validation need to be implemented consistently. |
+| PostgreSQL | Suitable for relational data such as menu items, orders, order items, recipes, and inventory. | Database relationships need to be designed correctly. |
+| Backend calculates the order total | Prevents the frontend from being the source of truth for menu prices. | Backend must retrieve the correct stored menu prices. |
+| Inventory deducted after successful payment | Prevents inventory from being deducted for unpaid orders. | Payment and inventory operations must be handled reliably. |
+| `inventory_deducted` flag | Prevents duplicate inventory deduction for the same order. | The flag must be checked and updated correctly. |
+| Docker | Provides a consistent environment for team members and project services. | Docker configuration must remain synchronized across the team. |
 
 ## What could break?
 
-- The frontend might create an order but fail to complete payment, leaving an open order.
-- Incorrect recipe data could produce the wrong stock deduction.
-- Insufficient stock should stop payment without changing the order or stock.
-- A repeated payment request could cause a duplicate deduction if database protections fail.
-- The dashboard's daily total could be wrong if its date does not match the intended local day.
-- Docker or database startup could fail on another team member's machine.
-
-## Recipe quantity to confirm before the demo
-
-The seeded latte recipe uses **250 ml milk and 18 g coffee beans per latte**. Two lattes should therefore deduct **500 ml milk and 36 g beans**. The Week 2 design doc gives **400 ml milk** as an example; agree on one recipe quantity before recording the demo.
+- The frontend could send incorrect menu item IDs or quantities.
+- The backend could calculate an incorrect total if stored menu prices are not retrieved correctly.
+- An order could be marked as `paid` without correctly triggering inventory deduction.
+- Inventory could be deducted twice if duplicate payment requests are not handled correctly.
+- Recipe data could be missing or incorrect for a menu item.
+- Database transactions could fail halfway through the payment and inventory process.
+- Frontend and backend API contracts could become inconsistent.
+- Docker configuration could differ between team members' environments.
