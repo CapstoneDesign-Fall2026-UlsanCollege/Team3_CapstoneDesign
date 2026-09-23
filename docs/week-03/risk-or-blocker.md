@@ -3,7 +3,7 @@ name: Risk or Blocker
 about: Record a project risk, blocker, or decision needed
 title: "Risk/Blocker: Verify payment and inventory stay consistent"
 labels: risk, blocker
-assignees: ""
+assignees: " Team"
 ---
 
 ## What is the risk or blocker?
