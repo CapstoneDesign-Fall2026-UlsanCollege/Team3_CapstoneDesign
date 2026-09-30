@@ -33,6 +33,7 @@ Define a small midterm demo path, describe its main screens, and connect the Wee
 | Test/check note | [Issue #3 test results](issues/issue-03/README.md): five local backend tests passed, including one-Latte deduction, duplicate prevention, failed payment, and insufficient stock; frontend build passed. PostgreSQL concurrency, browser rapid-click, and refresh/retry checks passed. The [two-Latte demo](evidence/two-latte-demo/README.md) also passed; independent teammate review remains pending. |
 | Sprint 0 and checklists | [Sprint 0 Report](sprint-0-report.md), [Quality Quick Checks](sprint-quality-quick-checks.md), and [Week 3 Work Checklist](week-03-work-checklist.md). |
 | Document update | [Candidate Vertical Slice](candidate-vertical-slice.md), [Wireframe Notes](wireframe-notes.md), and [Design Doc v1](../week-02/design-doc-v1.md). |
+| Week 4 checkpoint | [Chuseok Checkpoint](../week-04-chuseok/chuseok-checkpoint.md) |
 
 ## Individual receipts
 
