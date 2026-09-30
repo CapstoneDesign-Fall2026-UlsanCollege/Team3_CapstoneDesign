@@ -34,6 +34,7 @@ Define a small midterm demo path, describe its main screens, and connect the Wee
 | Sprint 0 and checklists | [Sprint 0 Report](sprint-0-report.md), [Quality Quick Checks](sprint-quality-quick-checks.md), and [Week 3 Work Checklist](week-03-work-checklist.md). |
 | Document update | [Candidate Vertical Slice](candidate-vertical-slice.md), [Wireframe Notes](wireframe-notes.md), and [Design Doc v1](../week-02/design-doc-v1.md). |
 | Week 4 checkpoint | [Chuseok Checkpoint](../week-04-chuseok/chuseok-checkpoint.md) |
+| Week 4 checkpoint Issue | [Chuseok Checkpoint #18](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/18) |
 
 ## Individual receipts
 
