@@ -54,10 +54,6 @@ Five backend unit tests and the frontend production build also passed.
 
 [Issue #3 test results and screenshots](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/issues/issue-03/README.md)
 
-## Sprint 0 Report
-
-- [Sprint 0 Report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/sprint-0-report.md)
-
 These checks verify payment/inventory behavior. The complete two-Latte receipt-to-dashboard demo still needs a recorded walkthrough.
 
 ## 5. One question for Week 5
@@ -66,7 +62,15 @@ Can another teammate run SmartServe from the setup instructions and reproduce th
 
 This will check whether the project is reproducible beyond the original development machine.
 
-## 6. First action after the break
+## 6. Current Blocker
+
+The complete two-Latte end-to-end demo has not yet been independently reproduced by a second teammate. The main blocker is confirming that another team member can follow the setup instructions and reproduce the order, payment, receipt, inventory, and daily-sales flow successfully.
+
+## 7. Sprint 0 Report
+
+- [Sprint 0 Report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/sprint-0-report.md)
+
+## 8. First action after the break
 
 Have a second teammate follow the setup instructions and run the two-Latte demo:
 
@@ -81,7 +85,7 @@ Have a second teammate follow the setup instructions and run the two-Latte demo:
 
 The team will confirm the demo runner and reviewer before this walkthrough.
 
-## 7. Checkpoint checklist
+## 9. Checkpoint checklist
 
 - [x] Rough sketches linked.
 - [x] Midterm-demo sentence recorded.
