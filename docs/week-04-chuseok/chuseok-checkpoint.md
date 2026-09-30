@@ -93,4 +93,4 @@ The team will confirm the demo runner and reviewer before this walkthrough.
 - [x] One Week 5 question identified.
 - [x] First action after the break defined.
 - [x] Team reviews the checkpoint and confirms the demo runner.
-- [x] Checkpoint Issue linked from the shared Weekly Report.
+- [x] Checkpoint Issue linked from the shared Weekly Report: [Week 4 — Chuseok Checkpoint #18](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/18)
