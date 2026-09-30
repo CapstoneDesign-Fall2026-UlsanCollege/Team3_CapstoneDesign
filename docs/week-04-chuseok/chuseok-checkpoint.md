@@ -53,6 +53,10 @@ Five backend unit tests and the frontend production build also passed.
 
 [Issue #3 test results and screenshots](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/issues/issue-03/README.md)
 
+## Sprint 0 Report
+
+- [Sprint 0 Report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/sprint-0-report.md)
+
 These checks verify payment/inventory behavior. The complete two-Latte receipt-to-dashboard demo still needs a recorded walkthrough.
 
 ## 5. One question for Week 5
