@@ -22,7 +22,7 @@ SmartServe uses a **React + TypeScript + Vite frontend**, a **FastAPI backend**,
 | 5 | The user simulates payment for the order. |
 | 6 | The backend changes the order status to `paid`. |
 | 7 | After successful payment, the backend deducts the required recipe ingredients from inventory. |
-| 8 | The system uses `inventory_deducted` to prevent the same order from deducting inventory more than once. |
+8 | The system checks whether durable inventory movement records already exist for the order; `inventory_deducted` is derived from those records to prevent duplicate deductions.
 | 9 | The frontend displays the order status and result to the user. |
 
 ## System diagram
@@ -72,7 +72,7 @@ flowchart TD
 | Order Total Calculation | Calculates the total using the stored menu prices rather than trusting a frontend total. | Lama Muskan | Incorrect price or quantity handling could produce an incorrect total. |
 | Payment Simulation | Simulates a successful payment and changes the order status to `paid`. | Ualson | Payment and order status must remain consistent. |
 | Recipe / Inventory | Deducts the required recipe ingredients after successful payment. | Sherap | Incorrect recipe data could cause incorrect inventory deductions. |
-| Duplicate Prevention | Uses `inventory_deducted` to prevent inventory from being deducted more than once. | Lama Muskan | Duplicate requests could cause inventory to be deducted multiple times if not handled correctly. |
+| Duplicate Prevention | Checks durable inventory movement records for the order; inventory_deducted is derived from those records to prevent duplicate deductions. | Lama Muskan | Duplicate requests could cause inventory to be deducted multiple times if not handled correctly. |
 | Database | Stores menu items, prices, orders, order items, recipes, and inventory data. | Sujita | Database relationships and transactions must remain consistent. |
 | FastAPI | Connects the frontend with the backend and handles order, payment, and inventory operations. | Shreya | API validation and error handling need to be implemented correctly. |
 
@@ -103,7 +103,11 @@ Menu Items + Quantities
  Deduct Recipe Ingredients
           |
           v
- inventory_deducted = true
+Inventory movement recorded
+        |
+        v
+inventory_deducted = true
+(derived from movement records)
 ```
 
 ## Technology stack
