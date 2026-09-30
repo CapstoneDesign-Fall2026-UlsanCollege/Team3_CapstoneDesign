@@ -18,7 +18,8 @@ These are planning sketches, not screenshots of a completed interface.
 
 ## 2. Midterm-demo sentence
 
-Our midterm demo will show a cashier creating a two-Latte order, checking the calculated total, completing a simulated payment, viewing the receipt, and confirming that recipe ingredients are deducted exactly once and the sale appears on the daily dashboard.
+At the midterm demo, the team will demonstrate a complete two-Latte SmartServe order flow: selecting two Lattes, calculating the ₩9,000 total from stored menu prices, completing simulated payment, showing the paid receipt, deducting 500 ml of milk and 36 g of coffee beans exactly once, and confirming the sale appears on the daily dashboard.
+
 
 ## 3. Scope boundary
 
