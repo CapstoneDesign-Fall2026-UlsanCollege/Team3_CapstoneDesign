@@ -10,6 +10,11 @@ Small café/restaurant POS capstone MVP built with React + TypeScript + Vite, Fa
 4. Deducts recipe ingredients **once** after payment.
 5. Shows basic ingredient inventory and low-stock status.
 6. Shows an owner view of today's sales and recent paid orders.
+7. Lists recent orders in an Orders view so staff can resume or cancel an unpaid order.
+
+The Orders view shows `open`, `paid`, and `cancelled` orders. Only an `open` order can be paid or cancelled. Cancelling an unpaid order does not change stock or sales. The owner dashboard counts only paid orders. Role-based access and the fuller draft/pending/completed order lifecycle are future work; the current views share one app.
+
+The [Orders screen browser check](../docs/week-04-chuseok/order-screen-evidence/README.md) records resume, receipt, and cancellation results from the Docker app.
 
 ## The key inventory rule
 

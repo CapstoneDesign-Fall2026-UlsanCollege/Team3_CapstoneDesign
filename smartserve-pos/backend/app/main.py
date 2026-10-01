@@ -91,6 +91,25 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
     return order_view(order, db)
 
 
+@app.get("/orders")
+def list_orders(db: Session = Depends(get_db)):
+    orders = db.scalars(select(models.Order).order_by(models.Order.created_at.desc(), models.Order.id.desc()).limit(100)).all()
+    return [order_view(order, db) for order in orders]
+
+
+@app.post("/orders/{order_id}/cancel")
+def cancel_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status != "open" or inventory_was_deducted(order.id, db):
+        raise HTTPException(status_code=409, detail="Only an unpaid open order can be cancelled.")
+    order.status = "cancelled"
+    db.commit()
+    db.refresh(order)
+    return order_view(order, db)
+
+
 @app.post("/orders/{order_id}/pay")
 def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depends(get_db)):
     # A row lock means two near-simultaneous Pay clicks are processed one at a time.
@@ -100,6 +119,8 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     inventory_deducted = inventory_was_deducted(order.id, db)
     if order.status == "paid" or inventory_deducted:
         raise HTTPException(status_code=409, detail="This order has already been processed. Inventory was not deducted again.")
+    if order.status != "open":
+        raise HTTPException(status_code=409, detail="Only an open order can be paid.")
     if payload.result == "failed":
         raise HTTPException(status_code=402, detail="Simulated payment failed. Inventory is unchanged; you can retry this order.")
 

@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from app.database import Base, engine
 from app import models
-from app.main import create_order, simulate_payment, get_order
+from app.main import create_order, simulate_payment, get_order, list_orders, cancel_order, sales_dashboard
 from app.schemas import OrderCreate, PaymentCreate
 from app.seed import seed_demo_data
 
@@ -86,6 +86,29 @@ class InventoryPaymentTests(unittest.TestCase):
     def test_unique_order_ids(self):
         other = create_order(self.payload, self.db)
         self.assertNotEqual(self.order['id'], other['id'])
+
+    def test_cancelled_order_cannot_be_paid_or_counted_as_sale(self):
+        before = self.stock()
+        cancelled = cancel_order(self.order['id'], self.db)
+        self.assertEqual(cancelled['status'], 'cancelled')
+        self.assertFalse(cancelled['inventory_deducted'])
+        self.assertEqual(list_orders(self.db)[0]['id'], self.order['id'])
+        with self.assertRaises(HTTPException) as error:
+            simulate_payment(self.order['id'], PaymentCreate(method='cash'), self.db)
+        self.assertEqual(error.exception.status_code, 409)
+        self.db.rollback()
+        self.assertEqual(self.stock(), before)
+        self.assertEqual(self.count(models.Payment), 0)
+        self.assertEqual(self.count(models.InventoryMovement), 0)
+        self.assertEqual(sales_dashboard(self.db)['paid_orders'], 0)
+
+    def test_paid_order_cannot_be_cancelled(self):
+        simulate_payment(self.order['id'], PaymentCreate(method='cash'), self.db)
+        with self.assertRaises(HTTPException) as error:
+            cancel_order(self.order['id'], self.db)
+        self.assertEqual(error.exception.status_code, 409)
+        self.db.rollback()
+        self.assertEqual(get_order(self.order['id'], self.db)['status'], 'paid')
 
     def test_ledger_guard_even_if_status_is_inconsistent(self):
         simulate_payment(self.order['id'], PaymentCreate(method='cash'), self.db)
