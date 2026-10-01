@@ -54,7 +54,9 @@ Five backend unit tests and the frontend production build also passed.
 
 [Issue #3 test results and screenshots](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/issues/issue-03/README.md)
 
-These checks verify payment/inventory behavior. The complete two-Latte receipt-to-dashboard demo still needs a recorded walkthrough.
+These checks verify payment/inventory behavior. An [automated two-Latte receipt-to-dashboard run](../week-03/evidence/two-latte-demo/README.md) is also recorded. Independent teammate reproduction remains pending.
+
+The assigned [payment-status and inventory-deduction test](payment-status-inventory-test.md) states the expected result for a repeated request on the same order. A [live Docker two-Latte payment and repeat test](payment-test-evidence/README.md) passed on 2026-10-01 with browser screenshots and PostgreSQL evidence.
 
 ## 5. One question for Week 5
 
