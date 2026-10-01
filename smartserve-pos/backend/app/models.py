@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint, func
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .database import Base
@@ -13,6 +13,7 @@ class Ingredient(Base):
     unit: Mapped[str] = mapped_column(String(20))
     stock_quantity: Mapped[float] = mapped_column(Numeric(12, 2))
     reorder_level: Mapped[float] = mapped_column(Numeric(12, 2), default=0)
+    active: Mapped[bool] = mapped_column(default=True, server_default=text("true"))
 
 
 class MenuItem(Base):

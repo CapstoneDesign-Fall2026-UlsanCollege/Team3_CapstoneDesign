@@ -1,0 +1,13 @@
+{
+  "runAt": "2026-10-01T07:31:15.959Z",
+  "environment": "isolated Docker frontend/API/PostgreSQL",
+  "ingredientId": 6,
+  "menuItemId": 4,
+  "orderId": 9,
+  "stockBefore": 100,
+  "stockAfterPayment": 95,
+  "menuHiddenAfterRemoval": true,
+  "ingredientHiddenAfterRemoval": true,
+  "receiptPreserved": true,
+  "result": "PASS"
+}

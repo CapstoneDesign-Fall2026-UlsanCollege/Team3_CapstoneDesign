@@ -1,5 +1,6 @@
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { OwnerManagement } from "./OwnerManagement";
 import "./styles.css";
 
 const API = "http://localhost:8000";
@@ -80,7 +81,7 @@ function App() {
     } catch (error) { setMessage(error instanceof Error ? error.message : "Payment failed"); }
     finally { paying.current = false; setBusy(false); }
   };
-  const openTab = (next: Tab) => { setTab(next); if (next === "orders") void fetch(`${API}/orders`).then(response => response.json()).then(setOrders).catch(() => setMessage("Could not load orders.")); if (next === "inventory") void loadInventory(); if (next === "owner") void loadDashboard(); };
+  const openTab = (next: Tab) => { setTab(next); setMessage(""); if (next === "orders") void fetch(`${API}/orders`).then(response => response.json()).then(setOrders).catch(() => setMessage("Could not load orders.")); if (next === "inventory") void loadInventory(); if (next === "owner") void loadDashboard(); };
   const resumeOrder = (order: Order) => {
     setCart([]); setReceipt(null); setSavedOrder(order); setPendingOrder(order.id);
     sessionStorage.setItem("smartserve.pendingOrder", String(order.id));
@@ -117,7 +118,7 @@ function App() {
     </section>}
     {tab === "orders" && <section><div className="section-heading"><div><p className="eyebrow">ORDER MANAGEMENT</p><h2>Orders</h2><p className="muted">Find an open order, resume payment, or cancel it before payment.</p></div><label className="filter-label">Show <select value={orderFilter} onChange={event => setOrderFilter(event.target.value)}><option value="all">All orders</option><option value="open">Open</option><option value="paid">Paid</option><option value="cancelled">Cancelled</option></select></label></div><div className="table-wrap"><table><thead><tr><th>Order</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>{orders.filter(order => orderFilter === "all" || order.status === orderFilter).map(order => <tr key={order.id}><td><strong>#{order.id}</strong><small>{order.order_type.replace("_", " ")}</small></td><td>{order.items.map(item => `${item.name} × ${item.quantity}`).join(", ")}</td><td>{won(order.total)}</td><td><span className={`badge ${order.status}`}>{order.status === "open" ? "Open" : order.status === "paid" ? "Paid" : "Cancelled"}</span></td><td>{order.status === "open" ? <div className="row-actions"><button className="primary" disabled={busy} onClick={() => resumeOrder(order)}>Resume</button><button disabled={busy} onClick={() => cancelOrder(order)}>Cancel</button></div> : order.status === "paid" ? <button onClick={() => viewReceipt(order)}>View receipt</button> : "—"}</td></tr>)}</tbody></table>{orders.filter(order => orderFilter === "all" || order.status === orderFilter).length === 0 && <p className="empty-state">No orders in this view.</p>}</div></section>}
     {tab === "inventory" && <section><h2>Inventory</h2><p className="muted">Stock is reduced only after a successful simulated payment.</p><table><thead><tr><th>Ingredient</th><th>In stock</th><th>Reorder level</th><th>Status</th></tr></thead><tbody>{inventory.map(item => <tr key={item.id}><td>{item.name}</td><td>{item.stock_quantity} {item.unit}</td><td>{item.reorder_level} {item.unit}</td><td><span className={item.low_stock ? "badge low" : "badge"}>{item.low_stock ? "Low stock" : "OK"}</span></td></tr>)}</tbody></table></section>}
-    {tab === "owner" && <section><h2>Owner sales dashboard</h2>{dashboard && <><div className="stats"><article><span>Sales today</span><strong>{won(dashboard.sales_total)}</strong></article><article><span>Paid orders</span><strong>{dashboard.paid_orders}</strong></article></div><h3>Recent paid sales</h3><table><thead><tr><th>Order</th><th>Type</th><th>Total</th><th>Payment</th></tr></thead><tbody>{dashboard.recent_sales.map(order => <tr key={order.id}><td>#{order.id}</td><td>{order.order_type.replace("_", " ")}</td><td>{won(order.total)}</td><td>{order.payment_method}</td></tr>)}</tbody></table></>}</section>}
+    {tab === "owner" && <section><div className="section-heading"><h2>Owner sales dashboard</h2><a className="primary-link" href="#owner-management">Manage menu &amp; inventory</a></div>{dashboard && <><div className="stats"><article><span>Sales today</span><strong>{won(dashboard.sales_total)}</strong></article><article><span>Paid orders</span><strong>{dashboard.paid_orders}</strong></article></div><h3>Recent paid sales</h3><table><thead><tr><th>Order</th><th>Type</th><th>Total</th><th>Payment</th></tr></thead><tbody>{dashboard.recent_sales.map(order => <tr key={order.id}><td>#{order.id}</td><td>{order.order_type.replace("_", " ")}</td><td>{won(order.total)}</td><td>{order.payment_method}</td></tr>)}</tbody></table></>}<OwnerManagement onMenuChanged={loadMenu} onInventoryChanged={loadInventory} /></section>}
   </main>;
 }
 

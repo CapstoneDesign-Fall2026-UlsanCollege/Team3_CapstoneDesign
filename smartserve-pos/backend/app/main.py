@@ -4,13 +4,14 @@ from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func, select
+from sqlalchemy import func, inspect, select, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .database import Base, engine
 from . import models  # Registers models before create_all.
 from .database import get_db
-from .schemas import MenuItemOut, OrderCreate, PaymentCreate
+from .schemas import IngredientCreate, MenuItemCreate, MenuItemOut, OrderCreate, PaymentCreate
 from .seed import seed_demo_data
 
 app = FastAPI(title="SmartServe POS MVP")
@@ -25,6 +26,10 @@ app.add_middleware(
 @app.on_event("startup")
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
+    # Existing demo databases predate the ingredient archive flag.
+    if "active" not in {column["name"] for column in inspect(engine).get_columns("ingredients")}:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE ingredients ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE"))
     with Session(engine) as db:
         seed_demo_data(db)
 
@@ -37,6 +42,108 @@ def health() -> dict[str, str]:
 @app.get("/menu", response_model=list[MenuItemOut])
 def list_menu(db: Session = Depends(get_db)):
     return db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
+
+
+def ingredient_view(ingredient: models.Ingredient) -> dict:
+    return {
+        "id": ingredient.id, "name": ingredient.name, "unit": ingredient.unit,
+        "stock_quantity": float(ingredient.stock_quantity),
+        "reorder_level": float(ingredient.reorder_level),
+        "low_stock": ingredient.stock_quantity <= ingredient.reorder_level,
+        "active": ingredient.active,
+    }
+
+
+def owner_menu_view(item: models.MenuItem, db: Session) -> dict:
+    recipe = db.scalars(select(models.RecipeItem).where(models.RecipeItem.menu_item_id == item.id)).all()
+    ingredients = {ingredient.id: ingredient.name for ingredient in db.scalars(select(models.Ingredient)).all()}
+    return {
+        "id": item.id, "name": item.name, "price": float(item.price), "active": item.active,
+        "recipe": [{"ingredient_id": line.ingredient_id, "ingredient_name": ingredients[line.ingredient_id], "quantity": float(line.quantity)} for line in recipe],
+    }
+
+
+@app.get("/owner/menu")
+def owner_menu(db: Session = Depends(get_db)):
+    items = db.scalars(select(models.MenuItem).order_by(models.MenuItem.name)).all()
+    return [owner_menu_view(item, db) for item in items]
+
+
+@app.post("/owner/menu", status_code=201)
+def add_menu_item(payload: MenuItemCreate, db: Session = Depends(get_db)):
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Menu name is required")
+    if db.scalar(select(models.MenuItem.id).where(func.lower(models.MenuItem.name) == name.lower())):
+        raise HTTPException(status_code=409, detail="A menu item with this name already exists")
+    ingredient_ids = [line.ingredient_id for line in payload.recipe]
+    if len(ingredient_ids) != len(set(ingredient_ids)):
+        raise HTTPException(status_code=422, detail="Use each ingredient only once in a recipe")
+    available = set(db.scalars(select(models.Ingredient.id).where(models.Ingredient.id.in_(ingredient_ids), models.Ingredient.active.is_(True)).with_for_update()).all())
+    if available != set(ingredient_ids):
+        raise HTTPException(status_code=422, detail="Recipe ingredients must be active inventory items")
+    item = models.MenuItem(name=name, price=payload.price, active=True)
+    db.add(item)
+    try:
+        db.flush()
+        db.add_all([models.RecipeItem(menu_item_id=item.id, ingredient_id=line.ingredient_id, quantity=line.quantity) for line in payload.recipe])
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Menu item could not be added; check its name and recipe")
+    return owner_menu_view(item, db)
+
+
+@app.delete("/owner/menu/{item_id}")
+def remove_menu_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.scalar(select(models.MenuItem).where(models.MenuItem.id == item_id).with_for_update())
+    if not item:
+        raise HTTPException(status_code=404, detail="Menu item not found")
+    if not item.active:
+        raise HTTPException(status_code=409, detail="Menu item is already removed")
+    item.active = False
+    db.commit()
+    return owner_menu_view(item, db)
+
+
+@app.get("/owner/inventory")
+def owner_inventory(db: Session = Depends(get_db)):
+    ingredients = db.scalars(select(models.Ingredient).order_by(models.Ingredient.name)).all()
+    return [ingredient_view(ingredient) for ingredient in ingredients]
+
+
+@app.post("/owner/inventory", status_code=201)
+def add_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
+    name, unit = payload.name.strip(), payload.unit.strip()
+    if not name or not unit:
+        raise HTTPException(status_code=422, detail="Ingredient name and unit are required")
+    if db.scalar(select(models.Ingredient.id).where(func.lower(models.Ingredient.name) == name.lower())):
+        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
+    ingredient = models.Ingredient(name=name, unit=unit, stock_quantity=payload.stock_quantity, reorder_level=payload.reorder_level, active=True)
+    db.add(ingredient)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
+    db.refresh(ingredient)
+    return ingredient_view(ingredient)
+
+
+@app.delete("/owner/inventory/{ingredient_id}")
+def remove_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
+    ingredient = db.scalar(select(models.Ingredient).where(models.Ingredient.id == ingredient_id).with_for_update())
+    if not ingredient:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+    if not ingredient.active:
+        raise HTTPException(status_code=409, detail="Ingredient is already removed")
+    used_by_menu = db.scalar(select(models.RecipeItem.id).join(models.MenuItem, models.MenuItem.id == models.RecipeItem.menu_item_id).where(models.RecipeItem.ingredient_id == ingredient_id, models.MenuItem.active.is_(True)).limit(1))
+    used_by_open_order = db.scalar(select(models.OrderItem.id).join(models.Order, models.Order.id == models.OrderItem.order_id).join(models.RecipeItem, models.RecipeItem.menu_item_id == models.OrderItem.menu_item_id).where(models.RecipeItem.ingredient_id == ingredient_id, models.Order.status == "open").limit(1))
+    if used_by_menu or used_by_open_order:
+        raise HTTPException(status_code=409, detail="Ingredient is used by a menu item or open order. Remove the menu item and settle open orders first.")
+    ingredient.active = False
+    db.commit()
+    return ingredient_view(ingredient)
 
 
 def inventory_was_deducted(order_id: int, db: Session) -> bool:
@@ -67,7 +174,7 @@ def order_view(order: models.Order, db: Session) -> dict:
 @app.post("/orders", status_code=201)
 def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
     requested_ids = [line.menu_item_id for line in payload.items]
-    menu_items = db.scalars(select(models.MenuItem).where(models.MenuItem.id.in_(requested_ids), models.MenuItem.active.is_(True))).all()
+    menu_items = db.scalars(select(models.MenuItem).where(models.MenuItem.id.in_(requested_ids), models.MenuItem.active.is_(True)).with_for_update()).all()
     menu_by_id = {item.id: item for item in menu_items}
     missing = sorted(set(requested_ids) - set(menu_by_id))
     if missing:
@@ -154,15 +261,8 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
 
 @app.get("/inventory")
 def list_inventory(db: Session = Depends(get_db)):
-    ingredients = db.scalars(select(models.Ingredient).order_by(models.Ingredient.name)).all()
-    return [{
-        "id": ingredient.id,
-        "name": ingredient.name,
-        "unit": ingredient.unit,
-        "stock_quantity": float(ingredient.stock_quantity),
-        "reorder_level": float(ingredient.reorder_level),
-        "low_stock": ingredient.stock_quantity <= ingredient.reorder_level,
-    } for ingredient in ingredients]
+    ingredients = db.scalars(select(models.Ingredient).where(models.Ingredient.active.is_(True)).order_by(models.Ingredient.name)).all()
+    return [ingredient_view(ingredient) for ingredient in ingredients]
 
 
 @app.get("/dashboard/sales")
