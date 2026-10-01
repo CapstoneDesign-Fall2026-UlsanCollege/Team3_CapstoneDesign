@@ -99,6 +99,34 @@ class InventoryPaymentTests(unittest.TestCase):
         self.assertEqual(self.stock(), before)
         self.assertEqual(self.count(models.InventoryMovement), 2)
 
+    def test_order_keeps_original_unit_price_after_menu_price_change(self):
+        latte = self.db.scalar(
+            select(models.MenuItem).where(models.MenuItem.name == 'Caffè Latte')
+        )
+
+        original_price = latte.price
+
+        order = create_order(
+            OrderCreate(
+                order_type='dine_in',
+                items=[{'menu_item_id': latte.id, 'quantity': 1}]
+            ),
+            self.db
+        )
+
+        # Change the current menu price after the order was created.
+        latte.price = Decimal('5000.00')
+        self.db.commit()
+
+        saved_item = self.db.scalar(
+            select(models.OrderItem).where(
+                models.OrderItem.order_id == order['id']
+            )
+        )
+
+        self.assertEqual(saved_item.unit_price, original_price)
+        self.assertEqual(order['total'], float(original_price))
+
 
 if __name__ == '__main__':
     unittest.main()
