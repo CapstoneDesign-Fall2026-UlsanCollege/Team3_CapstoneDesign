@@ -1,18 +1,9 @@
+# SmartServe POS — Week 5 Architecture & Setup
 
-# SmartServe POS — Architecture and Setup
-
-**Project:** SmartServe POS
 **Team:** Team 3
+**Sprint:** Sprint 1
+**Week:** 5
 **Course:** Capstone Design — Fall 2026
-**Updated:** Week 5
-
-## Overview
-
-SmartServe is a POS system for managing orders, payments, and inventory.
-
-**MVP flow:**
-
-Order → Payment → Inventory Deduction → Receipt
 
 ## Technology Stack
 
@@ -25,78 +16,64 @@ Order → Payment → Inventory Deduction → Receipt
 ## Architecture
 
 ```text
-React Frontend
-      │
-      │ HTTP requests
-      ▼
-FastAPI Backend
-      │
-      │ SQLAlchemy
-      ▼
-PostgreSQL
+React + TypeScript + Vite
+          │
+          │ HTTP requests
+          ▼
+     FastAPI Backend
+          │
+          │ SQLAlchemy
+          ▼
+       PostgreSQL
 ```
 
-## Main Flow
+## Selected Vertical Slice
 
-1. Cashier selects menu items and quantities.
-2. System calculates the order total.
-3. Order is created with a unique ID.
-4. Simulated payment is processed.
-5. Successful payment changes the order to `paid`.
-6. Required ingredients are deducted once.
-7. Payment and inventory records are saved.
+Cashier selects menu items and quantities
+→ System calculates the total
+→ Order is created
+→ Simulated payment is completed
+→ Inventory is deducted
+→ Order/receipt result is shown
 
-## Project Structure
+## Must Work
 
-```text
-smartserve-pos/
-├── backend/
-│   └── app/
-├── frontend/
-├── docs/
-└── docker-compose.yml
-```
+* Create an order
+* Calculate the correct total
+* Process simulated payment
+* Change the order to `paid`
+* Deduct inventory exactly once
+* Show the resulting order/receipt
 
-## Backend Setup
+## Fallback
 
-```bash
-cd backend
-py -3.13 -m pip install fastapi uvicorn sqlalchemy psycopg[binary]
-py -3.13 -m uvicorn app.main:app --reload
-```
+If the complete flow is not ready for the checkpoint, demonstrate the smaller payment → inventory deduction flow using seeded sample data.
 
-Backend runs at:
+## Week 5 Implementation
 
-```text
-http://127.0.0.1:8000
-```
+* Project setup and local backend run verified
+* Payment and inventory flow tested
+* Implementation work divided into small Issues
+* Existing architecture and design documents connected to the slice
+* Evidence prepared in GitHub
 
-## Key API Areas
+## Evidence
 
-* Orders
-* Simulated payments
-* Inventory
-* Dashboard/sales
-* Receipts
+* Vertical Slice Plan
+* Architecture and wireframe documents
+* Implementation Issues
+* Commit/PR
+* Payment and inventory test evidence
+* Week 5 Weekly Report
 
-## Payment & Inventory Rule
+## Planned Checkpoint Proof
 
-A successful payment deducts the recipe ingredients exactly once.
+The team will demonstrate the selected SmartServe flow from order creation through simulated payment and inventory deduction, using seeded sample data.
 
-A repeated payment request for the same paid order returns **HTTP 409** and must not create another payment or inventory movement.
+The demonstration will show:
 
-## Testing
-
-The Sprint 0/Week 4 verification covers:
-
-* Successful payment
-* Failed payment
-* Insufficient stock
-* Duplicate payment
-* Inventory deduction
-* Unique order IDs
-* Original order price preservation
-
-## Week 5 Focus
-
-The current focus is continuing implementation from the existing SmartServe MVP and preparing a small, demonstrable vertical slice for the next checkpoint.
+* The created order and calculated total
+* Successful simulated payment
+* Order status changing to `paid`
+* Inventory being deducted exactly once
+* The resulting order/receipt
