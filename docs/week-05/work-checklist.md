@@ -53,8 +53,8 @@ Document the backend setup requirements, including Python dependencies and datab
 
 | Item                         | Owner | Next action                                                           | Review point            |
 | ---------------------------- | ----- | --------------------------------------------------------------------- | ----------------------- |
-| Local PostgreSQL environment | Team  | Confirm the database is running and the backend connects successfully | Before Oct 8 demo       |
-| Local Python setup           | Team  | Keep the required Python dependencies documented                      | Before final checkpoint |
+| Local PostgreSQL environment | sherap| Confirm the database is running and the backend connects successfully | Before Oct 8 demo       |
+| Local Python setup           | Lama Muskan | Keep the required Python dependencies documented                | Before final checkpoint |
 
 ## Final check
 
