@@ -1,4 +1,3 @@
-
 # Weekly Report — Week 5
 
 **Team:** Team 3
@@ -7,38 +6,38 @@
 
 ## Main focus
 
-This week focused on moving SmartServe from Sprint 0 decisions into a working Sprint 1 implementation path, while verifying the payment and inventory behaviour already implemented.
+This week focused on moving SmartServe from Sprint 0 decisions into Sprint 1 implementation and verifying the payment, inventory, and order-price behaviour.
 
-### Completed / worked on
+## Work completed
 
-* Continued the SmartServe MVP implementation using the FastAPI + PostgreSQL architecture.
-* Verified that order items store the **unit price used when the order was created**.
-* Added/verified a test showing that changing the current menu price does not change an existing order's saved price.
-* Verified the payment and inventory flow, including repeated payment attempts for the same order.
-* Confirmed that a repeated payment request returns **HTTP 409** and does not deduct inventory or create another payment.
-* Prepared evidence for the Sprint 1 checkpoint and continued organizing project documentation.
+* Continued the SmartServe MVP implementation using FastAPI and PostgreSQL.
+* Verified that each order item stores the unit price used when the order was created.
+* Added a test confirming that changing the current menu price does not change an existing order.
+* Verified repeated payment handling and inventory deduction.
+* Confirmed that a repeated payment request for the same order returns HTTP 409 without another inventory deduction.
+* Continued preparing implementation and test evidence for the checkpoint.
 
-## Key evidence
+## Evidence
 
-| Item                             | Evidence                                  |
-| -------------------------------- | ----------------------------------------- |
-| Order unit-price decision        | Issue #12                                 |
-| Payment / inventory verification | Issue #3 and Week 4 payment-test evidence |
-| Backend implementation           | `smartserve-pos/backend`                  |
-| Order-item model                 | `app/models.py`                           |
-| Order creation logic             | `app/main.py`                             |
-| Verification tests               | `test_issue3.py`                          |
+| Item                            | Link                                                                                                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit-price decision / Issue #12 | [Issue #12](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/12)                                                                            |
+| Payment & inventory Issue #3    | [Issue #3](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/3)                                                                              |
+| Two-Latte payment evidence      | [Payment test evidence](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-04-chuseok/payment-test-evidence/README.md) |
+| Two-Latte browser evidence      | [Two-Latte demo](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/evidence/two-latte-demo/README.md)              |
+| Issue #3 verification evidence  | [Issue #3 verification](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-03/issues/issue-03/README.md)               |
+| Backend implementation          | [`smartserve-pos/backend`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/tree/smartserve-mvp/smartserve-pos/backend)                            |
 
 ## Verification result
 
-The current implementation preserves the historical order price through `OrderItem.unit_price`.
+The current implementation stores the historical price in `OrderItem.unit_price`. Changing a menu item's current price therefore does not change the price saved for an existing order.
 
-For the payment flow, a successful payment changes the order to `paid` and deducts the required inventory once. A second payment request for the same order is rejected with **HTTP 409**, without another inventory deduction or payment record.
+The payment test also confirms that a successful payment deducts inventory once. A repeated payment request for the same order returns **HTTP 409** and does not create another payment or inventory deduction.
 
-## Issue / risk
+## Current issue
 
-The local Windows environment required additional Python dependencies before the backend could be started. PostgreSQL connectivity also still needs to be confirmed in the local environment.
+The local Windows environment required additional Python dependencies before the backend could run. PostgreSQL connectivity still needs to be confirmed locally.
 
 ## Next step
 
-Continue Sprint 1 implementation and evidence collection, then verify the complete SmartServe flow in a clean environment before the next checkpoint.
+Continue Sprint 1 implementation, verify the complete flow in a clean environment, and add the final checkpoint evidence.
