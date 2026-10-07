@@ -56,9 +56,22 @@ Document the backend setup requirements, including Python dependencies and datab
 | Local PostgreSQL environment | sherap| Confirm the database is running and the backend connects successfully | Before Oct 8 demo       |
 | Local Python setup           | Lama Muskan | Keep the required Python dependencies documented                | Before final checkpoint |
 
+## Week 5 owned implementation and test sequence
+
+These are local task definitions ready to be copied into GitHub Issues. Only `daydevil80` ownership is selected here; other first owners are proposals requiring team confirmation. Existing Issues #12 and #19 provide context, not proof that these new tasks are complete.
+
+| Task | First owner | Dependency | Checkable Definition of Done | Evidence/status |
+| --- | --- | --- | --- | --- |
+| W5-1: Save cashier order before payment | `daydevil80` | Existing menu/order API | Two Lattes create one `open` order at ₩9,000; no stock deduction; refresh recovers same ID; creation failure preserves cart for retry. | [Source](../../smartserve-pos/frontend/src/main.tsx), [current check](cashier-evidence.md). |
+| W5-2: Review saved price and receipt | Proposed: `Sammygit15` | W5-1; Issue #12 | Confirm order quantity/unit price/total and historical price test; record expected versus actual result in an Issue comment. | Existing backend test available; personal review pending. |
+| W5-3: Review payment/stock state model | Proposed: `ualsom` | W5-1; Issue #19 | Successful payment deducts recipe stock once; failed/duplicate payment leaves stock unchanged; explain `open → paid` plus ledger flag. | [Browser check](verify-cashier.cjs); personal review pending. |
+| W5-4: Independent setup and demo reproduction | Proposed: `shrey776`; proposed receipt reviewer: `Shuzita` | W5-1 through W5-3 | Another teammate follows setup, records branch/commit, expected/actual receipt, stock and sales, and any failure with an owner/next action. | Pending independent teammate run. |
+
+Next smallest action: run W5-1, link actual results in the shared report, and confirm task ownership with the team. Create/link the GitHub Issues and publish the implementation evidence before claiming the submission is visible remotely.
+
 ## Final check
 
-* The team can demonstrate the complete payment → inventory flow.
+* The local automated cashier/payment/inventory flow passed; independent teammate reproduction remains pending.
 * The next implementation/testing step is visible in GitHub.
 * Evidence for the payment, inventory, and order-price decisions is linked.
 * The team has a visible, testable proof ready for the Oct 8 checkpoint.
