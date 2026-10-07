@@ -3,7 +3,7 @@
 **Contribution account:** `daydevil80`  
 **Checked:** October 7, 2026, 14:28 Korea time  
 **Base:** `smartserve-mvp` at `8f4bc74`, after pulling teammate updates  
-**Publication:** New implementation/report changes are local and not yet committed or pushed.
+**Publication:** Included in the main-branch publication. [Implementation commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/0ec28f2).
 
 ## Change
 
@@ -60,4 +60,4 @@ The script creates/pays sample orders and overwrites this folder's results/scree
 
 Payment is simulated and no money is charged. Menu and inventory are seeded sample data; database persistence and ingredient ledger updates are real local software operations. PostgreSQL connectivity succeeded in this Docker environment; another teammate's setup has not been verified.
 
-`daydevil80` next action: review this change, commit/push the intended files, and add the actual GitHub commit/PR link to the report. Other members must confirm their own contribution rows and proposed task ownership. Independent teammate reproduction remains pending; a local automated run does not satisfy that check.
+`daydevil80` next action: demonstrate the published flow and coordinate independent teammate reproduction. Other members must confirm their own contribution rows and proposed task ownership. Independent teammate reproduction remains pending; a local automated run does not satisfy that check.
