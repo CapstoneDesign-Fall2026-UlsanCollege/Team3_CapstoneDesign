@@ -1,16 +1,71 @@
 {
-  "runAt": "2026-10-07T05:28:07.087Z",
   "result": "PASS",
-  "environment": "Isolated Docker PostgreSQL/FastAPI/Vite with browser automation",
-  "orderId": 2,
-  "total": 9000,
-  "creationFailurePreservesCart": true,
-  "unpaidStockUnchanged": true,
-  "refreshRestoresOrder": true,
-  "milkDeducted": 500,
-  "beansDeducted": 36,
+  "runAt": "2026-10-07T05:56:46.708Z",
+  "testedCommit": "a36f83a",
+  "provenance": "Codex automated check on existing developer PC; not a Shuzita-authored or independent-PC test",
+  "orderId": 3,
+  "orderType": "takeaway",
+  "items": [
+    {
+      "name": "Americano",
+      "quantity": 1,
+      "unit_price": 3500
+    },
+    {
+      "name": "Milk Tea",
+      "quantity": 1,
+      "unit_price": 5000
+    }
+  ],
+  "total": 8500,
+  "paymentMethod": "card",
+  "refreshRecovered": true,
+  "unpaidInventoryUnchanged": true,
+  "stockChecks": [
+    {
+      "ingredient": "Coffee beans",
+      "unit": "g",
+      "before": 1164,
+      "after": 1146,
+      "expectedDeduction": 18,
+      "actualDeduction": 18
+    },
+    {
+      "ingredient": "Milk",
+      "unit": "ml",
+      "before": 4500,
+      "after": 4300,
+      "expectedDeduction": 200,
+      "actualDeduction": 200
+    },
+    {
+      "ingredient": "Sugar",
+      "unit": "g",
+      "before": 2500,
+      "after": 2480,
+      "expectedDeduction": 20,
+      "actualDeduction": 20
+    },
+    {
+      "ingredient": "Tea leaves",
+      "unit": "g",
+      "before": 700,
+      "after": 692,
+      "expectedDeduction": 8,
+      "actualDeduction": 8
+    }
+  ],
   "duplicatePaymentStatus": 409,
-  "duplicateStockUnchanged": true,
-  "paidOrdersAdded": 1,
-  "salesAdded": 9000
+  "duplicatePaymentResponse": {
+    "detail": "This order has already been processed. Inventory was not deducted again."
+  },
+  "duplicateInventoryUnchanged": true,
+  "salesBefore": {
+    "count": 1,
+    "total": 9000
+  },
+  "salesAfter": {
+    "count": 2,
+    "total": 17500
+  }
 }
