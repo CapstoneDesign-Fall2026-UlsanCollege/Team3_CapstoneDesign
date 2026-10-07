@@ -19,30 +19,32 @@ This week focused on moving SmartServe from Sprint 0 decisions into Sprint 1 imp
 - Verified successful simulated payment, receipt contents, and correct inventory deductions.
 - Confirmed that repeated payment for the same order returns HTTP 409 without another inventory deduction or sale.
 - Recorded automated checks for both the two-Latte path and an additional Americano + Milk Tea path.
-- Prepared screenshots, machine-readable results, and repeatable browser checks.
+- Published screenshots, machine-readable results, and repeatable browser checks.
 
 These results describe implementation and automated verification on the existing development PC. Independent teammate reproduction remains pending.
 
 ## Evidence
 
 - [Cashier implementation commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/0ec28f2)
-- [Cashier source](../../smartserve-pos/frontend/src/main.tsx)
-- [Two-Latte verification results and screenshots](cashier-evidence.md)
-- [Two-Latte repeatable browser check](verify-cashier.cjs)
+- [Cashier source](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/smartserve-pos/frontend/src/main.tsx)
+- [Two-Latte verification report and screenshots](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/cashier-evidence.md)
+- [Two-Latte repeatable browser check](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/verify-cashier.cjs)
+- [Shuzita's mixed-order evidence upload](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c9f526f)
+- [Mixed-order evidence report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/README.md)
+- [Mixed-order machine-readable results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/results.json)
+- [Mixed-order repeatable check](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/verify.cjs)
 - [Issue #18 — Chuseok Checkpoint](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/18)
 - [Issue #19 — Order Data and Order-State Model](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/19)
 - [Issue #12 — Stored unit price decision](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/12)
-- [Earlier payment test evidence](../week-04-chuseok/payment-test-evidence/README.md)
-
-The additional mixed-order evidence was uploaded to main by `shuzita` in [commit c9f526f](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c9f526f). See the [evidence report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/README.md), [results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/results.json), and [repeatable check](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/verify.cjs).
+- [Earlier payment test evidence](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-04-chuseok/payment-test-evidence/README.md)
 
 ## Individual receipts
 
 | Student / GitHub login | Contribution / status | Evidence |
 | --- | --- | --- |
-| **Lama Muskan (`Sammygit15`)** | The existing report credits payment/inventory verification, unit-price handling, and repeated-payment testing. The professor's review credits Issues #18 and #12. Confirmation of the current personal test result remains pending. | [Issue #12](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/12); [Issue #18](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/18); [Earlier payment evidence](../week-04-chuseok/payment-test-evidence/README.md) |
+| **Lama Muskan (`Sammygit15`)** | The existing report credits payment/inventory verification, unit-price handling, and repeated-payment testing. The professor's review credits Issues #18 and #12. Confirmation of the current personal test result remains pending. | [Issue #12](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/12); [Issue #18](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/18); [Earlier payment evidence](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-04-chuseok/payment-test-evidence/README.md) |
 | **Ualson Tamang (`ualsom`)** | Authored the order-state proposal in Issue #19. Current implementation/test contribution and observed results await member confirmation. | [Issue #19](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/19) |
-| **Sherap Hyolmo (`daydevil80`)** | Added a separate Create order action, creation-error handling, and saved-order recovery. Automated verification passed for the two-Latte ₩9,000 order, simulated payment, receipt, inventory deductions, and duplicate-payment protection. Frontend build and eight backend tests passed. | [Implementation commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/0ec28f2); [Current verification and screenshots](cashier-evidence.md); [Repeatable check](verify-cashier.cjs) |
+| **Sherap Hyolmo (`daydevil80`)** | Added a separate Create order action, creation-error handling, and saved-order recovery. Automated verification passed for the two-Latte ₩9,000 order, simulated payment, receipt, inventory deductions, and duplicate-payment protection. Frontend build and eight backend tests passed. | [Implementation commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/0ec28f2); [Verification report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/cashier-evidence.md); [Repeatable check](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/verify-cashier.cjs); [Saved order screenshot](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/screenshots/01-created-order.png); [Receipt screenshot](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/screenshots/02-paid-receipt.png) |
 | **Shuzita Majhi (`Shuzita`)** | Uploaded the Week 5 mixed-order receipt/inventory evidence, results, repeatable check, and six screenshots to main. The supplied automated check verifies one Americano + one Milk Tea, takeaway, ₩8,500, simulated card payment, ingredient deductions, refresh recovery, sales, and duplicate-payment protection. Personal review and independent reproduction remain pending in the uploaded evidence. | [Upload commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c9f526f); [Evidence report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/README.md); [Results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/results.json); [Receipt screenshot](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/04-paid-card-receipt.png); [Inventory before](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/01-inventory-before.png); [Inventory after](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/05-inventory-after.png) |
 | **Shreya (`shrey776`)** | Personal contribution and current evidence awaiting member update. Checkpoint assignment alone is not completion proof. | [Issue #18](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/18) |
 
@@ -66,11 +68,11 @@ The October 7 automated browser check verified:
 | Backend regression checks | Existing tests pass | 8 tests passed |
 | Frontend production build | TypeScript and Vite complete | PASS |
 
-See [complete test evidence](cashier-evidence.md).
+[Complete two-Latte test evidence](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/cashier-evidence.md)
 
 ### Additional mixed-order receipt/inventory check
 
-This Codex-assisted automated check ran on October 7 at 14:56 Korea time against commit `a36f83a`, on the existing developer PC.
+This Codex-assisted automated check ran on October 7 at 14:56 Korea time against commit `a36f83a`, on the existing developer PC. Shuzita subsequently uploaded the evidence to main.
 
 **Order:** #3 — takeaway  
 **Items:** one Americano + one Milk Tea  
@@ -90,7 +92,16 @@ This Codex-assisted automated check ran on October 7 at 14:56 Korea time against
 | Daily sales | Add one paid order and ₩8,500 | 1 → 2 paid orders; ₩9,000 → ₩17,500 | PASS |
 | Duplicate payment | HTTP 409; stock and sales unchanged | HTTP 409; no additional deduction or sale | PASS |
 
-The package contains starting inventory, starting sales, unpaid order, paid receipt, ending inventory, and ending sales screenshots.
+Screenshots:
+
+1. [Starting inventory](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/01-inventory-before.png)
+2. [Starting daily sales](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/02-sales-before.png)
+3. [Unpaid mixed order](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/03-unpaid-mixed-order.png)
+4. [Paid card receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/04-paid-card-receipt.png)
+5. [Inventory after payment](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/05-inventory-after.png)
+6. [Sales after payment and duplicate request](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/06-sales-after-repeat.png)
+
+[Machine-readable results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/results.json)
 
 This additional check does not establish Shuzita's personal review or independent reproduction of the two-Latte demo.
 
@@ -129,7 +140,12 @@ A duplicate payment must return HTTP 409 without another inventory deduction or 
 - Multiple branches and advanced reporting.
 - Additional features outside the selected demo path.
 
-See the [Sprint 1 plan](sprint-1.md), [task sequence](work-checklist.md), and [setup/check instructions](cashier-evidence.md).
+Planning and setup:
+
+- [Sprint 1 plan](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/sprint-1.md)
+- [Owned task sequence](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/work-checklist.md)
+- [Application setup instructions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/smartserve-pos/README.md)
+- [Cashier check instructions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-05/cashier-evidence.md)
 
 ## Current issues
 
@@ -145,7 +161,7 @@ See the [Sprint 1 plan](sprint-1.md), [task sequence](work-checklist.md), and [s
 1. Have a second teammate follow the setup instructions and reproduce the full two-Latte path.
 2. Record expected versus actual results and attach that teammate's evidence to Issue #18.
 3. Have Shuzita review or personally run the receipt/inventory check and record her findings.
-4. Have Shuzita add her personal observations to the published mixed-order evidence.
+4. Add her personal observations to the published mixed-order evidence.
 5. Confirm every member's contribution row.
 6. Update the GitHub task sequence connected to Issue #19 with confirmed owners and checkable results.
 7. Keep Issue #18's independent-reproduction checkbox unchecked until the complete check actually passes.
