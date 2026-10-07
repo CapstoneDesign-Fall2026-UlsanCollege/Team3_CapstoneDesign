@@ -1,0 +1,12 @@
+{
+  "runAt": "2026-10-01T07:03:43.543Z",
+  "environment": "isolated Docker frontend/API/PostgreSQL",
+  "paidOrderId": 7,
+  "cancelledOrderId": 8,
+  "cancelledPaymentStatus": 409,
+  "milkDeducted": 250,
+  "beansDeducted": 18,
+  "paidOrdersAdded": 1,
+  "salesAdded": 4500,
+  "result": "PASS"
+}

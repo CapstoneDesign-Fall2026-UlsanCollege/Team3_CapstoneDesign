@@ -1,0 +1,16 @@
+{
+  "runAt": "2026-10-07T05:28:07.087Z",
+  "result": "PASS",
+  "environment": "Isolated Docker PostgreSQL/FastAPI/Vite with browser automation",
+  "orderId": 2,
+  "total": 9000,
+  "creationFailurePreservesCart": true,
+  "unpaidStockUnchanged": true,
+  "refreshRestoresOrder": true,
+  "milkDeducted": 500,
+  "beansDeducted": 36,
+  "duplicatePaymentStatus": 409,
+  "duplicateStockUnchanged": true,
+  "paidOrdersAdded": 1,
+  "salesAdded": 9000
+}
