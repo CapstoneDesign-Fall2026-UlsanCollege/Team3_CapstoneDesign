@@ -3,7 +3,7 @@
 Checked October 8, 2026 (Korea time).
 
 - Frontend production build: PASS (TypeScript and Vite).
-- Backend regression suite: PASS, 19 tests across order/payment, owner management, and Trash.
+- Backend regression suite: PASS, 20 tests across order/payment, owner management, and Trash.
 - Public browser check: PASS; app loads, monthly order folders display, White/Dark/Code themes work, appearance survives reload, and owner dashboard opens without browser exceptions.
 - Owner-edit browser check: PASS; menu and ingredient forms prefill and save through HTTP 200. Existing values were saved unchanged. The Today shortcut and Sales today label are removed.
 - Owner-edit regression check: PASS; saved prices remain unchanged, recipe edits guard open orders, and used units are protected.
@@ -28,3 +28,6 @@ Payments are simulated. The public link requires the host PC, Docker services, p
 - Removed ingredient re-add: PASS in isolated tests; case-insensitive name restores the same ID and submitted stock, active duplicates remain blocked, and historical units and paid totals are protected. Live user inventory was not changed by these tests.
 
 - Compatible weight/volume conversions: PASS in isolated payment tests (g/kg, ml/l, recipe and ledger conversion, duplicate payment and paid totals). Public browser check confirms Coffee beans and Milk unit selectors and stock previews; drafts cancelled, live stock unchanged.
+
+- Independent recipe units: PASS; 30 g converts to 0.03 kg and 250 ml to 0.25 l, followed by verified payment deductions.
+- Browser shortage fixture: PASS; 25 g-equivalent inventory blocks a 30 g item and a two-serving cart. Alternate recipe-unit selector checked in the live UI without saving. No user inventory changed.

@@ -5,9 +5,10 @@ import "./styles.css";
 
 const API = "http://localhost:8000";
 type MenuItem = { id: number; name: string; price: number };
+type MenuRecipe = { id: number; recipe: { ingredient_id: number; quantity: number }[] };
 type CartLine = MenuItem & { quantity: number };
 type InventoryItem = { id: number; name: string; unit: string; stock_quantity: number; reorder_level: number; low_stock: boolean };
-type Order = { id: number; order_type: string; status: string; total: number; created_at: string; paid_at?: string | null; trashed_at?: string | null; delete_after?: string | null; items: { name: string; quantity: number; unit_price: number }[]; payment_method?: string; simulated_reference?: string };
+type Order = { id: number; order_type: string; status: string; total: number; created_at: string; paid_at?: string | null; trashed_at?: string | null; delete_after?: string | null; items: { menu_item_id: number; name: string; quantity: number; unit_price: number }[]; payment_method?: string; simulated_reference?: string };
 type Dashboard = { date: string; paid_orders: number; sales_total: number; recent_sales: Order[] };
 type Tab = "cashier" | "orders" | "inventory" | "owner";
 type Theme = "white" | "dark" | "code";
@@ -40,6 +41,8 @@ function App() {
   }, [themeMenuOpen]);
   const [tab, setTab] = useState<Tab>("cashier");
   const [menu, setMenu] = useState<MenuItem[]>([]);
+  const [recipes, setRecipes] = useState<MenuRecipe[]>([]);
+  const [stockReady, setStockReady] = useState(false);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [orderType, setOrderType] = useState("dine_in");
   const [receipt, setReceipt] = useState<Order | null>(null);
@@ -87,7 +90,26 @@ function App() {
       else { setPendingOrder(null); sessionStorage.removeItem("smartserve.pendingOrder"); }
     }).catch(error => setMessage(error instanceof Error ? error.message : "Could not load saved order"));
   }, [pendingOrder]);
-  const loadMenu = async () => setMenu(await readData<MenuItem[]>("/menu"));
+  const loadMenu = async () => {
+    const [items, recipeItems, stockItems] = await Promise.all([readData<MenuItem[]>("/menu"), readData<MenuRecipe[]>("/owner/menu"), readData<InventoryItem[]>("/inventory")]);
+    setMenu(items); setRecipes(recipeItems); setInventory(stockItems); setStockReady(true);
+  };
+  const shortagesFor = (lines: { id: number; quantity: number }[]) => {
+    const required = new Map<number, number>();
+    for (const line of lines) for (const ingredient of recipes.find(item => item.id === line.id)?.recipe ?? []) required.set(ingredient.ingredient_id, (required.get(ingredient.ingredient_id) ?? 0) + ingredient.quantity * line.quantity);
+    return [...required].flatMap(([id, needed]) => {
+      const ingredient = inventory.find(item => item.id === id);
+      return !ingredient || needed > ingredient.stock_quantity + 0.00000001 ? [ingredient ? ingredient.name + ": needs " + Number(needed.toFixed(6)) + " " + ingredient.unit + ", only " + ingredient.stock_quantity + " " + ingredient.unit + " available" : "Ingredient is no longer available"] : [];
+    });
+  };
+  const orderShortages = shortagesFor(pendingOrder && savedOrder ? savedOrder.items.map(item => ({ id: item.menu_item_id, quantity: item.quantity })) : cart);
+  useEffect(() => {
+    if (tab !== "cashier") return;
+    const refresh = () => { void loadMenu().catch(() => setStockReady(false)); };
+    const timer = window.setInterval(refresh, 15000);
+    window.addEventListener("focus", refresh);
+    return () => { clearInterval(timer); window.removeEventListener("focus", refresh); };
+  }, [tab]);
   const loadInventory = async () => setInventory(await readData<InventoryItem[]>("/inventory"));
   const addToCart = (item: MenuItem) => setCart(current => current.some(line => line.id === item.id)
     ? current.map(line => line.id === item.id ? { ...line, quantity: line.quantity + 1 } : line)
@@ -102,16 +124,16 @@ function App() {
     return order;
   };
   const createOnly = async () => {
-    if (paying.current || !cart.length || pendingOrder) return;
+    if (paying.current || !cart.length || pendingOrder || orderShortages.length || !stockReady) return;
     paying.current = true; setBusy(true); setMessage("Creating order…");
     try {
       const order = await saveCartOrder();
       setMessage(`Order #${order.id} created. Payment is pending; inventory is unchanged.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not create order"); }
-    finally { paying.current = false; setBusy(false); }
+    finally { paying.current = false; setBusy(false); void loadMenu().catch(() => setStockReady(false)); }
   };
   const createAndPay = async (method: "cash" | "card" | "qr") => {
-    if (paying.current || (!cart.length && !pendingOrder)) return;
+    if (paying.current || (!cart.length && !pendingOrder) || orderShortages.length || !stockReady) return;
     paying.current = true; setBusy(true);
     setMessage("Processing simulated payment…");
     try {
@@ -132,7 +154,7 @@ function App() {
           }
         }
       }
-      if (!pay.ok) throw new Error(typeof result.detail === "string" ? result.detail : result.detail.message);
+      if (!pay.ok) throw new Error(typeof result.detail === "string" ? result.detail : [result.detail.message, ...(result.detail.shortages ?? [])].join(". "));
       sessionStorage.removeItem("smartserve.pendingOrder"); setPendingOrder(null); setSavedOrder(null);
       setReceipt(result.order); setCart([]); setMessage(result.message);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Payment failed"); }
@@ -198,11 +220,11 @@ function App() {
     <header><div><p className="eyebrow">CAFÉ MANAGEMENT</p><h1>SmartServe POS</h1></div><nav aria-label="Main navigation">{(["cashier", "orders", "inventory", "owner"] as const).map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item)} key={item}>{item === "owner" ? "Owner dashboard" : item[0].toUpperCase() + item.slice(1)}</button>)}</nav></header>
     {message && <p className="notice" role="status">{message}</p>}
     {tab === "cashier" && <section className="cashier-grid">
-      <div><p className="eyebrow">CHECKOUT</p><h2>Menu</h2><p className="muted">Choose items, then take a simulated payment.</p><div className="menu-grid">{menu.map(item => <button className="menu-card" disabled={busy || pendingOrder !== null} onClick={() => addToCart(item)} key={item.id}><strong>{item.name}</strong><span>{won(item.price)}</span><small>Add to order</small></button>)}</div></div>
+      <div><p className="eyebrow">CHECKOUT</p><h2>Menu</h2><button disabled={busy} onClick={() => void loadMenu().catch(() => setStockReady(false))}>Refresh availability</button><p className="muted">Choose items, then take a simulated payment.</p><div className="menu-grid">{menu.map(item => { const shortages = shortagesFor([{ id: item.id, quantity: 1 }]); return <button className="menu-card" disabled={busy || pendingOrder !== null || !stockReady || shortages.length > 0} onClick={() => addToCart(item)} key={item.id}><strong>{item.name}</strong><span>{won(item.price)}</span><small>{shortages.length ? "Unavailable — " + shortages.join("; ") : "Add to order"}</small></button>; })}</div></div>
       <aside className="panel"><div className="section-heading"><h2>{pendingOrder ? `Order #${pendingOrder}` : "Current order"}</h2>{pendingOrder && <span className="badge open">Open</span>}</div><label>Order type <select disabled={busy || pendingOrder !== null} value={savedOrder?.order_type ?? orderType} onChange={e => setOrderType(e.target.value)}><option value="dine_in">Dine in</option><option value="takeaway">Takeaway</option></select></label>
         {pendingOrder && savedOrder ? <>{savedOrder.items.map(item => <div className="cart-line" key={item.name}><span>{item.name}<small>{won(item.unit_price)} each</small></span><strong>× {item.quantity}</strong></div>)}<div className="total"><strong>Total</strong><strong>{won(savedOrder.total)}</strong></div><p className="muted">Saved order. Retry payment or manage it from Orders.</p></> : cart.length ? <>{cart.map(line => <div className="cart-line" key={line.id}><span>{line.name}<small>{won(line.price)} each</small></span><div><button disabled={busy} onClick={() => changeQty(line.id, -1)} aria-label={`Remove one ${line.name}`}>−</button>{line.quantity}<button disabled={busy} onClick={() => changeQty(line.id, 1)} aria-label={`Add one ${line.name}`}>+</button></div></div>)}<div className="total"><strong>Total</strong><strong>{won(total)}</strong></div><button className="text-button" disabled={busy} onClick={() => setCart([])}>Clear cart</button></> : <p className="muted">Choose menu items to start.</p>}
-        {cart.length > 0 && !pendingOrder && <button disabled={busy} onClick={() => void createOnly()}>Create order</button>}
-        {(cart.length > 0 || pendingOrder) && <div className="payments"><button disabled={busy} onClick={() => createAndPay("cash")}>Pay cash</button><button disabled={busy} onClick={() => createAndPay("card")}>Pay card</button><button disabled={busy} onClick={() => createAndPay("qr")}>Pay QR</button></div>}
+        {orderShortages.length > 0 && <div className="notice" role="alert"><strong>This order is unavailable</strong>{orderShortages.map(text => <p key={text}>{text}</p>)}<p>Reduce the quantity or update ingredient stock.</p></div>}{!stockReady && <p role="alert">Stock availability could not be confirmed. Refresh availability before ordering.</p>}{cart.length > 0 && !pendingOrder && <button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => void createOnly()}>Create order</button>}
+        {(cart.length > 0 || pendingOrder) && <div className="payments"><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("cash")}>Pay cash</button><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("card")}>Pay card</button><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("qr")}>Pay QR</button></div>}
       </aside>
       {receipt && <section className="receipt"><p className="eyebrow">PAYMENT COMPLETE</p><h2>Receipt #{receipt.id}</h2><p className="muted">Paid {dateTime(receipt.paid_at)} · KST</p>{receipt.items.map(item => <p key={item.name}>{item.name} × {item.quantity}</p>)}<strong>{won(receipt.total)} · {receipt.payment_method?.toUpperCase()}</strong><p className="muted">{receipt.simulated_reference}</p></section>}
     </section>}

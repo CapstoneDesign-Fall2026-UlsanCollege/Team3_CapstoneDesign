@@ -83,6 +83,17 @@ class OwnerManagementTests(unittest.TestCase):
             update_ingredient(ingredient['id'], edit, self.db)
         self.assertEqual(unit_error.exception.status_code, 409)
 
+    def test_recipe_input_converts_grams_and_millilitres_to_stored_units(self):
+        beans = add_ingredient(IngredientCreate(name='Bulk beans', unit='kg', stock_quantity=1, reorder_level=0), self.db)
+        milk = add_ingredient(IngredientCreate(name='Bulk milk', unit='l', stock_quantity=1, reorder_level=0), self.db)
+        item = add_menu_item(MenuItemCreate(name='Bulk latte', price=5000, recipe=[{'ingredient_id': beans['id'], 'quantity': 30, 'unit': 'g'}, {'ingredient_id': milk['id'], 'quantity': 250, 'unit': 'ml'}]), self.db)
+        self.assertEqual([line['quantity'] for line in item['recipe']], [0.03, 0.25])
+        order = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 1}]), self.db)
+        simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+        balances = {line['id']: line['stock_quantity'] for line in owner_inventory(self.db)}
+        self.assertEqual(balances[beans['id']], 0.97)
+        self.assertEqual(balances[milk['id']], 0.75)
+
     def test_compatible_conversion_preserves_recipe_payment_and_ledger(self):
         for original_unit, next_unit in [('g', 'kg'), ('ml', 'l')]:
             ingredient = add_ingredient(IngredientCreate(name='Convert ' + original_unit, unit=original_unit, stock_quantity=2000, reorder_level=500), self.db)

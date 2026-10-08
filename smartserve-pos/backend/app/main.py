@@ -119,6 +119,20 @@ def ingredient_view(ingredient: models.Ingredient, db: Session | None = None) ->
     }
 
 
+def normalize_recipe_units(payload: MenuItemCreate, db: Session) -> None:
+    for line in payload.recipe:
+        ingredient = db.get(models.Ingredient, line.ingredient_id)
+        if not ingredient or not line.unit:
+            continue
+        factor = conversion_factor(line.unit, ingredient.unit)
+        if factor is None:
+            raise HTTPException(status_code=422, detail=f"Choose a compatible recipe unit for {ingredient.name}")
+        quantity = line.quantity * factor
+        if quantity != quantity.quantize(Decimal("0.000001")) or quantity >= Decimal("1000000000000"):
+            raise HTTPException(status_code=422, detail="Recipe conversion exceeds supported quantity precision")
+        line.quantity, line.unit = quantity, ingredient.unit
+
+
 def owner_menu_view(item: models.MenuItem, db: Session) -> dict:
     recipe = db.scalars(select(models.RecipeItem).where(models.RecipeItem.menu_item_id == item.id)).all()
     ingredients = {ingredient.id: ingredient.name for ingredient in db.scalars(select(models.Ingredient)).all()}
@@ -141,6 +155,7 @@ def add_menu_item(payload: MenuItemCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=422, detail="Menu name is required")
     if db.scalar(select(models.MenuItem.id).where(func.lower(models.MenuItem.name) == name.lower())):
         raise HTTPException(status_code=409, detail="A menu item with this name already exists")
+    normalize_recipe_units(payload, db)
     ingredient_ids = [line.ingredient_id for line in payload.recipe]
     if len(ingredient_ids) != len(set(ingredient_ids)):
         raise HTTPException(status_code=422, detail="Use each ingredient only once in a recipe")
@@ -309,7 +324,7 @@ def order_view(order: models.Order, db: Session) -> dict:
         "paid_at": order.paid_at,
         "trashed_at": order.trashed_at,
         "delete_after": order.trashed_at + timedelta(days=30) if order.trashed_at else None,
-        "items": [{"name": menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
+        "items": [{"menu_item_id": line.menu_item_id, "name": menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
         "payment_method": payment.method if payment else None,
         "simulated_reference": payment.simulated_reference if payment else None,
     }
@@ -422,7 +437,7 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
 
     ingredients = db.scalars(select(models.Ingredient).where(models.Ingredient.id.in_(required)).order_by(models.Ingredient.id).with_for_update()).all()
     ingredient_by_id = {ingredient.id: ingredient for ingredient in ingredients}
-    shortages = [f"{ingredient_by_id[i].name} needs {amount}{ingredient_by_id[i].unit}" for i, amount in required.items() if Decimal(str(ingredient_by_id[i].stock_quantity)) < amount]
+    shortages = [f"{ingredient_by_id[i].name} needs {amount} {ingredient_by_id[i].unit}; only {ingredient_by_id[i].stock_quantity} {ingredient_by_id[i].unit} available" for i, amount in required.items() if Decimal(str(ingredient_by_id[i].stock_quantity)) < amount]
     if shortages:
         raise HTTPException(status_code=409, detail={"message": "Insufficient inventory", "shortages": shortages})
 

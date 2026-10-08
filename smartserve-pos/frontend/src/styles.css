@@ -159,3 +159,7 @@ th, td { padding: 10px 12px; }
 .owner-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .owner-notice p { margin: 0; }
 .management-form label small { display: block; margin-top: 6px; font-weight: 400; line-height: 1.4; }
+
+.recipe-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto; }
+.menu-card:disabled small { opacity: 1; }
+@media (max-width: 600px) { .recipe-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .recipe-row > label:first-child { grid-column: 1 / -1; } }
