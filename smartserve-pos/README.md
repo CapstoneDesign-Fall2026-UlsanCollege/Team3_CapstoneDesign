@@ -111,3 +111,5 @@ Payments and stock are sample/simulated data. Real gateways, enforced user roles
 In Owner dashboard, select Edit beside a menu item or ingredient. Change the prefilled values and select Save, or Cancel editing to discard the draft. Menu fields include name, price and recipe; ingredient fields include name, current stock, threshold and unit. Stock changes set the current balance directly. Saved orders keep their original unit prices. Pay or cancel open orders before changing a recipe. Units already used in recipes or stock history cannot be changed; create a new ingredient for a different unit.
 
 The Add menu item and Add ingredient sections start collapsed. Click their headers to expand or collapse each form. Existing lists stay visible. Edit opens the relevant form; successful saving or cancelling editing closes it. Folding a form retains its draft until saved or cancelled.
+
+When an ingredient has recipe or stock history, the Unit selector is disabled with an explanation before saving. Owner notices can be dismissed, and cancelling editing clears the previous notice.

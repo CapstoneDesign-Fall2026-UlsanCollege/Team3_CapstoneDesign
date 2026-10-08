@@ -92,9 +92,10 @@ def list_menu(db: Session = Depends(get_db)):
     return db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
 
 
-def ingredient_view(ingredient: models.Ingredient) -> dict:
+def ingredient_view(ingredient: models.Ingredient, db: Session | None = None) -> dict:
     return {
         "id": ingredient.id, "name": ingredient.name, "unit": ingredient.unit,
+        **({"unit_editable": not (db.scalar(select(models.RecipeItem.id).where(models.RecipeItem.ingredient_id == ingredient.id).limit(1)) or db.scalar(select(models.InventoryMovement.id).where(models.InventoryMovement.ingredient_id == ingredient.id).limit(1)))} if db is not None else {}),
         "stock_quantity": float(ingredient.stock_quantity),
         "reorder_level": float(ingredient.reorder_level),
         "low_stock": ingredient.stock_quantity <= ingredient.reorder_level,
@@ -189,7 +190,7 @@ def remove_menu_item(item_id: int, db: Session = Depends(get_db)):
 @app.get("/owner/inventory")
 def owner_inventory(db: Session = Depends(get_db)):
     ingredients = db.scalars(select(models.Ingredient).order_by(models.Ingredient.name)).all()
-    return [ingredient_view(ingredient) for ingredient in ingredients]
+    return [ingredient_view(ingredient, db) for ingredient in ingredients]
 
 
 @app.post("/owner/inventory", status_code=201)
@@ -207,7 +208,7 @@ def add_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
     db.refresh(ingredient)
-    return ingredient_view(ingredient)
+    return ingredient_view(ingredient, db)
 
 
 @app.put("/owner/inventory/{ingredient_id}")
@@ -230,7 +231,7 @@ def update_ingredient(ingredient_id: int, payload: IngredientCreate, db: Session
         db.rollback()
         raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
     db.refresh(ingredient)
-    return ingredient_view(ingredient)
+    return ingredient_view(ingredient, db)
 
 
 @app.delete("/owner/inventory/{ingredient_id}")
@@ -246,7 +247,7 @@ def remove_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="Ingredient is used by a menu item or open order. Remove the menu item and settle open orders first.")
     ingredient.active = False
     db.commit()
-    return ingredient_view(ingredient)
+    return ingredient_view(ingredient, db)
 
 
 def inventory_was_deducted(order_id: int, db: Session) -> bool:
