@@ -12,7 +12,7 @@ from app import models
 from app.main import (
     add_ingredient, add_menu_item, create_order, get_order, list_inventory,
     list_menu, owner_inventory, owner_menu, remove_ingredient, remove_menu_item,
-    simulate_payment,
+    simulate_payment, update_menu_item, update_ingredient,
 )
 from app.schemas import IngredientCreate, MenuItemCreate, OrderCreate, PaymentCreate
 from app.seed import seed_demo_data
@@ -63,6 +63,25 @@ class OwnerManagementTests(unittest.TestCase):
         self.assertEqual(open_error.exception.status_code, 409)
         simulate_payment(order['id'], PaymentCreate(method='card'), self.db)
         self.assertFalse(remove_ingredient(ingredient['id'], self.db)['active'])
+
+    def test_edit_menu_and_ingredient_with_open_order_guards(self):
+        ingredient, item = self.add_tea()
+        order = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 1}]), self.db)
+        payload = MenuItemCreate(name='Matcha Special', price=7000, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 5}])
+        self.assertEqual(update_menu_item(item['id'], payload, self.db)['price'], 7000)
+        self.assertEqual(get_order(order['id'], self.db)['total'], 6000)
+        payload.recipe[0].quantity = 8
+        with self.assertRaises(HTTPException) as blocked:
+            update_menu_item(item['id'], payload, self.db)
+        self.assertEqual(blocked.exception.status_code, 409)
+        simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+        self.assertEqual(update_menu_item(item['id'], payload, self.db)['recipe'][0]['quantity'], 8)
+        edit = IngredientCreate(name='Premium matcha', unit='g', stock_quantity=200, reorder_level=20)
+        self.assertEqual(update_ingredient(ingredient['id'], edit, self.db)['stock_quantity'], 200)
+        edit.unit = 'kg'
+        with self.assertRaises(HTTPException) as unit_error:
+            update_ingredient(ingredient['id'], edit, self.db)
+        self.assertEqual(unit_error.exception.status_code, 409)
 
     def test_reject_duplicate_names_and_inactive_recipe_ingredient(self):
         ingredient, item = self.add_tea()

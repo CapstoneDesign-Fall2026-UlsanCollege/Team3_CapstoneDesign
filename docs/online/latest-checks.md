@@ -3,8 +3,10 @@
 Checked October 8, 2026 (Korea time).
 
 - Frontend production build: PASS (TypeScript and Vite).
-- Backend regression suite: PASS, 15 tests across order/payment, owner management, and Trash.
+- Backend regression suite: PASS, 16 tests across order/payment, owner management, and Trash.
 - Public browser check: PASS; app loads, monthly order folders display, White/Dark/Code themes work, appearance survives reload, and owner dashboard opens without browser exceptions.
+- Owner-edit browser check: PASS; menu and ingredient forms prefill and save through HTTP 200. Existing values were saved unchanged. The Today shortcut and Sales today label are removed.
+- Owner-edit regression check: PASS; saved prices remain unchanged, recipe edits guard open orders, and used units are protected.
 - Trash tests cover restore, permanent deletion, 30-day expiry, and paid-order protection.
 - Sales tests cover Korea-time daily boundaries. Daily totals include all paid orders in the shared database, including sample purchases.
 

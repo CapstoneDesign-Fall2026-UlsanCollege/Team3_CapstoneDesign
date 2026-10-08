@@ -142,6 +142,38 @@ def add_menu_item(payload: MenuItemCreate, db: Session = Depends(get_db)):
     return owner_menu_view(item, db)
 
 
+@app.put("/owner/menu/{item_id}")
+def update_menu_item(item_id: int, payload: MenuItemCreate, db: Session = Depends(get_db)):
+    item = db.scalar(select(models.MenuItem).where(models.MenuItem.id == item_id).with_for_update())
+    if not item or not item.active:
+        raise HTTPException(status_code=404, detail="Active menu item not found")
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Menu name is required")
+    if db.scalar(select(models.MenuItem.id).where(func.lower(models.MenuItem.name) == name.lower(), models.MenuItem.id != item_id)):
+        raise HTTPException(status_code=409, detail="A menu item with this name already exists")
+    ingredient_ids = [line.ingredient_id for line in payload.recipe]
+    if len(ingredient_ids) != len(set(ingredient_ids)):
+        raise HTTPException(status_code=422, detail="Use each ingredient only once in a recipe")
+    available = set(db.scalars(select(models.Ingredient.id).where(models.Ingredient.id.in_(ingredient_ids), models.Ingredient.active.is_(True)).with_for_update()).all())
+    if available != set(ingredient_ids):
+        raise HTTPException(status_code=422, detail="Recipe ingredients must be active inventory items")
+    old_recipe = {(line.ingredient_id, Decimal(str(line.quantity))) for line in db.scalars(select(models.RecipeItem).where(models.RecipeItem.menu_item_id == item_id)).all()}
+    new_recipe = {(line.ingredient_id, line.quantity) for line in payload.recipe}
+    if old_recipe != new_recipe and db.scalar(select(models.OrderItem.id).join(models.Order).where(models.OrderItem.menu_item_id == item_id, models.Order.status == "open").limit(1)):
+        raise HTTPException(status_code=409, detail="Pay or cancel open orders for this item before changing its recipe")
+    item.name, item.price = name, payload.price
+    db.execute(delete(models.RecipeItem).where(models.RecipeItem.menu_item_id == item_id))
+    try:
+        db.flush()
+        db.add_all([models.RecipeItem(menu_item_id=item.id, ingredient_id=line.ingredient_id, quantity=line.quantity) for line in payload.recipe])
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Menu item could not be added; check its name and recipe")
+    return owner_menu_view(item, db)
+
+
 @app.delete("/owner/menu/{item_id}")
 def remove_menu_item(item_id: int, db: Session = Depends(get_db)):
     item = db.scalar(select(models.MenuItem).where(models.MenuItem.id == item_id).with_for_update())
@@ -169,6 +201,29 @@ def add_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
     ingredient = models.Ingredient(name=name, unit=unit, stock_quantity=payload.stock_quantity, reorder_level=payload.reorder_level, active=True)
     db.add(ingredient)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
+    db.refresh(ingredient)
+    return ingredient_view(ingredient)
+
+
+@app.put("/owner/inventory/{ingredient_id}")
+def update_ingredient(ingredient_id: int, payload: IngredientCreate, db: Session = Depends(get_db)):
+    ingredient = db.scalar(select(models.Ingredient).where(models.Ingredient.id == ingredient_id).with_for_update())
+    if not ingredient or not ingredient.active:
+        raise HTTPException(status_code=404, detail="Active ingredient not found")
+    name, unit = payload.name.strip(), payload.unit.strip()
+    if not name or not unit:
+        raise HTTPException(status_code=422, detail="Ingredient name and unit are required")
+    if db.scalar(select(models.Ingredient.id).where(func.lower(models.Ingredient.name) == name.lower(), models.Ingredient.id != ingredient_id)):
+        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
+    if unit != ingredient.unit and (db.scalar(select(models.RecipeItem.id).where(models.RecipeItem.ingredient_id == ingredient_id).limit(1)) or db.scalar(select(models.InventoryMovement.id).where(models.InventoryMovement.ingredient_id == ingredient_id).limit(1))):
+        raise HTTPException(status_code=409, detail="Unit is used by recipes or stock history. Create a new ingredient for a different unit")
+    ingredient.name, ingredient.unit = name, unit
+    ingredient.stock_quantity, ingredient.reorder_level = payload.stock_quantity, payload.reorder_level
     try:
         db.commit()
     except IntegrityError:

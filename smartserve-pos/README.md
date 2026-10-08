@@ -105,3 +105,7 @@ Keep the same project name to retain the same named database volume. Do not remo
 [Public-link instructions](../docs/online/README.md) cover prerequisites, startup, stopping, and temporary URL behaviour. The actual app and PostgreSQL database run on this PC, which must remain awake and connected.
 
 Payments and stock are sample/simulated data. Real gateways, enforced user roles, physical stock measurement, supplier workflows, multi-branch support, and production hosting are not included.
+
+### Editing existing items
+
+In Owner dashboard, select Edit beside a menu item or ingredient. Change the prefilled values and select Save, or Cancel editing to discard the draft. Menu fields include name, price and recipe; ingredient fields include name, current stock, threshold and unit. Stock changes set the current balance directly. Saved orders keep their original unit prices. Pay or cancel open orders before changing a recipe. Units already used in recipes or stock history cannot be changed; create a new ingredient for a different unit.
