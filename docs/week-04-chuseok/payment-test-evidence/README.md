@@ -1,6 +1,6 @@
 # Live Docker payment and inventory test evidence
 
-Run: 2026-10-01. Environment: isolated `smartserve-payment-check` Docker Compose project with the actual SmartServe frontend, FastAPI backend, and PostgreSQL database. This was a Codex automated browser run, not a personal execution by the assigned student.
+Run: 2026-10-01. Environment: isolated `smartserve-payment-check` Docker Compose project with the actual SmartServe frontend, FastAPI backend, and PostgreSQL database. This was a Automated browser run, not a personal execution by the assigned student.
 
 Two Lattes were purchased on order **#1** for **KRW 9,000**. The same order ID was then submitted for payment again through the cashier UI.
 

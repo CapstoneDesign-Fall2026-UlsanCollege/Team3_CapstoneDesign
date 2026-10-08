@@ -2,7 +2,7 @@
 
 Run: 2026-09-23T07:07:07.976Z
 
-Performed by Codex using browser automation against the isolated SmartServe test instance. Shuzita has not yet personally reviewed or reproduced this run.
+Performed by browser automation using browser automation against the isolated SmartServe test instance. Shuzita has not yet personally reviewed or reproduced this run.
 
 Order **#5**: two Lattes, **KRW 9,000**, paid by simulated cash.
 

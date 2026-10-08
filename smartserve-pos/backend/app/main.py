@@ -1,10 +1,11 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from uuid import uuid4
+import asyncio
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func, inspect, select, text
+from sqlalchemy import delete, func, inspect, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -26,12 +27,59 @@ app.add_middleware(
 @app.on_event("startup")
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
+    if "trashed_at" not in {column["name"] for column in inspect(engine).get_columns("orders")}:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE orders ADD COLUMN trashed_at TIMESTAMP WITH TIME ZONE NULL"))
     # Existing demo databases predate the ingredient archive flag.
     if "active" not in {column["name"] for column in inspect(engine).get_columns("ingredients")}:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE ingredients ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE"))
     with Session(engine) as db:
         seed_demo_data(db)
+
+
+def permanently_delete_cancelled(order: models.Order, db: Session) -> None:
+    if order.status != "cancelled" or db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)) or inventory_was_deducted(order.id, db):
+        raise HTTPException(status_code=409, detail="Orders with payment or inventory history cannot be deleted.")
+    db.execute(delete(models.OrderItem).where(models.OrderItem.order_id == order.id))
+    db.delete(order)
+
+
+def purge_expired_trash(db: Session) -> None:
+    expired = db.scalars(select(models.Order).where(models.Order.trashed_at <= datetime.now(timezone.utc) - timedelta(days=30), models.Order.status == "cancelled").with_for_update()).all()
+    for order in expired:
+        if not db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)) and not inventory_was_deducted(order.id, db):
+            permanently_delete_cancelled(order, db)
+    db.commit()
+
+
+def run_trash_cleanup() -> None:
+    with Session(engine) as db:
+        purge_expired_trash(db)
+
+
+async def trash_cleanup_loop() -> None:
+    while True:
+        try:
+            await asyncio.to_thread(run_trash_cleanup)
+        except Exception:
+            import logging
+            logging.exception("Order trash cleanup failed; retrying in one minute")
+        await asyncio.sleep(60)
+
+
+@app.on_event("startup")
+async def start_trash_cleanup() -> None:
+    app.state.trash_cleanup = asyncio.create_task(trash_cleanup_loop())
+
+
+@app.on_event("shutdown")
+async def stop_trash_cleanup() -> None:
+    app.state.trash_cleanup.cancel()
+    try:
+        await app.state.trash_cleanup
+    except asyncio.CancelledError:
+        pass
 
 
 @app.get("/health")
@@ -165,6 +213,8 @@ def order_view(order: models.Order, db: Session) -> dict:
         "total": float(order.total),
         "created_at": order.created_at,
         "paid_at": order.paid_at,
+        "trashed_at": order.trashed_at,
+        "delete_after": order.trashed_at + timedelta(days=30) if order.trashed_at else None,
         "items": [{"name": menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
         "payment_method": payment.method if payment else None,
         "simulated_reference": payment.simulated_reference if payment else None,
@@ -193,15 +243,49 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
 @app.get("/orders/{order_id}")
 def get_order(order_id: int, db: Session = Depends(get_db)):
     order = db.get(models.Order, order_id)
-    if not order:
+    if not order or order.trashed_at:
         raise HTTPException(status_code=404, detail="Order not found")
     return order_view(order, db)
 
 
 @app.get("/orders")
-def list_orders(db: Session = Depends(get_db)):
-    orders = db.scalars(select(models.Order).order_by(models.Order.created_at.desc(), models.Order.id.desc()).limit(100)).all()
+def list_orders(db: Session = Depends(get_db), trash: bool = False):
+    purge_expired_trash(db)
+    orders = db.scalars(select(models.Order).where(models.Order.trashed_at.is_not(None) if trash else models.Order.trashed_at.is_(None)).order_by(models.Order.created_at.desc(), models.Order.id.desc())).all()
     return [order_view(order, db) for order in orders]
+
+
+@app.post("/orders/{order_id}/trash")
+def trash_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status != "cancelled" or inventory_was_deducted(order.id, db) or db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)):
+        raise HTTPException(status_code=409, detail="Cancel an unpaid order before moving it to Trash. Paid orders are retained.")
+    if not order.trashed_at:
+        order.trashed_at = datetime.now(timezone.utc)
+    db.commit()
+    return order_view(order, db)
+
+
+@app.post("/orders/{order_id}/restore")
+def restore_order(order_id: int, db: Session = Depends(get_db)):
+    purge_expired_trash(db)
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order or not order.trashed_at:
+        raise HTTPException(status_code=404, detail="Trashed order not found or already expired")
+    order.trashed_at = None
+    db.commit()
+    return order_view(order, db)
+
+
+@app.delete("/orders/{order_id}", status_code=204)
+def delete_trashed_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order or not order.trashed_at:
+        raise HTTPException(status_code=404, detail="Move this order to Trash before deleting it permanently.")
+    permanently_delete_cancelled(order, db)
+    db.commit()
 
 
 @app.post("/orders/{order_id}/cancel")
@@ -209,7 +293,7 @@ def cancel_order(order_id: int, db: Session = Depends(get_db)):
     order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.status != "open" or inventory_was_deducted(order.id, db):
+    if order.trashed_at or order.status != "open" or inventory_was_deducted(order.id, db):
         raise HTTPException(status_code=409, detail="Only an unpaid open order can be cancelled.")
     order.status = "cancelled"
     db.commit()
@@ -224,6 +308,8 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     inventory_deducted = inventory_was_deducted(order.id, db)
+    if order.trashed_at:
+        raise HTTPException(status_code=409, detail="This order is in Trash and cannot be paid.")
     if order.status == "paid" or inventory_deducted:
         raise HTTPException(status_code=409, detail="This order has already been processed. Inventory was not deducted again.")
     if order.status != "open":
@@ -266,17 +352,22 @@ def list_inventory(db: Session = Depends(get_db)):
 
 
 @app.get("/dashboard/sales")
-def sales_dashboard(db: Session = Depends(get_db)):
-    today = date.today()
+def sales_dashboard(db: Session = Depends(get_db), selected_date: date | None = None):
+    korea = timezone(timedelta(hours=9))
+    today = selected_date or datetime.now(korea).date()
+    start = datetime.combine(today, time.min, tzinfo=korea).astimezone(timezone.utc)
+    end = start + timedelta(days=1)
+    paid_on_day = (models.Order.status == "paid", models.Order.paid_at >= start, models.Order.paid_at < end)
     count, total = db.execute(
         select(func.count(models.Order.id), func.coalesce(func.sum(models.Order.total), 0))
-        .where(models.Order.status == "paid", func.date(models.Order.paid_at) == today)
+        .where(*paid_on_day)
     ).one()
     recent = db.scalars(
-        select(models.Order).where(models.Order.status == "paid").order_by(models.Order.paid_at.desc()).limit(8)
+        select(models.Order).where(*paid_on_day).order_by(models.Order.paid_at.desc(), models.Order.id.desc()).limit(100)
     ).all()
     return {
         "date": today.isoformat(),
+        "timezone": "Asia/Seoul",
         "paid_orders": count,
         "sales_total": float(total),
         "recent_sales": [order_view(order, db) for order in recent],

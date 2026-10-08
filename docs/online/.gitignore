@@ -1,0 +1,4 @@
+cloudflared.exe
+*.log
+node_modules/
+processes.json

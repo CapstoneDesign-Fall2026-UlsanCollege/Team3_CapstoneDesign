@@ -72,7 +72,7 @@ The October 7 automated browser check verified:
 
 ### Additional mixed-order receipt/inventory check
 
-This Codex-assisted automated check ran on October 7 at 14:56 Korea time against commit `a36f83a`, on the existing developer PC. Shuzita subsequently uploaded the evidence to main.
+This automated check ran on October 7 at 14:56 Korea time against commit `a36f83a`, on the existing developer PC. Shuzita subsequently uploaded the evidence to main.
 
 **Order:** #3 — takeaway  
 **Items:** one Americano + one Milk Tea  

@@ -26,7 +26,7 @@ The API uses `open` for an unpaid order. This is the current equivalent of the p
 | Backend regression checks | Existing order/payment tests pass | 8 tests passed |
 | Frontend production build | TypeScript and Vite complete | PASS; nonblocking existing Vite config warning |
 
-[Machine-readable result](results.json), [browser check source](verify-cashier.cjs), [cashier implementation](../../smartserve-pos/frontend/src/main.tsx).
+[Machine-readable result](cashier-results.json), [browser check source](verify-cashier.cjs), [cashier implementation](../../smartserve-pos/frontend/src/main.tsx).
 
 ![Saved unpaid order](screenshots/01-created-order.png)
 

@@ -1,4 +1,21 @@
 :root { font-family: Inter, system-ui, sans-serif; color: #1f2937; background: #f8fafc; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 0 0 20px; }
+.toolbar label { margin: 0; min-width: 150px; font-size: .9rem; }
+.toolbar input { font: inherit; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; }
+.toolbar button { min-height: 38px; }
+.toolbar .folder-active { background: #0f766e; color: white; }
+.row-actions .danger { background: #fee2e2; color: #991b1b; }
+.month-folders { display: grid; gap: 14px; }
+.month-folder { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+.month-folder summary { cursor: pointer; padding: 18px; color: #1f2937; background: #f1f5f9; }
+.month-folder summary::marker { color: #0f766e; }
+.month-folder summary:focus-visible { outline: 2px solid #0f766e; outline-offset: -3px; }
+.month-count { margin-left: 14px; color: #64748b; font-size: .9rem; }
+.month-folder .table-wrap { border: 0; border-radius: 0; }
+.toolbar .muted { align-self: center; }
+.form-hint { font-size: .85rem; line-height: 1.5; margin-bottom: 0; }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid #0f766e; outline-offset: 3px; }
+.table-wrap td { vertical-align: top; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 button, select { font: inherit; }
@@ -59,3 +76,75 @@ nav { display: flex; gap: 8px; flex-wrap: wrap; } nav .active, .payments button 
 .primary-link { display: inline-flex; align-items: center; background: #0f766e; color: white; text-decoration: none; border-radius: 8px; padding: 10px 14px; font-weight: 600; }
 .primary-link:hover { background: #0b5f59; }
 @media (max-width: 900px) { .management-grid { grid-template-columns: 1fr; } }
+
+/* All screens share one palette; appearance changes never change store data. */
+:root {
+  --page: #f8fafc; --surface: #ffffff; --surface-soft: #f1f5f9;
+  --text: #1f2937; --muted: #64748b; --border: #dbe2ea;
+  --accent: #0f766e; --on-accent: #ffffff;
+  --success-bg: #dcfce7; --success: #166534; --info-bg: #dbeafe; --info: #1d4ed8;
+  --danger-bg: #fee2e2; --danger: #991b1b; --notice: #ecfeff;
+  --number: #1f2937; color-scheme: light;
+  color: var(--text); background: var(--page);
+}
+:root[data-theme="dark"] {
+  --page: #0b1220; --surface: #121e30; --surface-soft: #1c2a40;
+  --text: #e6edf5; --muted: #a6b5c9; --border: #34435a;
+  --accent: #5eead4; --on-accent: #062f2b;
+  --success-bg: #163c2d; --success: #86efac; --info-bg: #183453; --info: #93c5fd;
+  --danger-bg: #46232c; --danger: #fda4af; --notice: #12383f;
+  --number: #f8fafc; color-scheme: dark;
+}
+:root[data-theme="code"] {
+  --page: #1e1e2e; --surface: #252537; --surface-soft: #313145;
+  --text: #cdd6f4; --muted: #bac2de; --border: #45475a;
+  --accent: #cba6f7; --on-accent: #241633;
+  --success-bg: #283d35; --success: #a6e3a1; --info-bg: #26364b; --info: #89b4fa;
+  --danger-bg: #472c3b; --danger: #f38ba8; --notice: #293345;
+  --number: #a6e3a1; color-scheme: dark;
+  font-family: "Cascadia Code", "Consolas", monospace;
+}
+body { background: var(--page); color: var(--text); }
+header, .owner-management, .management-list, .management-row, .cart-line, .total { border-color: var(--border); }
+button, .month-folder summary { background: var(--surface-soft); color: var(--text); }
+.panel, .receipt, .stats article, .menu-card, table, .table-wrap, .month-folder { background: var(--surface); border-color: var(--border); }
+th, td { border-color: var(--border); }
+th, .muted, .month-count, .empty-state, .management-row small, .menu-card small, .cart-line small, .table-wrap td small { color: var(--muted); }
+.eyebrow, .text-button, .month-folder summary::marker { color: var(--accent); }
+nav .active, .payments button, .row-actions .primary, .management-form .primary, .primary-link, .toolbar .folder-active { background: var(--accent); color: var(--on-accent); }
+.primary-link:hover { background: var(--accent); filter: brightness(.9); }
+select, input, .toolbar input, .management-form input, .management-form select { background: var(--surface); color: var(--text); border-color: var(--border); font: inherit; }
+input::placeholder { color: var(--muted); }
+.badge, .badge.paid { background: var(--success-bg); color: var(--success); }
+.badge.open { background: var(--info-bg); color: var(--info); }
+.badge.cancelled { background: var(--surface-soft); color: var(--muted); }
+.badge.low, .row-actions .danger { background: var(--danger-bg); color: var(--danger); }
+.app-shell .notice { background: var(--notice); color: var(--text); border-color: var(--border); }
+.stats strong, .total strong:last-child, .receipt > strong { color: var(--number); }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible, .month-folder summary:focus-visible { outline-color: var(--accent); }
+.management-form input:focus, .management-form select:focus { outline-color: var(--accent); }
+.menu-card:hover { border-color: var(--accent); }
+:root[data-theme="code"] h1, :root[data-theme="code"] h2, :root[data-theme="code"] h3 { color: #89dceb; }
+:root[data-theme="code"] .eyebrow { color: #f5c2e7; }
+:root[data-theme="code"] .menu-card strong { color: #f9e2af; }
+.theme-control { position: fixed; left: 14px; bottom: 20px; z-index: 50; display: flex; align-items: end; gap: 10px; }
+.theme-toggle { display: grid; place-items: center; width: 48px; height: 48px; background: var(--surface); color: var(--accent); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 5px 20px #0002; }
+.theme-options { width: 240px; margin: 0; padding: 12px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 8px 30px #0003; }
+.theme-options legend { background: var(--surface); padding: 0 8px; font-weight: 700; }
+.theme-option { display: flex; align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 9px; padding: 10px; margin: 4px 0; cursor: pointer; }
+.theme-option.selected { background: var(--surface-soft); border-color: var(--accent); }
+.theme-option input { accent-color: var(--accent); }
+.theme-option small { display: block; margin-top: 3px; color: var(--muted); font-size: .75rem; }
+.theme-swatch { width: 24px; height: 24px; flex-shrink: 0; border: 1px solid #94a3b8; border-radius: 7px; }
+.swatch-white { background: linear-gradient(135deg, #fff 50%, #e2e8f0 50%); }
+.swatch-dark { background: linear-gradient(135deg, #121e30 50%, #5eead4 50%); }
+.swatch-code { background: linear-gradient(135deg, #252537 50%, #cba6f7 50%); }
+@media (max-width: 700px) { .theme-control { left: 10px; bottom: 12px; } .app-shell { padding-bottom: 90px; } }
+
+/* Compact store interface. */
+.app-shell h1 { font-size: clamp(1.4rem, 2.4vw, 1.8rem); letter-spacing: 0; }
+.panel, .receipt, .stats article, .month-folder, .table-wrap { border-radius: 6px; }
+.menu-card { min-height: 100px; border-radius: 6px; }
+.app-shell header { margin-bottom: 24px; }
+th, td { padding: 10px 12px; }
+.month-folder summary { padding: 14px 16px; }

@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "url": "https://creating-bridges-relief-speaker.trycloudflare.com",
+  "checkedAt": "2026-10-08T05:14:14.338Z",
+  "orderId": 4,
+  "total": 3500,
+  "refreshRecovery": true,
+  "receipt": true,
+  "coffeeBeansDeducted": 18,
+  "duplicatePaymentStatus": 409,
+  "paidOrdersAdded": 1,
+  "salesAdded": 3500
+}

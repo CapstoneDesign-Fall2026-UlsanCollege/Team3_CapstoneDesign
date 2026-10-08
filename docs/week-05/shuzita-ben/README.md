@@ -1,6 +1,6 @@
 # Receipt and inventory evidence — shuzita-ben
 
-Prepared for Shuzita's Week 5 review. **Provenance:** Automated browser/API test on the existing development PC. Shuzita's personal review and independent reproduction are pending. The automated run did not publish files; the package was subsequently uploaded in [commit c9f526f](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c9f526f).
+Prepared for Shuzita's Week 5 review. **Provenance:** Automated browser/API test on the existing development PC. Shuzita's personal review and independent reproduction are pending. No GitHub changes were made by this run.
 
 ## Verified run
 
@@ -12,17 +12,17 @@ October 7, 2026, 14:56 Korea time; software commit `a36f83a`. Order #3: one Amer
 
 ## Screenshots
 
-![Starting inventory](01-inventory-before.png)
+![Starting inventory](screenshots/01-inventory-before.png)
 
-![Starting daily sales](02-sales-before.png)
+![Starting daily sales](screenshots/02-sales-before.png)
 
-![Unpaid takeaway order](03-unpaid-mixed-order.png)
+![Unpaid takeaway order](screenshots/03-unpaid-mixed-order.png)
 
-![Paid card receipt](04-paid-card-receipt.png)
+![Paid card receipt](screenshots/04-paid-card-receipt.png)
 
-![Inventory after payment](05-inventory-after.png)
+![Inventory after payment](screenshots/05-inventory-after.png)
 
-![Sales after payment and duplicate request](06-sales-after-repeat.png)
+![Sales after payment and duplicate request](screenshots/06-sales-after-repeat.png)
 
 ## Reproduce
 
@@ -36,7 +36,7 @@ docker compose -p smartserve-week5-check up -d --build
 Set-Location ..
 # Set PLAYWRIGHT_MODULE if Playwright is installed outside normal Node resolution.
 # Set CHROMIUM_PATH to an installed compatible browser, if needed.
-node docs/week-05/verify.cjs
+node docs/week-05/shuzita-ben/verify.cjs
 ```
 
 Node.js, Playwright, Docker Desktop Linux containers, and a compatible Chromium browser are required. Inventory/sales comparisons use values captured immediately before and after the test, rather than assuming a fresh database. Avoid concurrent sales during the check.

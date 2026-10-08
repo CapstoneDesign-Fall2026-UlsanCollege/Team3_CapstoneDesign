@@ -1,6 +1,6 @@
 # Owner menu and inventory controls
 
-On 2026-10-01, Codex ran the [browser check](verify.cjs) against the isolated SmartServe Docker frontend, FastAPI API, and PostgreSQL database. The run added an ingredient with 100 g stock, created a menu item with a 5 g recipe, sold one item, and verified stock fell to 95 g. It then removed the menu item and ingredient from active use. The cashier menu and inventory list no longer showed them, while the paid order's receipt remained readable. [Machine-readable result](results.json).
+On 2026-10-01, The automated runner ran the [browser check](verify.cjs) against the isolated SmartServe Docker frontend, FastAPI API, and PostgreSQL database. The run added an ingredient with 100 g stock, created a menu item with a 5 g recipe, sold one item, and verified stock fell to 95 g. It then removed the menu item and ingredient from active use. The cashier menu and inventory list no longer showed them, while the paid order's receipt remained readable. [Machine-readable result](results.json).
 
 ![Owner controls after adding an ingredient and menu item](screenshots/01-owner-added-menu-and-ingredient.png)
 

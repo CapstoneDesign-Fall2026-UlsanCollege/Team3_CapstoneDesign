@@ -3,6 +3,7 @@ import os
 os.environ['DATABASE_URL'] = 'sqlite://'
 
 import unittest
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from fastapi import HTTPException
 from sqlalchemy import select, func
@@ -15,6 +16,27 @@ from app.seed import seed_demo_data
 
 
 class InventoryPaymentTests(unittest.TestCase):
+    def test_sales_date_uses_korea_midnight_and_filters_rows(self):
+        simulate_payment(self.order['id'], PaymentCreate(method='cash'), self.db)
+        order = self.db.get(models.Order, self.order['id'])
+        # UTC Oct 7 15:00 is exactly Korea Oct 8 00:00.
+        order.paid_at = datetime(2026, 10, 7, 15, 0, tzinfo=timezone.utc)
+        self.db.commit()
+        day = sales_dashboard(self.db, selected_date=date(2026, 10, 8))
+        self.assertEqual(day['paid_orders'], 1)
+        self.assertEqual(day['sales_total'], 4500)
+        self.assertEqual([item['id'] for item in day['recent_sales']], [order.id])
+        previous = sales_dashboard(self.db, selected_date=date(2026, 10, 7))
+        self.assertEqual(previous['paid_orders'], 0)
+        self.assertEqual(previous['recent_sales'], [])
+        # The next midnight belongs exclusively to the following day.
+        order.paid_at = datetime(2026, 10, 8, 15, 0, tzinfo=timezone.utc)
+        self.db.commit()
+        ending = sales_dashboard(self.db, selected_date=date(2026, 10, 8))
+        self.assertEqual(ending['paid_orders'], 0)
+        self.assertEqual(ending['sales_total'], 0)
+        self.assertEqual(ending['recent_sales'], [])
+
     def setUp(self):
         Base.metadata.create_all(engine)
         self.db = Session(engine)
