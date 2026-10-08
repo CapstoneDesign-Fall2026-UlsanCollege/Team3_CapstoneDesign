@@ -11,8 +11,8 @@ class Ingredient(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), unique=True)
     unit: Mapped[str] = mapped_column(String(20))
-    stock_quantity: Mapped[float] = mapped_column(Numeric(12, 2))
-    reorder_level: Mapped[float] = mapped_column(Numeric(12, 2), default=0)
+    stock_quantity: Mapped[float] = mapped_column(Numeric(18, 6))
+    reorder_level: Mapped[float] = mapped_column(Numeric(18, 6), default=0)
     active: Mapped[bool] = mapped_column(default=True, server_default=text("true"))
 
 
@@ -29,7 +29,7 @@ class RecipeItem(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id", ondelete="CASCADE"))
     ingredient_id: Mapped[int] = mapped_column(ForeignKey("ingredients.id"))
-    quantity: Mapped[float] = mapped_column(Numeric(12, 2))
+    quantity: Mapped[float] = mapped_column(Numeric(18, 6))
     __table_args__ = (UniqueConstraint("menu_item_id", "ingredient_id", name="uq_recipe_ingredient"),)
 
 
@@ -68,7 +68,7 @@ class InventoryMovement(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     ingredient_id: Mapped[int] = mapped_column(ForeignKey("ingredients.id"))
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
-    quantity_change: Mapped[float] = mapped_column(Numeric(12, 2))
+    quantity_change: Mapped[float] = mapped_column(Numeric(18, 6))
     reason: Mapped[str] = mapped_column(String(40), default="paid_order")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     __table_args__ = (UniqueConstraint("order_id", "ingredient_id", name="uq_order_ingredient_deduction"),)

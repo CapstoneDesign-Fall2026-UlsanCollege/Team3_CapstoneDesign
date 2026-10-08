@@ -78,10 +78,27 @@ class OwnerManagementTests(unittest.TestCase):
         self.assertEqual(update_menu_item(item['id'], payload, self.db)['recipe'][0]['quantity'], 8)
         edit = IngredientCreate(name='Premium matcha', unit='g', stock_quantity=200, reorder_level=20)
         self.assertEqual(update_ingredient(ingredient['id'], edit, self.db)['stock_quantity'], 200)
-        edit.unit = 'kg'
+        edit.unit = 'l'
         with self.assertRaises(HTTPException) as unit_error:
             update_ingredient(ingredient['id'], edit, self.db)
         self.assertEqual(unit_error.exception.status_code, 409)
+
+    def test_compatible_conversion_preserves_recipe_payment_and_ledger(self):
+        for original_unit, next_unit in [('g', 'kg'), ('ml', 'l')]:
+            ingredient = add_ingredient(IngredientCreate(name='Convert ' + original_unit, unit=original_unit, stock_quantity=2000, reorder_level=500), self.db)
+            item = add_menu_item(MenuItemCreate(name='Drink ' + original_unit, price=1000, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 18}]), self.db)
+            order = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 1}]), self.db)
+            converted = update_ingredient(ingredient['id'], IngredientCreate(name=ingredient['name'], unit=next_unit, stock_quantity=2, reorder_level=0.5), self.db)
+            self.assertEqual(converted['stock_quantity'], 2)
+            self.assertEqual(next(i for i in owner_menu(self.db) if i['id'] == item['id'])['recipe'][0]['quantity'], 0.018)
+            simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+            self.assertEqual(next(i for i in owner_inventory(self.db) if i['id'] == ingredient['id'])['stock_quantity'], 1.982)
+            update_ingredient(ingredient['id'], IngredientCreate(name=ingredient['name'], unit=original_unit, stock_quantity=1982, reorder_level=500), self.db)
+            movement = self.db.scalar(select(models.InventoryMovement).where(models.InventoryMovement.order_id == order['id']))
+            self.assertEqual(float(movement.quantity_change), -18)
+            with self.assertRaises(HTTPException):
+                simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+            self.assertEqual(get_order(order['id'], self.db)['total'], 1000)
 
     def test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused(self):
         original = add_ingredient(IngredientCreate(name='sherap', unit='10', stock_quantity=10, reorder_level=5), self.db)

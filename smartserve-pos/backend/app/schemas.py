@@ -27,13 +27,13 @@ class PaymentCreate(BaseModel):
 class IngredientCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     unit: str = Field(min_length=1, max_length=20)
-    stock_quantity: Decimal = Field(ge=0, max_digits=12, decimal_places=2)
-    reorder_level: Decimal = Field(ge=0, max_digits=12, decimal_places=2)
+    stock_quantity: Decimal = Field(ge=0, max_digits=18, decimal_places=6)
+    reorder_level: Decimal = Field(ge=0, max_digits=18, decimal_places=6)
 
 
 class RecipeLineCreate(BaseModel):
     ingredient_id: int
-    quantity: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
+    quantity: Decimal = Field(gt=0, max_digits=18, decimal_places=6)
 
 
 class MenuItemCreate(BaseModel):

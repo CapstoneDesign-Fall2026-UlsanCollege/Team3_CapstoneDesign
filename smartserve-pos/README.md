@@ -48,7 +48,7 @@ In Owner dashboard → Manage menu & inventory:
 1. Add an ingredient with g, kg, ml, l, or pcs as its unit.
 2. Enter starting stock and low-stock threshold in that unit.
 3. Add a menu item, price in KRW, and recipe amounts for one serving.
-4. Recipe quantities must use each ingredient's stored unit; units are not automatically converted.
+4. Recipe quantities use each ingredient's stored unit. Editing g/kg or ml/l converts the existing recipe quantities automatically.
 
 Removed items disappear from active lists while historical records remain. Ingredients used by active menu items or open orders cannot be removed until dependencies are settled. Archived names remain reserved. Owner-only access is not enforced yet.
 
@@ -108,10 +108,14 @@ Payments and stock are sample/simulated data. Real gateways, enforced user roles
 
 ### Editing existing items
 
-In Owner dashboard, select Edit beside a menu item or ingredient. Change the prefilled values and select Save, or Cancel editing to discard the draft. Menu fields include name, price and recipe; ingredient fields include name, current stock, threshold and unit. Stock changes set the current balance directly. Saved orders keep their original unit prices. Pay or cancel open orders before changing a recipe. Units already used in recipes or stock history cannot be changed; create a new ingredient for a different unit.
+In Owner dashboard, select Edit beside a menu item or ingredient. Change the prefilled values and select Save, or Cancel editing to discard the draft. Menu fields include name, price and recipe; ingredient fields include name, current stock, threshold and unit. Stock changes set the current balance directly. Saved orders keep their original unit prices. Pay or cancel open orders before changing a recipe. Compatible unit changes (g/kg or ml/l) convert all recipe and stock-history quantities. Incompatible changes, such as weight to volume, remain blocked for used ingredients.
 
 The Add menu item and Add ingredient sections start collapsed. Click their headers to expand or collapse each form. Existing lists stay visible. Edit opens the relevant form; successful saving or cancelling editing closes it. Folding a form retains its draft until saved or cancelled.
 
-When an ingredient has recipe or stock history, the Unit selector is disabled with an explanation before saving. Owner notices can be dismissed, and cancelling editing clears the previous notice.
+When an ingredient has recipe or stock history, the Unit selector offers compatible conversions only. Owner notices can be dismissed, and cancelling editing clears the previous notice.
 
 Adding a removed ingredient name brings the existing ingredient back using the entered stock and threshold. Its ID and history are retained. A different unit is allowed only when it has no recipe or stock history. Active duplicate names remain blocked; use Edit instead.
+
+### Weight and volume conversions
+
+Edit Coffee beans to switch g/kg, or Milk to switch ml/l (litres). The form converts current stock and threshold immediately. Save converts every linked recipe and stock movement in the same transaction; Cancel leaves stored values unchanged. Quantity fields support six decimal places so 18 g remains exactly 0.018 kg. Review the displayed stock before saving; any stock edits set the final balance in the selected unit. Saved order prices and totals remain unchanged. Removed ingredients with history should first be added back in their original unit, then converted with Edit.

@@ -30,6 +30,10 @@ def create_tables() -> None:
     if "trashed_at" not in {column["name"] for column in inspect(engine).get_columns("orders")}:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE orders ADD COLUMN trashed_at TIMESTAMP WITH TIME ZONE NULL"))
+    if engine.dialect.name == "postgresql":
+        with engine.begin() as connection:
+            for table, column in [("ingredients", "stock_quantity"), ("ingredients", "reorder_level"), ("recipe_items", "quantity"), ("inventory_movements", "quantity_change")]:
+                connection.execute(text(f"ALTER TABLE {table} ALTER COLUMN {column} TYPE NUMERIC(18, 6)"))
     # Existing demo databases predate the ingredient archive flag.
     if "active" not in {column["name"] for column in inspect(engine).get_columns("ingredients")}:
         with engine.begin() as connection:
@@ -92,10 +96,22 @@ def list_menu(db: Session = Depends(get_db)):
     return db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
 
 
+UNIT_FACTORS = {"g": ("mass", Decimal("1")), "kg": ("mass", Decimal("1000")), "ml": ("volume", Decimal("1")), "l": ("volume", Decimal("1000")), "pcs": ("count", Decimal("1"))}
+
+
+def conversion_factor(old: str, new: str) -> Decimal | None:
+    if old == new:
+        return Decimal("1")
+    if old in UNIT_FACTORS and new in UNIT_FACTORS and UNIT_FACTORS[old][0] == UNIT_FACTORS[new][0]:
+        return UNIT_FACTORS[old][1] / UNIT_FACTORS[new][1]
+    return None
+
+
 def ingredient_view(ingredient: models.Ingredient, db: Session | None = None) -> dict:
     return {
         "id": ingredient.id, "name": ingredient.name, "unit": ingredient.unit,
         **({"unit_editable": not (db.scalar(select(models.RecipeItem.id).where(models.RecipeItem.ingredient_id == ingredient.id).limit(1)) or db.scalar(select(models.InventoryMovement.id).where(models.InventoryMovement.ingredient_id == ingredient.id).limit(1)))} if db is not None else {}),
+        "convertible_units": [unit for unit in UNIT_FACTORS if conversion_factor(ingredient.unit, unit) is not None],
         "stock_quantity": float(ingredient.stock_quantity),
         "reorder_level": float(ingredient.reorder_level),
         "low_stock": ingredient.stock_quantity <= ingredient.reorder_level,
@@ -229,8 +245,22 @@ def update_ingredient(ingredient_id: int, payload: IngredientCreate, db: Session
         raise HTTPException(status_code=422, detail="Ingredient name and unit are required")
     if db.scalar(select(models.Ingredient.id).where(func.lower(models.Ingredient.name) == name.lower(), models.Ingredient.id != ingredient_id)):
         raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
-    if unit != ingredient.unit and (db.scalar(select(models.RecipeItem.id).where(models.RecipeItem.ingredient_id == ingredient_id).limit(1)) or db.scalar(select(models.InventoryMovement.id).where(models.InventoryMovement.ingredient_id == ingredient_id).limit(1))):
-        raise HTTPException(status_code=409, detail="Unit is used by recipes or stock history. Create a new ingredient for a different unit")
+    if unit != ingredient.unit:
+        factor = conversion_factor(ingredient.unit, unit)
+        recipes = db.scalars(select(models.RecipeItem).where(models.RecipeItem.ingredient_id == ingredient_id).with_for_update()).all()
+        movements = db.scalars(select(models.InventoryMovement).where(models.InventoryMovement.ingredient_id == ingredient_id).with_for_update()).all()
+        if factor is None and (recipes or movements):
+            raise HTTPException(status_code=409, detail="Choose a compatible unit: g/kg for weight or ml/l for volume")
+        if factor is not None:
+            converted = [(line, Decimal(str(line.quantity)) * factor) for line in recipes]
+            converted += [(line, Decimal(str(line.quantity_change)) * factor) for line in movements]
+            if any(value != value.quantize(Decimal("0.000001")) or abs(value) >= Decimal("1000000000000") for _, value in converted):
+                raise HTTPException(status_code=422, detail="Conversion would exceed supported quantity precision; keep the current unit")
+            for line, value in converted:
+                if isinstance(line, models.RecipeItem):
+                    line.quantity = value
+                else:
+                    line.quantity_change = value
     ingredient.name, ingredient.unit = name, unit
     ingredient.stock_quantity, ingredient.reorder_level = payload.stock_quantity, payload.reorder_level
     try:
