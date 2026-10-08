@@ -22,3 +22,5 @@ docker compose -p smartserve-week5-check exec -T web npm run build
 ```
 
 Payments are simulated. The public link requires the host PC, Docker services, proxy, and tunnel to remain running. Automated checks do not replace a teammate's independent setup and review.
+
+- Collapsible owner forms: PASS in the public browser; both start folded, headers toggle forms, Edit opens prefilled values, Cancel closes, and the mobile layout fits. No records were changed by this check.

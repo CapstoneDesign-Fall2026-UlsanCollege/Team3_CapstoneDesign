@@ -148,3 +148,10 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 .app-shell header { margin-bottom: 24px; }
 th, td { padding: 10px 12px; }
 .month-folder summary { padding: 14px 16px; }
+
+.management-disclosure { margin-bottom: 18px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.management-disclosure summary { padding: 12px 14px; cursor: pointer; font-weight: 600; color: var(--text); background: var(--surface-soft); }
+.management-disclosure summary::marker { color: var(--accent); }
+.management-disclosure summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.management-disclosure .management-form { padding: 14px; margin-bottom: 0; }
+.management-disclosure > .form-hint { padding: 14px 14px 0; margin-bottom: 0; }
