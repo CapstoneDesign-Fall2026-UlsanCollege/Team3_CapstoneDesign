@@ -198,10 +198,18 @@ def add_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
     name, unit = payload.name.strip(), payload.unit.strip()
     if not name or not unit:
         raise HTTPException(status_code=422, detail="Ingredient name and unit are required")
-    if db.scalar(select(models.Ingredient.id).where(func.lower(models.Ingredient.name) == name.lower())):
-        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
-    ingredient = models.Ingredient(name=name, unit=unit, stock_quantity=payload.stock_quantity, reorder_level=payload.reorder_level, active=True)
-    db.add(ingredient)
+    ingredient = db.scalar(select(models.Ingredient).where(func.lower(models.Ingredient.name) == name.lower()).with_for_update())
+    if ingredient and ingredient.active:
+        raise HTTPException(status_code=409, detail="An active ingredient with this name already exists. Use Edit to change it")
+    if ingredient:
+        if unit != ingredient.unit and not ingredient_view(ingredient, db)["unit_editable"]:
+            raise HTTPException(status_code=409, detail=f"This removed ingredient has recipe or stock history in {ingredient.unit}. Select {ingredient.unit} to add it back, or use a different name for a new unit")
+        ingredient.name, ingredient.unit = name, unit
+        ingredient.stock_quantity, ingredient.reorder_level = payload.stock_quantity, payload.reorder_level
+        ingredient.active = True
+    else:
+        ingredient = models.Ingredient(name=name, unit=unit, stock_quantity=payload.stock_quantity, reorder_level=payload.reorder_level, active=True)
+        db.add(ingredient)
     try:
         db.commit()
     except IntegrityError:

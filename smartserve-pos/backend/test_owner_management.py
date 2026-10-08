@@ -83,6 +83,31 @@ class OwnerManagementTests(unittest.TestCase):
             update_ingredient(ingredient['id'], edit, self.db)
         self.assertEqual(unit_error.exception.status_code, 409)
 
+    def test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused(self):
+        original = add_ingredient(IngredientCreate(name='sherap', unit='10', stock_quantity=10, reorder_level=5), self.db)
+        remove_ingredient(original['id'], self.db)
+        restored = add_ingredient(IngredientCreate(name=' SHERAP ', unit='g', stock_quantity=500, reorder_level=5), self.db)
+        self.assertEqual(restored['id'], original['id'])
+        self.assertTrue(restored['active'])
+        self.assertEqual(restored['unit'], 'g')
+        self.assertEqual(restored['stock_quantity'], 500)
+        with self.assertRaises(HTTPException):
+            add_ingredient(IngredientCreate(name='sherap', unit='g', stock_quantity=1, reorder_level=0), self.db)
+
+    def test_readd_removed_ingredient_protects_historical_unit(self):
+        ingredient, item = self.add_tea()
+        order = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 1}]), self.db)
+        simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+        remove_menu_item(item['id'], self.db)
+        remove_ingredient(ingredient['id'], self.db)
+        with self.assertRaises(HTTPException) as blocked:
+            add_ingredient(IngredientCreate(name=ingredient['name'], unit='kg', stock_quantity=1, reorder_level=0), self.db)
+        self.assertEqual(blocked.exception.status_code, 409)
+        restored = add_ingredient(IngredientCreate(name=ingredient['name'], unit='g', stock_quantity=100, reorder_level=10), self.db)
+        self.assertEqual(restored['id'], ingredient['id'])
+        self.assertTrue(restored['active'])
+        self.assertEqual(get_order(order['id'], self.db)['total'], 6000)
+
     def test_reject_duplicate_names_and_inactive_recipe_ingredient(self):
         ingredient, item = self.add_tea()
         with self.assertRaises(HTTPException) as duplicate:

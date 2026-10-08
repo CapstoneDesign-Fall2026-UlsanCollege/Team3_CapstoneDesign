@@ -113,3 +113,5 @@ In Owner dashboard, select Edit beside a menu item or ingredient. Change the pre
 The Add menu item and Add ingredient sections start collapsed. Click their headers to expand or collapse each form. Existing lists stay visible. Edit opens the relevant form; successful saving or cancelling editing closes it. Folding a form retains its draft until saved or cancelled.
 
 When an ingredient has recipe or stock history, the Unit selector is disabled with an explanation before saving. Owner notices can be dismissed, and cancelling editing clears the previous notice.
+
+Adding a removed ingredient name brings the existing ingredient back using the entered stock and threshold. Its ID and history are retained. A different unit is allowed only when it has no recipe or stock history. Active duplicate names remain blocked; use Edit instead.
