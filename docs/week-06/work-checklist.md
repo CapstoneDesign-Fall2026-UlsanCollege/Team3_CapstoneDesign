@@ -1,56 +1,65 @@
+# Week 6 Work Checklist – SmartServe POS
 
-Week 6 Work Checklist — Test the Vertical Slice
-Date: Thu 2026-10-08 to Wed 2026-10-14
-Team:
+**Date:** October 11, 2026  
+**Team:** Team 3
 
-Show one visible behavior, ask a teammate who did not build it to test the behavior, and record what actually happened. Keep an unfinished behavior marked incomplete; a failed test is useful evidence for the next Issue.
+## 1. Main Work
 
-Core work — complete all
-Run one real test
- Choose one small user-visible behavior from the Week 5 vertical slice.
- Start from a clear place and write repeatable test steps.
- State the expected result before running the test.
- Ask a teammate other than the author to follow the steps without coaching.
- Record the actual result, including confusing or missing behavior.
- If the test fails, record the first failing step and keep the related Issue incomplete.
-Connect the test to the work
- Complete a Tested-By Note with the tester, date, steps, expected result, actual result, proof link, problem found, and next action.
- Update the relevant Issue’s Definition of Done and status to match the result.
- Link the commit or pull request and a screenshot, demo, or short video when safe and useful.
- If blocked, create or update an Issue with the exact blocker, one owner, and a next action.
-Record team and individual evidence
- Update the team’s one shared Week 6 Weekly Report; do not create separate weekly reports.
- Each student enters their own contribution sentence and evidence link in the shared report.
- Each student completes and links the requested Individual Evidence Receipt.
- Keep personal data, secrets, and unapproved real-user data out of shared evidence.
-Evidence to link
- Relevant implementation Issue with current Definition of Done and status.
- Commit or pull request for the behavior tested.
- Tested-By Note with steps, expected and actual results, and proof.
- Screenshot, demo link, or short video that supports the claim.
- One shared Weekly Report with a contribution/evidence row from every member.
- Individual Evidence Receipt from each student.
- Any bug or blocker Issue with an owner and next action.
-Stretch menu — optional after the core work
-The core work is the floor. Choose an extension only if it helps your team test more clearly or prepare the midterm path.
+- [ ] Test one main feature of SmartServe POS.
+- [ ] Check if a cashier can select menu items and enter quantities.
+- [ ] Check if the order total is calculated correctly.
+- [ ] Test the simulated payment process.
+- [ ] Check if the order status changes to `paid` after successful payment.
+- [ ] Check if inventory is deducted after payment.
+- [ ] Make sure inventory is not deducted twice for the same order.
+- [ ] Ask another teammate to test the feature.
+- [ ] Write down what worked and what did not work.
 
-Stronger user test
- Ask a teammate who was not in the implementation discussion to try the path from a clean start.
- Test one empty, error, loading, or recovery state tied to the main path.
- Write one success signal and show how the current test observes it.
-Better technical evidence
- Turn the manual check into a repeatable smoke test.
- Add a short setup note so another teammate can run the slice.
- Fix one bug found during the test and repeat the same test.
-Better midterm path
- Write the first 3–5 steps of the midterm demo path.
- List one claim the team can already prove and one claim it cannot yet prove.
- Identify one improvement that will make the Week 7 rehearsal clearer or more reliable.
-Risks and exceptions
-If a core item is incomplete, name the owner, reason, and next action in GitHub.
+## 2. Testing Evidence
 
-Item	Owner	Next action	Review point
-Final check
- Another teammate can repeat the test using the written steps.
- The evidence supports the claim and the Issue status is honest.
- The next midterm-demo improvement is assigned and visible in GitHub.
+- [ ] Write down the testing steps.
+- [ ] Record the expected result.
+- [ ] Record the actual result.
+- [ ] Add the tester's name and testing date.
+- [ ] Take screenshots or record a short video.
+- [ ] Add the evidence link to the related GitHub Issue.
+- [ ] If something does not work, create or update an Issue.
+
+## 3. GitHub and Documentation
+
+- [ ] Update the related GitHub Issue.
+- [ ] Update the Definition of Done.
+- [ ] Add the commit or pull request link.
+- [ ] Create the Week 6 Weekly Report.
+- [ ] Add each member's contribution and evidence link.
+- [ ] Complete an Individual Evidence Receipt.
+- [ ] Make sure every team member adds their own evidence.
+
+## 4. Extra Testing (If Time Allows)
+
+- [ ] Test what happens when payment fails.
+- [ ] Check if an existing order keeps its original price after the menu price changes.
+- [ ] Try repeating a payment request.
+- [ ] Fix any bugs found during testing.
+- [ ] Test the feature again after fixing the bug.
+- [ ] Prepare a simple demonstration path for the midterm presentation.
+
+## 5. Problems and Next Actions
+
+| Problem | Person Responsible | Next Action |
+|---|---|---|
+| Order calculation issue |  |  |
+| Payment issue |  |  |
+| Inventory deduction issue |  |  |
+| Testing or evidence missing |  |  |
+
+## 6. Final Check
+
+- [ ] Another teammate successfully follows the testing steps.
+- [ ] Screenshots or other evidence are added.
+- [ ] GitHub Issues are updated.
+- [ ] Weekly Report is completed.
+- [ ] Individual Evidence Receipts are completed.
+- [ ] Remaining problems have an assigned person and next action.
+
+**Week 6 Goal:** Test the main SmartServe POS order and payment process, find any problems, and record the results with proper evidence.
