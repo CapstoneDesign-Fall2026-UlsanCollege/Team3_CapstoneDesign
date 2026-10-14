@@ -1,0 +1,25 @@
+test_cancelled_order_cannot_be_paid_or_counted_as_sale (test_issue3.InventoryPaymentTests.test_cancelled_order_cannot_be_paid_or_counted_as_sale) ... ok
+test_failed_payment_then_retry (test_issue3.InventoryPaymentTests.test_failed_payment_then_retry) ... ok
+test_insufficient_stock (test_issue3.InventoryPaymentTests.test_insufficient_stock) ... ok
+test_latte_and_duplicate_after_new_session (test_issue3.InventoryPaymentTests.test_latte_and_duplicate_after_new_session) ... ok
+test_ledger_guard_even_if_status_is_inconsistent (test_issue3.InventoryPaymentTests.test_ledger_guard_even_if_status_is_inconsistent) ... ok
+test_order_keeps_original_unit_price_after_menu_price_change (test_issue3.InventoryPaymentTests.test_order_keeps_original_unit_price_after_menu_price_change) ... ok
+test_paid_order_cannot_be_cancelled (test_issue3.InventoryPaymentTests.test_paid_order_cannot_be_cancelled) ... ok
+test_sales_date_uses_korea_midnight_and_filters_rows (test_issue3.InventoryPaymentTests.test_sales_date_uses_korea_midnight_and_filters_rows) ... ok
+test_unique_order_ids (test_issue3.InventoryPaymentTests.test_unique_order_ids) ... ok
+test_add_menu_with_recipe_pay_and_archive_without_losing_history (test_owner_management.OwnerManagementTests.test_add_menu_with_recipe_pay_and_archive_without_losing_history) ... ok
+test_cannot_archive_ingredient_used_by_active_menu_or_open_order (test_owner_management.OwnerManagementTests.test_cannot_archive_ingredient_used_by_active_menu_or_open_order) ... ok
+test_compatible_conversion_preserves_recipe_payment_and_ledger (test_owner_management.OwnerManagementTests.test_compatible_conversion_preserves_recipe_payment_and_ledger) ... ok
+test_edit_menu_and_ingredient_with_open_order_guards (test_owner_management.OwnerManagementTests.test_edit_menu_and_ingredient_with_open_order_guards) ... ok
+test_readd_removed_ingredient_protects_historical_unit (test_owner_management.OwnerManagementTests.test_readd_removed_ingredient_protects_historical_unit) ... ok
+test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused (test_owner_management.OwnerManagementTests.test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused) ... ok
+test_recipe_input_converts_grams_and_millilitres_to_stored_units (test_owner_management.OwnerManagementTests.test_recipe_input_converts_grams_and_millilitres_to_stored_units) ... ok
+test_reject_duplicate_names_and_inactive_recipe_ingredient (test_owner_management.OwnerManagementTests.test_reject_duplicate_names_and_inactive_recipe_ingredient) ... ok
+test_auto_expiry_and_payment_guard (test_trash.OrderTrashTests.test_auto_expiry_and_payment_guard) ... ok
+test_open_and_paid_orders_cannot_be_trashed (test_trash.OrderTrashTests.test_open_and_paid_orders_cannot_be_trashed) ... ok
+test_trash_restore_and_permanent_delete (test_trash.OrderTrashTests.test_trash_restore_and_permanent_delete) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.474s
+
+OK

@@ -1,0 +1,533 @@
+{
+  "checked_at_utc": "2026-10-14T05:40:53.783Z",
+  "finished_at_utc": "2026-10-14T05:40:57.393Z",
+  "date_kst": "2026-10-14",
+  "mode": "Automated browser and API check; not an independent teammate test",
+  "checkout": "f4e8a6d3c185d3b9c9090d6daaf875080902cf1a",
+  "application_source_commit": "df2f357b0246fd71b76d7be8a7fa03d29dee68fe",
+  "sample_database": "smartserve_week6_20261014",
+  "plan_sha256": "f0f0d634caf3d527c16610cf139721ce58a146bbeef2b122c65a43e686517969",
+  "order_ids": [
+    1,
+    2
+  ],
+  "checks": [
+    {
+      "id": "starting-data",
+      "expected": {
+        "milk_ml": 5000,
+        "beans_g": 1200,
+        "sales": 0
+      },
+      "actual": {
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1200,
+            "unit": "g",
+            "reorder": 250
+          },
+          "Milk": {
+            "quantity": 5000,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        },
+        "sales": 0
+      },
+      "result": "PASS",
+      "proof": "screenshots/01-inventory-before.png"
+    },
+    {
+      "id": "create-order",
+      "expected": {
+        "status": "open",
+        "total": 9000,
+        "stock_unchanged": true
+      },
+      "actual": {
+        "order": {
+          "id": 1,
+          "order_type": "dine_in",
+          "status": "open",
+          "inventory_deducted": false,
+          "total": 9000,
+          "created_at": "2026-10-14T14:40:55.067856+09:00",
+          "paid_at": null,
+          "trashed_at": null,
+          "delete_after": null,
+          "items": [
+            {
+              "menu_item_id": 1,
+              "name": "Caffè Latte",
+              "quantity": 2,
+              "unit_price": 4500
+            }
+          ],
+          "payment_method": null,
+          "simulated_reference": null
+        },
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1200,
+            "unit": "g",
+            "reorder": 250
+          },
+          "Milk": {
+            "quantity": 5000,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        }
+      },
+      "result": "PASS",
+      "proof": "screenshots/02-unpaid-two-latte-order.png"
+    },
+    {
+      "id": "refresh-recovery",
+      "expected": {
+        "same_order_id": 1,
+        "total": 9000
+      },
+      "actual": {
+        "order_id": 1,
+        "total": 9000
+      },
+      "result": "FAIL",
+      "proof": "screenshots/03-recovered-unpaid-order.png"
+    },
+    {
+      "id": "failed-payment",
+      "expected": {
+        "http": 402,
+        "status": "open",
+        "stock_unchanged": true,
+        "sales": 0
+      },
+      "actual": {
+        "response": {
+          "status": 402,
+          "data": {
+            "detail": "Simulated payment failed. Inventory is unchanged; you can retry this order."
+          }
+        },
+        "order": {
+          "id": 1,
+          "order_type": "dine_in",
+          "status": "open",
+          "inventory_deducted": false,
+          "total": 9000,
+          "created_at": "2026-10-14T14:40:55.067856+09:00",
+          "paid_at": null,
+          "trashed_at": null,
+          "delete_after": null,
+          "items": [
+            {
+              "menu_item_id": 1,
+              "name": "Caffè Latte",
+              "quantity": 2,
+              "unit_price": 4500
+            }
+          ],
+          "payment_method": null,
+          "simulated_reference": null
+        },
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1200,
+            "unit": "g",
+            "reorder": 250
+          },
+          "Milk": {
+            "quantity": 5000,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        },
+        "sales": 0
+      },
+      "result": "PASS",
+      "proof": "results.json"
+    },
+    {
+      "id": "successful-payment",
+      "expected": {
+        "status": "paid",
+        "total": 9000,
+        "milk_ml": 4500,
+        "beans_g": 1164
+      },
+      "actual": {
+        "order": {
+          "id": 1,
+          "order_type": "dine_in",
+          "status": "paid",
+          "inventory_deducted": true,
+          "total": 9000,
+          "created_at": "2026-10-14T14:40:55.067856+09:00",
+          "paid_at": "2026-10-14T14:40:55.360278+09:00",
+          "trashed_at": null,
+          "delete_after": null,
+          "items": [
+            {
+              "menu_item_id": 1,
+              "name": "Caffè Latte",
+              "quantity": 2,
+              "unit_price": 4500
+            }
+          ],
+          "payment_method": "cash",
+          "simulated_reference": "SIM-E359047A08"
+        },
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1164,
+            "unit": "g",
+            "reorder": 250
+          },
+          "Milk": {
+            "quantity": 4500,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        }
+      },
+      "result": "PASS",
+      "proof": "screenshots/04-paid-original-receipt.png"
+    },
+    {
+      "id": "duplicate-payment",
+      "expected": {
+        "http": 409,
+        "stock_unchanged": true,
+        "paid_orders": 1,
+        "sales": 9000
+      },
+      "actual": {
+        "response": {
+          "status": 409,
+          "data": {
+            "detail": "This order has already been processed. Inventory was not deducted again."
+          }
+        },
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1164,
+            "unit": "g",
+            "reorder": 250
+          },
+          "Milk": {
+            "quantity": 4500,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        },
+        "sales": {
+          "date": "2026-10-14",
+          "timezone": "Asia/Seoul",
+          "paid_orders": 1,
+          "sales_total": 9000,
+          "recent_sales": [
+            {
+              "id": 1,
+              "order_type": "dine_in",
+              "status": "paid",
+              "inventory_deducted": true,
+              "total": 9000,
+              "created_at": "2026-10-14T14:40:55.067856+09:00",
+              "paid_at": "2026-10-14T14:40:55.360278+09:00",
+              "trashed_at": null,
+              "delete_after": null,
+              "items": [
+                {
+                  "menu_item_id": 1,
+                  "name": "Caffè Latte",
+                  "quantity": 2,
+                  "unit_price": 4500
+                }
+              ],
+              "payment_method": "cash",
+              "simulated_reference": "SIM-E359047A08"
+            }
+          ]
+        }
+      },
+      "result": "PASS",
+      "proof": "results.json"
+    },
+    {
+      "id": "compatible-unit-conversion",
+      "expected": {
+        "beans_kg": 1.164,
+        "reorder_kg": 0.25,
+        "recipe_kg": 0.018
+      },
+      "actual": {
+        "beans": {
+          "quantity": 1.164,
+          "unit": "kg",
+          "reorder": 0.25
+        },
+        "recipe": {
+          "ingredient_id": 2,
+          "ingredient_name": "Coffee beans",
+          "quantity": 0.018
+        }
+      },
+      "result": "PASS",
+      "proof": "screenshots/06-saved-ingredient-in-kilograms.png"
+    },
+    {
+      "id": "menu-edit-after-stock",
+      "expected": {
+        "name": "Caffè Latte test",
+        "price": 6000,
+        "stock_unchanged": true
+      },
+      "actual": {
+        "menu": {
+          "id": 1,
+          "name": "Caffè Latte test",
+          "price": 6000,
+          "active": true,
+          "recipe": [
+            {
+              "ingredient_id": 1,
+              "ingredient_name": "Milk",
+              "quantity": 250
+            },
+            {
+              "ingredient_id": 2,
+              "ingredient_name": "Coffee beans",
+              "quantity": 0.018
+            }
+          ]
+        },
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1.164,
+            "unit": "kg",
+            "reorder": 0.25
+          },
+          "Milk": {
+            "quantity": 4500,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        }
+      },
+      "result": "PASS",
+      "proof": "screenshots/07-menu-renamed-and-repriced.png"
+    },
+    {
+      "id": "historical-price",
+      "expected": {
+        "total": 9000,
+        "unit_price": 4500
+      },
+      "actual": {
+        "total": 9000,
+        "unit_price": 4500
+      },
+      "result": "PASS",
+      "proof": "screenshots/08-historical-receipt-after-menu-edit.png"
+    },
+    {
+      "id": "historical-product-name",
+      "expected": {
+        "name": "Caffè Latte"
+      },
+      "actual": {
+        "name": "Caffè Latte test"
+      },
+      "result": "FAIL",
+      "proof": "screenshots/08-historical-receipt-after-menu-edit.png"
+    },
+    {
+      "id": "payment-after-unit-conversion",
+      "expected": {
+        "total": 6000,
+        "beans_kg": 1.146,
+        "milk_ml": 4250
+      },
+      "actual": {
+        "order": {
+          "id": 2,
+          "order_type": "dine_in",
+          "status": "paid",
+          "inventory_deducted": true,
+          "total": 6000,
+          "created_at": "2026-10-14T14:40:56.528605+09:00",
+          "paid_at": "2026-10-14T14:40:56.550956+09:00",
+          "trashed_at": null,
+          "delete_after": null,
+          "items": [
+            {
+              "menu_item_id": 1,
+              "name": "Caffè Latte test",
+              "quantity": 1,
+              "unit_price": 6000
+            }
+          ],
+          "payment_method": "card",
+          "simulated_reference": "SIM-1A0C11F2BD"
+        },
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1.146,
+            "unit": "kg",
+            "reorder": 0.25
+          },
+          "Milk": {
+            "quantity": 4250,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        }
+      },
+      "result": "PASS",
+      "proof": "screenshots/09-new-price-card-receipt.png"
+    },
+    {
+      "id": "daily-sales",
+      "expected": {
+        "paid_orders": 2,
+        "sales": 15000
+      },
+      "actual": {
+        "paid_orders": 2,
+        "sales": 15000
+      },
+      "result": "PASS",
+      "proof": "screenshots/11-daily-sales.png"
+    },
+    {
+      "id": "recipe-edit-unit-conversion",
+      "expected": {
+        "recipe_kg": 0.018,
+        "stock_unchanged": true
+      },
+      "actual": {
+        "recipe_kg": 18,
+        "stock": {
+          "Coffee beans": {
+            "quantity": 1.146,
+            "unit": "kg",
+            "reorder": 0.25
+          },
+          "Milk": {
+            "quantity": 4250,
+            "unit": "ml",
+            "reorder": 1000
+          },
+          "Sugar": {
+            "quantity": 2500,
+            "unit": "g",
+            "reorder": 500
+          },
+          "Tea leaves": {
+            "quantity": 700,
+            "unit": "g",
+            "reorder": 150
+          }
+        }
+      },
+      "result": "FAIL",
+      "proof": "screenshots/13-recipe-saved-wrong-unit.png"
+    },
+    {
+      "id": "availability-after-recipe-edit",
+      "expected": {
+        "selectable": true,
+        "needed_kg": 0.018,
+        "stock_kg": 1.146
+      },
+      "actual": {
+        "selectable": false,
+        "card": "Americano\n₩3,500\nUnavailable — Coffee beans: needs 18 kg, only 1.146 kg available"
+      },
+      "result": "FAIL",
+      "proof": "screenshots/14-incorrect-americano-shortage.png"
+    },
+    {
+      "id": "browser-exceptions",
+      "expected": [],
+      "actual": [],
+      "result": "PASS",
+      "proof": "results.json"
+    }
+  ],
+  "passed": 11,
+  "failed": 4,
+  "status": "FAILURES_RECORDED",
+  "browser_exceptions": []
+}

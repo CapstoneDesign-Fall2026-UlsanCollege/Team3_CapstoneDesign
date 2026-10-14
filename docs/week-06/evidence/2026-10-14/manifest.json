@@ -1,0 +1,179 @@
+{
+  "checked_application_commit": "df2f357b0246fd71b76d7be8a7fa03d29dee68fe",
+  "checked_checkout": "f4e8a6d3c185d3b9c9090d6daaf875080902cf1a",
+  "source_changed_for_test": false,
+  "browser_api_address_mapping": "Loopback proxy only; localhost:8000 mapped to the isolated API.",
+  "test_plan_sha256": "f0f0d634caf3d527c16610cf139721ce58a146bbeef2b122c65a43e686517969",
+  "files": [
+    {
+      "path": "evidence/2026-10-14/backend-tests.txt",
+      "sha256": "702ff02e15e6856c73a6e02e69bf635a9d2bd1f8f7903f554b74c3deed035fff",
+      "bytes": 2988
+    },
+    {
+      "path": "evidence/2026-10-14/database-check.json",
+      "sha256": "17137c86d8ddedc9c6d638210f33d832dc09d99176867ccbd3ca827c83393b41",
+      "bytes": 852
+    },
+    {
+      "path": "evidence/2026-10-14/frontend-build.txt",
+      "sha256": "687d4ffeceb09228eeb28f0b1dbc97a0f8ad13539bc592d3170fe8c3f7a84e01",
+      "bytes": 779
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/results.json",
+      "sha256": "e509f03f7ce7ff18cdcb33b5f2d64e20925aa7ca4be99e694886a0b848b34c15",
+      "bytes": 13225
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/01-inventory-before.png",
+      "sha256": "627c5cf52b4bbac5f4dded4319f56c4add63f51a0ff47f93db82035ca45df27e",
+      "bytes": 36692
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/02-unpaid-two-latte-order.png",
+      "sha256": "395a7b0543b4b7829a1694006ab1e65797ef0aaef14ce79491d323a19b5a7481",
+      "bytes": 47919
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/03-recovered-unpaid-order.png",
+      "sha256": "f5aef1c42a8bbfb935824fc39568fef54f11a6d0b43e814ede4083e8563a83a6",
+      "bytes": 40214
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/04-paid-original-receipt.png",
+      "sha256": "3dc860436ee5c131397fd07ea47fea82767bbc14a3399c3d6741017c903b319d",
+      "bytes": 48713
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/05-inventory-after-first-payment.png",
+      "sha256": "da3a8aef9d9db4b929c63a556f87af6c3cc9a473f768255d1f40a6f8bc95cb37",
+      "bytes": 36839
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/06-saved-ingredient-in-kilograms.png",
+      "sha256": "273d4f04d9bed76749d420e3237f62376e1fbb36f262b5d6b798d5c871e1f06b",
+      "bytes": 89934
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/07-menu-renamed-and-repriced.png",
+      "sha256": "eca7b3316ee67f29e2555c5dfa4c780f94496e4ddb4c61b80e77e8462cb05652",
+      "bytes": 90631
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/08-historical-receipt-after-menu-edit.png",
+      "sha256": "a0c939c30d88638163749bc51b54c92e467524320398808acd23133b256f18ae",
+      "bytes": 48705
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/09-new-price-card-receipt.png",
+      "sha256": "2f63b806a3718b1d4afa1050104fff2f6c87eef35a9b0230a65cd26ae5761e27",
+      "bytes": 49179
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/10-inventory-after-second-payment.png",
+      "sha256": "e6d3c3ef6fc50174dcbb927fdfbfc6bef6a3b4421ad51c63498fcd0954e10841",
+      "bytes": 37210
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/11-daily-sales.png",
+      "sha256": "f8a23aa33d357def491e15d56ab43c4aa45563129988cab93e23d4f05af62627",
+      "bytes": 91126
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/12-recipe-edit-18-grams.png",
+      "sha256": "52a945e4d5c96c1a715725f9c3af68f60c2c61a5d63dcaf0ee117de590a32730",
+      "bytes": 126753
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/13-recipe-saved-wrong-unit.png",
+      "sha256": "7cf8f1b664f111fc7a900e731d4e292c7a9ac05c66d947760ba46b1eef314d28",
+      "bytes": 94344
+    },
+    {
+      "path": "evidence/2026-10-14/initial-run/screenshots/14-incorrect-americano-shortage.png",
+      "sha256": "cc76ef9726f2f49eba803016b5e3717e3810e39ac80f7ace3f06bc208d441a30",
+      "bytes": 51284
+    },
+    {
+      "path": "evidence/2026-10-14/README.md",
+      "sha256": "d032bf16caae5100df8e072089550f316103246502974a03b5dcbe554569032f",
+      "bytes": 3063
+    },
+    {
+      "path": "evidence/2026-10-14/results.json",
+      "sha256": "3919d1c2977663e3d7aef67248b86c4a2b6b5a1010e025a0ef06dffea5a434f8",
+      "bytes": 13231
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/01-inventory-before.png",
+      "sha256": "627c5cf52b4bbac5f4dded4319f56c4add63f51a0ff47f93db82035ca45df27e",
+      "bytes": 36692
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/02-unpaid-two-latte-order.png",
+      "sha256": "395a7b0543b4b7829a1694006ab1e65797ef0aaef14ce79491d323a19b5a7481",
+      "bytes": 47919
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/03-recovered-unpaid-order.png",
+      "sha256": "6711d8dd5b8aab51471538005e9a884c66086f3788a53f5683359d6ee690d1ed",
+      "bytes": 44661
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/04-paid-original-receipt.png",
+      "sha256": "1551ad2d9a693f7e666d53a88efb4a52d75398a4f51555f59f6bfe0629e74256",
+      "bytes": 48664
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/05-inventory-after-first-payment.png",
+      "sha256": "da3a8aef9d9db4b929c63a556f87af6c3cc9a473f768255d1f40a6f8bc95cb37",
+      "bytes": 36839
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/06-saved-ingredient-in-kilograms.png",
+      "sha256": "ee027d3fc6a8e3ce67c0e4225fc147880412b7df05aef6b8d6bab9d38986d721",
+      "bytes": 89971
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/07-menu-renamed-and-repriced.png",
+      "sha256": "6d25ad2bf406d9dedb4fcd12eae7550ad47bcebaeadfeb66a3469965889f0aac",
+      "bytes": 90666
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/08-historical-receipt-after-menu-edit.png",
+      "sha256": "e0ad63b833af3bdfd7b384aeadb3d74ee084489b8cc93519f80458097daca47d",
+      "bytes": 48651
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/09-new-price-card-receipt.png",
+      "sha256": "abd4a13003758cfd1893c6cecc9ce835f09ec467a4c24cc3806ba9e3d37d5fb0",
+      "bytes": 49480
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/10-inventory-after-second-payment.png",
+      "sha256": "e6d3c3ef6fc50174dcbb927fdfbfc6bef6a3b4421ad51c63498fcd0954e10841",
+      "bytes": 37210
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/11-daily-sales.png",
+      "sha256": "adb1d0a4e63187551aa5d4561af5d425ad74b12d12c3f15eff27fdfaad1b8882",
+      "bytes": 91136
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/12-recipe-edit-18-grams.png",
+      "sha256": "1f01588512602f54a405193f2ffcc189f702a537b0e4e0ae80eff560fc4171fd",
+      "bytes": 126755
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/13-recipe-saved-wrong-unit.png",
+      "sha256": "c3a13f60e5e63f212692b67e9d1cf500abecc461465515bfcd5b0fc81678b19f",
+      "bytes": 94356
+    },
+    {
+      "path": "evidence/2026-10-14/screenshots/14-incorrect-americano-shortage.png",
+      "sha256": "d1d9a916f5ba9c0cd22cbbee99f4b256b5892e035d1037c40cc90dbf175f3332",
+      "bytes": 51571
+    }
+  ]
+}

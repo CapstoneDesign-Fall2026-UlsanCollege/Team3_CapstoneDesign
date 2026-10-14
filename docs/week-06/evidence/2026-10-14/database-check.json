@@ -1,0 +1,52 @@
+{
+  "database": "isolated sample database",
+  "server_version": "18.4",
+  "payments_by_order": [
+    {
+      "order_id": 1,
+      "count": 1,
+      "amount": 9000.0
+    },
+    {
+      "order_id": 2,
+      "count": 1,
+      "amount": 6000.0
+    }
+  ],
+  "movements_by_order": [
+    {
+      "order_id": 1,
+      "count": 2
+    },
+    {
+      "order_id": 2,
+      "count": 2
+    }
+  ],
+  "movements": [
+    {
+      "order_id": 1,
+      "name": "Coffee beans",
+      "unit": "kg",
+      "quantity_change": -0.036
+    },
+    {
+      "order_id": 1,
+      "name": "Milk",
+      "unit": "ml",
+      "quantity_change": -500.0
+    },
+    {
+      "order_id": 2,
+      "name": "Coffee beans",
+      "unit": "kg",
+      "quantity_change": -0.018
+    },
+    {
+      "order_id": 2,
+      "name": "Milk",
+      "unit": "ml",
+      "quantity_change": -250.0
+    }
+  ]
+}
