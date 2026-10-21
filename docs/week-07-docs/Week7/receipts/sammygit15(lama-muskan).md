@@ -10,11 +10,14 @@ I also reviewed the payment and inventory workflow, including successful simulat
 
 For Week 7, I worked on organizing the progress documentation and quality checks. I prepared the weekly progress report and Sprint 1 quality-check documentation, identified which activities were supported by evidence, and kept independent teammate testing and the timed rehearsal marked as pending rather than claiming they were complete.
 
-### Username
+### Contributor Information
+
 Contributor: Lama Muskan
+
 GitHub username: Sammygit15
-The Week 7 documentation commits were authored under the display name LamaMuskan. This is the same contributor associated with the GitHub account Sammygit15. Git author configuration has been updated so future commits use Sammygit15 as the author name.
-where to add
+
+Commit author clarification: The Week 7 documentation commits were authored under the display name LamaMuskan. This is the same contributor associated with the GitHub account Sammygit15. Git author configuration has been updated so future commits use Sammygit15 as the author name.
+
 
 ### Evidence
 
