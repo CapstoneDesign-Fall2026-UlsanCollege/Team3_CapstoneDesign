@@ -13,8 +13,6 @@ Evidence:
 - [Fixes and regression tests](../../../../smartserve-pos/backend/test_owner_management.py): alternate units, invalid units, old receipt/new order behavior and legacy migration.
 - [24 backend tests passed](../evidence/2026-10-21/backend-tests.txt).
 - [Frontend build passed](../evidence/2026-10-21/frontend-build.txt).
-- [Two-latte check: expected and actual values](../evidence/2026-10-21/demo-results.json), reproduced with [this script](../verify_demo.py).
-- [Shared report](../weekly-report.md), [demo script](../midtern-demoscript.md), and [Midterm Prep Issue #21](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/21), which follows up on #20.
 
 These checks were run with coding-agent assistance on isolated SQLite sample data. They are developer-side automated checks, not a teammate's browser result or a timed spoken rehearsal. The frontend build checks compilation; it does not prove every screen works.
 
