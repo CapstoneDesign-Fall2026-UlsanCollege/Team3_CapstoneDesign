@@ -9,7 +9,7 @@ file is `render.yaml` at the repository root. Paste a Neon PostgreSQL connection
 string into Render's `DATABASE_URL` setting and keep the Free plan.
 
 The website and API share the resulting public origin. Owner login is at
-`/etalogin` with username `sherap`. The Blueprint configures the requested demo
+`/etalogin` with username `admin`. The Blueprint configures the requested demo
 password using `SMARTSERVE_OWNER_PASSWORD_SHA256`, so a previously generated
 `SMARTSERVE_OWNER_PASSWORD` does not override it. For another password, update
 the hash environment variable. Without a configured hash, local development

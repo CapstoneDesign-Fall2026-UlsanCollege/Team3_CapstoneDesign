@@ -47,7 +47,7 @@ def install_owner_auth(app):
 
     @app.post("/auth/login")
     def login(credentials: Login, request: Request, response: Response):
-        username = os.getenv("SMARTSERVE_OWNER_USERNAME", "sherap")
+        username = os.getenv("SMARTSERVE_OWNER_USERNAME", "admin")
         password_hash = os.getenv("SMARTSERVE_OWNER_PASSWORD_SHA256")
         if not password_hash:
             password = os.getenv("SMARTSERVE_OWNER_PASSWORD", "1234$")
