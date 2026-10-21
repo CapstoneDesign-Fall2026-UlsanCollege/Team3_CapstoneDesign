@@ -9,10 +9,14 @@ file is `render.yaml` at the repository root. Paste a Neon PostgreSQL connection
 string into Render's `DATABASE_URL` setting and keep the Free plan.
 
 The website and API share the resulting public origin. Owner login is at
-`/etalogin` with username `admin`. Render generates the owner password in
-`SMARTSERVE_OWNER_PASSWORD`; view it in the service's Environment settings.
-`SMARTSERVE_SESSION_SECRET` is also generated for signed sessions. Keep both
-values private. The cloud database starts with demo data, not local history.
+`/etalogin` with username `sherap`. The Blueprint configures the requested demo
+password using `SMARTSERVE_OWNER_PASSWORD_SHA256`, so a previously generated
+`SMARTSERVE_OWNER_PASSWORD` does not override it. For another password, update
+the hash environment variable. Without a configured hash, local development
+uses `SMARTSERVE_OWNER_PASSWORD` if set, or the demo default.
+`SMARTSERVE_SESSION_SECRET` is generated for signed sessions. Keep it private.
+The dashboard does not appear in public navigation. The cloud database starts
+with demo data, not local history.
 Payments are simulated, and all visitors use the same demo database.
 
 The free service can sleep when idle, so its first response may be slow.

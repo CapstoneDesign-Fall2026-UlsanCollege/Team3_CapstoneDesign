@@ -47,10 +47,14 @@ def install_owner_auth(app):
 
     @app.post("/auth/login")
     def login(credentials: Login, request: Request, response: Response):
-        username = os.getenv("SMARTSERVE_OWNER_USERNAME", "admin")
-        password = os.getenv("SMARTSERVE_OWNER_PASSWORD", "1234$")
+        username = os.getenv("SMARTSERVE_OWNER_USERNAME", "sherap")
+        password_hash = os.getenv("SMARTSERVE_OWNER_PASSWORD_SHA256")
+        if not password_hash:
+            password = os.getenv("SMARTSERVE_OWNER_PASSWORD", "1234$")
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+        supplied_hash = hashlib.sha256(credentials.password.encode()).hexdigest()
         if not (hmac.compare_digest(credentials.username.encode(), username.encode())
-                and hmac.compare_digest(credentials.password.encode(), password.encode())):
+                and hmac.compare_digest(supplied_hash, password_hash)):
             raise HTTPException(status_code=401, detail="Incorrect username or password.")
         expires = str(int(time.time()) + SESSION_SECONDS)
         signature = hmac.new(SESSION_KEY, expires.encode(), hashlib.sha256).hexdigest()
