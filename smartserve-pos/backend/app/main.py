@@ -1,10 +1,11 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from uuid import uuid4
+import asyncio
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func, inspect, select, text
+from sqlalchemy import delete, func, inspect, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -15,9 +16,12 @@ from .schemas import IngredientCreate, MenuItemCreate, MenuItemOut, OrderCreate,
 from .seed import seed_demo_data
 
 app = FastAPI(title="SmartServe POS MVP")
+from .auth import install_owner_auth
+install_owner_auth(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -26,12 +30,73 @@ app.add_middleware(
 @app.on_event("startup")
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
+    if "trashed_at" not in {column["name"] for column in inspect(engine).get_columns("orders")}:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE orders ADD COLUMN trashed_at TIMESTAMP WITH TIME ZONE NULL"))
+    migrate_order_item_names()
+    if engine.dialect.name == "postgresql":
+        with engine.begin() as connection:
+            for table, column in [("ingredients", "stock_quantity"), ("ingredients", "reorder_level"), ("recipe_items", "quantity"), ("inventory_movements", "quantity_change")]:
+                connection.execute(text(f"ALTER TABLE {table} ALTER COLUMN {column} TYPE NUMERIC(18, 6)"))
     # Existing demo databases predate the ingredient archive flag.
     if "active" not in {column["name"] for column in inspect(engine).get_columns("ingredients")}:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE ingredients ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE"))
     with Session(engine) as db:
         seed_demo_data(db)
+
+
+def migrate_order_item_names() -> None:
+    # Legacy orders have no original-name snapshot. Preserve the current label once;
+    # an earlier name cannot be reconstructed from this database.
+    with engine.begin() as connection:
+        if "menu_item_name" not in {column["name"] for column in inspect(connection).get_columns("order_items")}:
+            connection.execute(text("ALTER TABLE order_items ADD COLUMN menu_item_name VARCHAR(120) NULL"))
+        connection.execute(text("UPDATE order_items SET menu_item_name = (SELECT name FROM menu_items WHERE menu_items.id = order_items.menu_item_id) WHERE menu_item_name IS NULL"))
+
+
+def permanently_delete_cancelled(order: models.Order, db: Session) -> None:
+    if order.status != "cancelled" or db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)) or inventory_was_deducted(order.id, db):
+        raise HTTPException(status_code=409, detail="Orders with payment or inventory history cannot be deleted.")
+    db.execute(delete(models.OrderItem).where(models.OrderItem.order_id == order.id))
+    db.delete(order)
+
+
+def purge_expired_trash(db: Session) -> None:
+    expired = db.scalars(select(models.Order).where(models.Order.trashed_at <= datetime.now(timezone.utc) - timedelta(days=30), models.Order.status == "cancelled").with_for_update()).all()
+    for order in expired:
+        if not db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)) and not inventory_was_deducted(order.id, db):
+            permanently_delete_cancelled(order, db)
+    db.commit()
+
+
+def run_trash_cleanup() -> None:
+    with Session(engine) as db:
+        purge_expired_trash(db)
+
+
+async def trash_cleanup_loop() -> None:
+    while True:
+        try:
+            await asyncio.to_thread(run_trash_cleanup)
+        except Exception:
+            import logging
+            logging.exception("Order trash cleanup failed; retrying in one minute")
+        await asyncio.sleep(60)
+
+
+@app.on_event("startup")
+async def start_trash_cleanup() -> None:
+    app.state.trash_cleanup = asyncio.create_task(trash_cleanup_loop())
+
+
+@app.on_event("shutdown")
+async def stop_trash_cleanup() -> None:
+    app.state.trash_cleanup.cancel()
+    try:
+        await app.state.trash_cleanup
+    except asyncio.CancelledError:
+        pass
 
 
 @app.get("/health")
@@ -44,14 +109,41 @@ def list_menu(db: Session = Depends(get_db)):
     return db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
 
 
-def ingredient_view(ingredient: models.Ingredient) -> dict:
+UNIT_FACTORS = {"g": ("mass", Decimal("1")), "kg": ("mass", Decimal("1000")), "ml": ("volume", Decimal("1")), "l": ("volume", Decimal("1000")), "pcs": ("count", Decimal("1"))}
+
+
+def conversion_factor(old: str, new: str) -> Decimal | None:
+    if old == new:
+        return Decimal("1")
+    if old in UNIT_FACTORS and new in UNIT_FACTORS and UNIT_FACTORS[old][0] == UNIT_FACTORS[new][0]:
+        return UNIT_FACTORS[old][1] / UNIT_FACTORS[new][1]
+    return None
+
+
+def ingredient_view(ingredient: models.Ingredient, db: Session | None = None) -> dict:
     return {
         "id": ingredient.id, "name": ingredient.name, "unit": ingredient.unit,
+        **({"unit_editable": not (db.scalar(select(models.RecipeItem.id).where(models.RecipeItem.ingredient_id == ingredient.id).limit(1)) or db.scalar(select(models.InventoryMovement.id).where(models.InventoryMovement.ingredient_id == ingredient.id).limit(1)))} if db is not None else {}),
+        "convertible_units": [unit for unit in UNIT_FACTORS if conversion_factor(ingredient.unit, unit) is not None],
         "stock_quantity": float(ingredient.stock_quantity),
         "reorder_level": float(ingredient.reorder_level),
         "low_stock": ingredient.stock_quantity <= ingredient.reorder_level,
         "active": ingredient.active,
     }
+
+
+def normalize_recipe_units(payload: MenuItemCreate, db: Session) -> None:
+    for line in payload.recipe:
+        ingredient = db.get(models.Ingredient, line.ingredient_id)
+        if not ingredient or not line.unit:
+            continue
+        factor = conversion_factor(line.unit, ingredient.unit)
+        if factor is None:
+            raise HTTPException(status_code=422, detail=f"Choose a compatible recipe unit for {ingredient.name}")
+        quantity = line.quantity * factor
+        if quantity != quantity.quantize(Decimal("0.000001")) or quantity >= Decimal("1000000000000"):
+            raise HTTPException(status_code=422, detail="Recipe conversion exceeds supported quantity precision")
+        line.quantity, line.unit = quantity, ingredient.unit
 
 
 def owner_menu_view(item: models.MenuItem, db: Session) -> dict:
@@ -76,6 +168,7 @@ def add_menu_item(payload: MenuItemCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=422, detail="Menu name is required")
     if db.scalar(select(models.MenuItem.id).where(func.lower(models.MenuItem.name) == name.lower())):
         raise HTTPException(status_code=409, detail="A menu item with this name already exists")
+    normalize_recipe_units(payload, db)
     ingredient_ids = [line.ingredient_id for line in payload.recipe]
     if len(ingredient_ids) != len(set(ingredient_ids)):
         raise HTTPException(status_code=422, detail="Use each ingredient only once in a recipe")
@@ -84,6 +177,39 @@ def add_menu_item(payload: MenuItemCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=422, detail="Recipe ingredients must be active inventory items")
     item = models.MenuItem(name=name, price=payload.price, active=True)
     db.add(item)
+    try:
+        db.flush()
+        db.add_all([models.RecipeItem(menu_item_id=item.id, ingredient_id=line.ingredient_id, quantity=line.quantity) for line in payload.recipe])
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Menu item could not be added; check its name and recipe")
+    return owner_menu_view(item, db)
+
+
+@app.put("/owner/menu/{item_id}")
+def update_menu_item(item_id: int, payload: MenuItemCreate, db: Session = Depends(get_db)):
+    item = db.scalar(select(models.MenuItem).where(models.MenuItem.id == item_id).with_for_update())
+    if not item or not item.active:
+        raise HTTPException(status_code=404, detail="Active menu item not found")
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Menu name is required")
+    if db.scalar(select(models.MenuItem.id).where(func.lower(models.MenuItem.name) == name.lower(), models.MenuItem.id != item_id)):
+        raise HTTPException(status_code=409, detail="A menu item with this name already exists")
+    ingredient_ids = [line.ingredient_id for line in payload.recipe]
+    if len(ingredient_ids) != len(set(ingredient_ids)):
+        raise HTTPException(status_code=422, detail="Use each ingredient only once in a recipe")
+    available = set(db.scalars(select(models.Ingredient.id).where(models.Ingredient.id.in_(ingredient_ids), models.Ingredient.active.is_(True)).with_for_update()).all())
+    if available != set(ingredient_ids):
+        raise HTTPException(status_code=422, detail="Recipe ingredients must be active inventory items")
+    normalize_recipe_units(payload, db)
+    old_recipe = {(line.ingredient_id, Decimal(str(line.quantity))) for line in db.scalars(select(models.RecipeItem).where(models.RecipeItem.menu_item_id == item_id)).all()}
+    new_recipe = {(line.ingredient_id, line.quantity) for line in payload.recipe}
+    if old_recipe != new_recipe and db.scalar(select(models.OrderItem.id).join(models.Order).where(models.OrderItem.menu_item_id == item_id, models.Order.status == "open").limit(1)):
+        raise HTTPException(status_code=409, detail="Pay or cancel open orders for this item before changing its recipe")
+    item.name, item.price = name, payload.price
+    db.execute(delete(models.RecipeItem).where(models.RecipeItem.menu_item_id == item_id))
     try:
         db.flush()
         db.add_all([models.RecipeItem(menu_item_id=item.id, ingredient_id=line.ingredient_id, quantity=line.quantity) for line in payload.recipe])
@@ -109,7 +235,7 @@ def remove_menu_item(item_id: int, db: Session = Depends(get_db)):
 @app.get("/owner/inventory")
 def owner_inventory(db: Session = Depends(get_db)):
     ingredients = db.scalars(select(models.Ingredient).order_by(models.Ingredient.name)).all()
-    return [ingredient_view(ingredient) for ingredient in ingredients]
+    return [ingredient_view(ingredient, db) for ingredient in ingredients]
 
 
 @app.post("/owner/inventory", status_code=201)
@@ -117,17 +243,62 @@ def add_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
     name, unit = payload.name.strip(), payload.unit.strip()
     if not name or not unit:
         raise HTTPException(status_code=422, detail="Ingredient name and unit are required")
-    if db.scalar(select(models.Ingredient.id).where(func.lower(models.Ingredient.name) == name.lower())):
-        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
-    ingredient = models.Ingredient(name=name, unit=unit, stock_quantity=payload.stock_quantity, reorder_level=payload.reorder_level, active=True)
-    db.add(ingredient)
+    ingredient = db.scalar(select(models.Ingredient).where(func.lower(models.Ingredient.name) == name.lower()).with_for_update())
+    if ingredient and ingredient.active:
+        raise HTTPException(status_code=409, detail="An active ingredient with this name already exists. Use Edit to change it")
+    if ingredient:
+        if unit != ingredient.unit and not ingredient_view(ingredient, db)["unit_editable"]:
+            raise HTTPException(status_code=409, detail=f"This removed ingredient has recipe or stock history in {ingredient.unit}. Select {ingredient.unit} to add it back, or use a different name for a new unit")
+        ingredient.name, ingredient.unit = name, unit
+        ingredient.stock_quantity, ingredient.reorder_level = payload.stock_quantity, payload.reorder_level
+        ingredient.active = True
+    else:
+        ingredient = models.Ingredient(name=name, unit=unit, stock_quantity=payload.stock_quantity, reorder_level=payload.reorder_level, active=True)
+        db.add(ingredient)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
     db.refresh(ingredient)
-    return ingredient_view(ingredient)
+    return ingredient_view(ingredient, db)
+
+
+@app.put("/owner/inventory/{ingredient_id}")
+def update_ingredient(ingredient_id: int, payload: IngredientCreate, db: Session = Depends(get_db)):
+    ingredient = db.scalar(select(models.Ingredient).where(models.Ingredient.id == ingredient_id).with_for_update())
+    if not ingredient or not ingredient.active:
+        raise HTTPException(status_code=404, detail="Active ingredient not found")
+    name, unit = payload.name.strip(), payload.unit.strip()
+    if not name or not unit:
+        raise HTTPException(status_code=422, detail="Ingredient name and unit are required")
+    if db.scalar(select(models.Ingredient.id).where(func.lower(models.Ingredient.name) == name.lower(), models.Ingredient.id != ingredient_id)):
+        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
+    if unit != ingredient.unit:
+        factor = conversion_factor(ingredient.unit, unit)
+        recipes = db.scalars(select(models.RecipeItem).where(models.RecipeItem.ingredient_id == ingredient_id).with_for_update()).all()
+        movements = db.scalars(select(models.InventoryMovement).where(models.InventoryMovement.ingredient_id == ingredient_id).with_for_update()).all()
+        if factor is None and (recipes or movements):
+            raise HTTPException(status_code=409, detail="Choose a compatible unit: g/kg for weight or ml/l for volume")
+        if factor is not None:
+            converted = [(line, Decimal(str(line.quantity)) * factor) for line in recipes]
+            converted += [(line, Decimal(str(line.quantity_change)) * factor) for line in movements]
+            if any(value != value.quantize(Decimal("0.000001")) or abs(value) >= Decimal("1000000000000") for _, value in converted):
+                raise HTTPException(status_code=422, detail="Conversion would exceed supported quantity precision; keep the current unit")
+            for line, value in converted:
+                if isinstance(line, models.RecipeItem):
+                    line.quantity = value
+                else:
+                    line.quantity_change = value
+    ingredient.name, ingredient.unit = name, unit
+    ingredient.stock_quantity, ingredient.reorder_level = payload.stock_quantity, payload.reorder_level
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An ingredient with this name already exists")
+    db.refresh(ingredient)
+    return ingredient_view(ingredient, db)
 
 
 @app.delete("/owner/inventory/{ingredient_id}")
@@ -143,7 +314,7 @@ def remove_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="Ingredient is used by a menu item or open order. Remove the menu item and settle open orders first.")
     ingredient.active = False
     db.commit()
-    return ingredient_view(ingredient)
+    return ingredient_view(ingredient, db)
 
 
 def inventory_was_deducted(order_id: int, db: Session) -> bool:
@@ -165,7 +336,9 @@ def order_view(order: models.Order, db: Session) -> dict:
         "total": float(order.total),
         "created_at": order.created_at,
         "paid_at": order.paid_at,
-        "items": [{"name": menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
+        "trashed_at": order.trashed_at,
+        "delete_after": order.trashed_at + timedelta(days=30) if order.trashed_at else None,
+        "items": [{"menu_item_id": line.menu_item_id, "name": line.menu_item_name or menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
         "payment_method": payment.method if payment else None,
         "simulated_reference": payment.simulated_reference if payment else None,
     }
@@ -184,7 +357,7 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
     order = models.Order(order_type=payload.order_type, status="open", total=total)
     db.add(order)
     db.flush()
-    db.add_all([models.OrderItem(order_id=order.id, menu_item_id=line.menu_item_id, quantity=line.quantity, unit_price=menu_by_id[line.menu_item_id].price) for line in payload.items])
+    db.add_all([models.OrderItem(order_id=order.id, menu_item_id=line.menu_item_id, menu_item_name=menu_by_id[line.menu_item_id].name, quantity=line.quantity, unit_price=menu_by_id[line.menu_item_id].price) for line in payload.items])
     db.commit()
     db.refresh(order)
     return order_view(order, db)
@@ -193,15 +366,49 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
 @app.get("/orders/{order_id}")
 def get_order(order_id: int, db: Session = Depends(get_db)):
     order = db.get(models.Order, order_id)
-    if not order:
+    if not order or order.trashed_at:
         raise HTTPException(status_code=404, detail="Order not found")
     return order_view(order, db)
 
 
 @app.get("/orders")
-def list_orders(db: Session = Depends(get_db)):
-    orders = db.scalars(select(models.Order).order_by(models.Order.created_at.desc(), models.Order.id.desc()).limit(100)).all()
+def list_orders(db: Session = Depends(get_db), trash: bool = False):
+    purge_expired_trash(db)
+    orders = db.scalars(select(models.Order).where(models.Order.trashed_at.is_not(None) if trash else models.Order.trashed_at.is_(None)).order_by(models.Order.created_at.desc(), models.Order.id.desc())).all()
     return [order_view(order, db) for order in orders]
+
+
+@app.post("/orders/{order_id}/trash")
+def trash_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status != "cancelled" or inventory_was_deducted(order.id, db) or db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)):
+        raise HTTPException(status_code=409, detail="Cancel an unpaid order before moving it to Trash. Paid orders are retained.")
+    if not order.trashed_at:
+        order.trashed_at = datetime.now(timezone.utc)
+    db.commit()
+    return order_view(order, db)
+
+
+@app.post("/orders/{order_id}/restore")
+def restore_order(order_id: int, db: Session = Depends(get_db)):
+    purge_expired_trash(db)
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order or not order.trashed_at:
+        raise HTTPException(status_code=404, detail="Trashed order not found or already expired")
+    order.trashed_at = None
+    db.commit()
+    return order_view(order, db)
+
+
+@app.delete("/orders/{order_id}", status_code=204)
+def delete_trashed_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    if not order or not order.trashed_at:
+        raise HTTPException(status_code=404, detail="Move this order to Trash before deleting it permanently.")
+    permanently_delete_cancelled(order, db)
+    db.commit()
 
 
 @app.post("/orders/{order_id}/cancel")
@@ -209,7 +416,7 @@ def cancel_order(order_id: int, db: Session = Depends(get_db)):
     order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.status != "open" or inventory_was_deducted(order.id, db):
+    if order.trashed_at or order.status != "open" or inventory_was_deducted(order.id, db):
         raise HTTPException(status_code=409, detail="Only an unpaid open order can be cancelled.")
     order.status = "cancelled"
     db.commit()
@@ -224,6 +431,8 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     inventory_deducted = inventory_was_deducted(order.id, db)
+    if order.trashed_at:
+        raise HTTPException(status_code=409, detail="This order is in Trash and cannot be paid.")
     if order.status == "paid" or inventory_deducted:
         raise HTTPException(status_code=409, detail="This order has already been processed. Inventory was not deducted again.")
     if order.status != "open":
@@ -242,7 +451,7 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
 
     ingredients = db.scalars(select(models.Ingredient).where(models.Ingredient.id.in_(required)).order_by(models.Ingredient.id).with_for_update()).all()
     ingredient_by_id = {ingredient.id: ingredient for ingredient in ingredients}
-    shortages = [f"{ingredient_by_id[i].name} needs {amount}{ingredient_by_id[i].unit}" for i, amount in required.items() if Decimal(str(ingredient_by_id[i].stock_quantity)) < amount]
+    shortages = [f"{ingredient_by_id[i].name} needs {amount} {ingredient_by_id[i].unit}; only {ingredient_by_id[i].stock_quantity} {ingredient_by_id[i].unit} available" for i, amount in required.items() if Decimal(str(ingredient_by_id[i].stock_quantity)) < amount]
     if shortages:
         raise HTTPException(status_code=409, detail={"message": "Insufficient inventory", "shortages": shortages})
 
@@ -266,17 +475,22 @@ def list_inventory(db: Session = Depends(get_db)):
 
 
 @app.get("/dashboard/sales")
-def sales_dashboard(db: Session = Depends(get_db)):
-    today = date.today()
+def sales_dashboard(db: Session = Depends(get_db), selected_date: date | None = None):
+    korea = timezone(timedelta(hours=9))
+    today = selected_date or datetime.now(korea).date()
+    start = datetime.combine(today, time.min, tzinfo=korea).astimezone(timezone.utc)
+    end = start + timedelta(days=1)
+    paid_on_day = (models.Order.status == "paid", models.Order.paid_at >= start, models.Order.paid_at < end)
     count, total = db.execute(
         select(func.count(models.Order.id), func.coalesce(func.sum(models.Order.total), 0))
-        .where(models.Order.status == "paid", func.date(models.Order.paid_at) == today)
+        .where(*paid_on_day)
     ).one()
     recent = db.scalars(
-        select(models.Order).where(models.Order.status == "paid").order_by(models.Order.paid_at.desc()).limit(8)
+        select(models.Order).where(*paid_on_day).order_by(models.Order.paid_at.desc(), models.Order.id.desc()).limit(100)
     ).all()
     return {
         "date": today.isoformat(),
+        "timezone": "Asia/Seoul",
         "paid_orders": count,
         "sales_total": float(total),
         "recent_sales": [order_view(order, db) for order in recent],

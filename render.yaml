@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: smartserve-pos
+    runtime: python
+    plan: free
+    rootDir: smartserve-pos
+    buildCommand: pip install -r backend/requirements.txt && npm --prefix frontend ci && npm --prefix frontend run build
+    startCommand: cd backend && uvicorn cloud:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.12
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: VITE_API_URL
+        value: ""
+      - key: DATABASE_URL
+        sync: false
+      - key: SMARTSERVE_OWNER_USERNAME
+        value: admin
+      - key: SMARTSERVE_OWNER_PASSWORD
+        generateValue: true
+      - key: SMARTSERVE_SESSION_SECRET
+        generateValue: true
