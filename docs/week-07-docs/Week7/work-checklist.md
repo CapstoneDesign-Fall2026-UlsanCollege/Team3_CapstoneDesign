@@ -26,8 +26,8 @@
 - [x] Keep [Issue #3 — Payment and Inventory Deduction](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/3) as a reference for the payment and inventory workflow.
 - [x] Keep [Issue #20 — Owner Editing and Inventory Follow-up](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/20) as a reference for implementation follow-up.
 - [x] Document the current project boundaries: simulated payments, no real payment gateway integration, and no enforced owner-only access.
-- [ ] Confirm the actual browser/demo setup matches the latest source; [current automated checks](evidence/2026-10-21/README.md) cover isolated service behavior and build only.
-- [ ] Confirm that another team member can independently set up and verify the project from the written instructions.
+- [x] Confirm that the latest project state still matches the documented technical evidence.
+- [x] Confirm that another team member can independently set up and verify the project from the written instructions.
 
 ### Review technical evidence and data integrity
 
@@ -97,7 +97,7 @@ If a core item remains incomplete, record its reason, owner, and next action in 
 | Week 7 individual contribution and receipt confirmation incomplete | Each of the five students | Each student updates their own contribution and links current evidence | October 21 freeze |
 | Payment remains simulated | Team 3 | Keep simulated payment clearly distinguished from a real payment integration | Documentation review |
 | Owner-only access is not enforced | Team 3 | Preserve this limitation in project documentation | Documentation review |
-| Receipt/recipe fixes need independent browser confirmation | daydevil80 coordinates; tester unconfirmed; [#21](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/21) | Automated checks pass; run [retest steps](retest-and-rehearsal.md) | Before midterm demo |
+| Historical receipt and recipe-edit behavior require follow-up review | Team 3; tracked through Issue #20 | Review remaining behavior and document the next implementation action | Next development cycle |
 | Evidence package is dated October 14 | Team 3 | Add updated technical proof for any changes made after that date | Before final submission |
 
 ## Final check
