@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 
-const API = "http://localhost:8000";
+const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
 type Ingredient = { id: number; name: string; unit: string; stock_quantity: number; reorder_level: number; active: boolean; unit_editable?: boolean; convertible_units?: string[] };
 type MenuItem = { id: number; name: string; price: number; active: boolean; recipe: { ingredient_id: number; ingredient_name: string; quantity: number }[] };
 type RecipeInput = { ingredient_id: string; quantity: string; unit?: string };

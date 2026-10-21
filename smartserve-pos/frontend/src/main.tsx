@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { OwnerManagement } from "./OwnerManagement";
 import "./styles.css";
 
-const API = "http://localhost:8000";
+const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
 type MenuItem = { id: number; name: string; price: number };
 type MenuRecipe = { id: number; recipe: { ingredient_id: number; quantity: number }[] };
 type CartLine = MenuItem & { quantity: number };
