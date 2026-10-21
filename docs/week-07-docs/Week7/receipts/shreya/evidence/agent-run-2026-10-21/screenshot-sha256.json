@@ -1,0 +1,13 @@
+{
+  "01-before-inventory.png": "627c5cf52b4bbac5f4dded4319f56c4add63f51a0ff47f93db82035ca45df27e",
+  "02-before-sales-empty-state.png": "462f974f2edec02b84a6d577ce34f44c046de9562d42b0b9680a270b1490bd31",
+  "03-two-latte-cart.png": "7c97d3f46105cfb99e5592470b94a51bb96572c0b279dfd047065fdfe98a2262",
+  "04-unpaid-order.png": "395a7b0543b4b7829a1694006ab1e65797ef0aaef14ce79491d323a19b5a7481",
+  "08-paid-receipt.png": "a873efaf02edf2c46ccba45208082e52bfab2ca08db2014f2b0c7a72f03b543f",
+  "09-final-inventory.png": "da3a8aef9d9db4b929c63a556f87af6c3cc9a473f768255d1f40a6f8bc95cb37",
+  "10-final-sales-dashboard.png": "f4ef06ad5e72ebefa7cfe61b87cd58750af470f427309971029d40c0308ff2f1",
+  "11-paid-order-history.png": "0470358a1979c26e0eacea5dfe76dcf41343fce9aae739154b7c99817138254d",
+  "12-reopened-receipt.png": "b4b6e4c1a6a3bb841a50910e36a7c3852cf144c334f92fd4eff5c2ec7cc692a4",
+  "13-mobile-receipt.png": "b9f35eeade65a08741ce845c49ff39bb16ad9fd311f77a25778a86fe0298f2ff",
+  "14-http-browser-results-report.png": "08b1fa9ff6b06a24fba67907bc390269908278c6e8776c216f145b825837dabe"
+}

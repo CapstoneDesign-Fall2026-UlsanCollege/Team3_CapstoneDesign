@@ -1,0 +1,31 @@
+INFO:     Started server process [11880]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18981 (Press CTRL+C to quit)
+INFO:     127.0.0.1:59965 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53674 - "GET /menu HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49684 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49683 - "GET /owner/menu HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49685 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49686 - "GET /dashboard/sales HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61733 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51298 - "GET /owner/inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51299 - "GET /dashboard/sales?selected_date=2026-10-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51300 - "GET /owner/menu HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56903 - "POST /orders HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55616 - "GET /menu HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55618 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61978 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55617 - "GET /owner/menu HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61977 - "GET /orders/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53035 - "POST /orders/1/pay HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53036 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55999 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59911 - "GET /owner/inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59913 - "GET /dashboard/sales?selected_date=2026-10-21 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59912 - "GET /owner/menu HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59915 - "POST /orders/1/pay HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:59916 - "GET /inventory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59917 - "GET /dashboard/sales HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59918 - "GET /dashboard/sales HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58379 - "GET /orders?trash=false HTTP/1.1" 200 OK

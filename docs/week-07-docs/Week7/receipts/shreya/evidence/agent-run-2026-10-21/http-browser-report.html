@@ -1,0 +1,312 @@
+<html><meta charset="utf-8"><style>body{font:18px Arial;margin:40px;color:#182434}pre{font:15px monospace;white-space:pre-wrap}h1{font-size:28px}</style><h1>Agent-run HTTP and browser verification</h1><p>Actual recorded results. Operator: Codex automation. This is a generated evidence report, not the app UI or a member test.</p><pre>{
+  &quot;operator&quot;: &quot;Codex agent automation; not Shuzita or shrey776&quot;,
+  &quot;date_kst&quot;: &quot;2026-10-21T15:37:11.832954+09:00&quot;,
+  &quot;application_commit&quot;: &quot;0d5fecdf827deb12b7d4d560e392bfb06d868591&quot;,
+  &quot;environment&quot;: &quot;Fresh temporary SQLite file per pack; built frontend served through isolated loopback proxy at 18980; API at 18981. No shared database touched.&quot;,
+  &quot;failure_injection&quot;: &quot;No failure injection; happy-path browser walkthrough and duplicate-payment HTTP check.&quot;,
+  &quot;automation_elapsed_seconds&quot;: 8.91,
+  &quot;human_rehearsal_duration&quot;: &quot;Not performed&quot;,
+  &quot;independent_member_test&quot;: &quot;Not performed&quot;,
+  &quot;checks&quot;: [
+    {
+      &quot;check&quot;: &quot;fresh sales&quot;,
+      &quot;expected&quot;: 0,
+      &quot;actual&quot;: 0.0,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;two-latte total&quot;,
+      &quot;expected&quot;: 9000,
+      &quot;actual&quot;: 9000.0,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;order starts open&quot;,
+      &quot;expected&quot;: &quot;open&quot;,
+      &quot;actual&quot;: &quot;open&quot;,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;unpaid stock unchanged&quot;,
+      &quot;expected&quot;: [
+        {
+          &quot;id&quot;: 2,
+          &quot;name&quot;: &quot;Coffee beans&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 1200.0,
+          &quot;reorder_level&quot;: 250.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 1,
+          &quot;name&quot;: &quot;Milk&quot;,
+          &quot;unit&quot;: &quot;ml&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;ml&quot;,
+            &quot;l&quot;
+          ],
+          &quot;stock_quantity&quot;: 5000.0,
+          &quot;reorder_level&quot;: 1000.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 4,
+          &quot;name&quot;: &quot;Sugar&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 2500.0,
+          &quot;reorder_level&quot;: 500.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 3,
+          &quot;name&quot;: &quot;Tea leaves&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 700.0,
+          &quot;reorder_level&quot;: 150.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        }
+      ],
+      &quot;actual&quot;: [
+        {
+          &quot;id&quot;: 2,
+          &quot;name&quot;: &quot;Coffee beans&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 1200.0,
+          &quot;reorder_level&quot;: 250.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 1,
+          &quot;name&quot;: &quot;Milk&quot;,
+          &quot;unit&quot;: &quot;ml&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;ml&quot;,
+            &quot;l&quot;
+          ],
+          &quot;stock_quantity&quot;: 5000.0,
+          &quot;reorder_level&quot;: 1000.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 4,
+          &quot;name&quot;: &quot;Sugar&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 2500.0,
+          &quot;reorder_level&quot;: 500.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 3,
+          &quot;name&quot;: &quot;Tea leaves&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 700.0,
+          &quot;reorder_level&quot;: 150.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        }
+      ],
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;successful payment HTTP&quot;,
+      &quot;expected&quot;: 200,
+      &quot;actual&quot;: 200,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;milk ml&quot;,
+      &quot;expected&quot;: 4500,
+      &quot;actual&quot;: 4500.0,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;beans g&quot;,
+      &quot;expected&quot;: 1164,
+      &quot;actual&quot;: 1164.0,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;duplicate payment HTTP&quot;,
+      &quot;expected&quot;: 409,
+      &quot;actual&quot;: 409,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;duplicate stock unchanged&quot;,
+      &quot;expected&quot;: [
+        {
+          &quot;id&quot;: 2,
+          &quot;name&quot;: &quot;Coffee beans&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 1164.0,
+          &quot;reorder_level&quot;: 250.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 1,
+          &quot;name&quot;: &quot;Milk&quot;,
+          &quot;unit&quot;: &quot;ml&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;ml&quot;,
+            &quot;l&quot;
+          ],
+          &quot;stock_quantity&quot;: 4500.0,
+          &quot;reorder_level&quot;: 1000.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 4,
+          &quot;name&quot;: &quot;Sugar&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 2500.0,
+          &quot;reorder_level&quot;: 500.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 3,
+          &quot;name&quot;: &quot;Tea leaves&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 700.0,
+          &quot;reorder_level&quot;: 150.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        }
+      ],
+      &quot;actual&quot;: [
+        {
+          &quot;id&quot;: 2,
+          &quot;name&quot;: &quot;Coffee beans&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 1164.0,
+          &quot;reorder_level&quot;: 250.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 1,
+          &quot;name&quot;: &quot;Milk&quot;,
+          &quot;unit&quot;: &quot;ml&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;ml&quot;,
+            &quot;l&quot;
+          ],
+          &quot;stock_quantity&quot;: 4500.0,
+          &quot;reorder_level&quot;: 1000.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 4,
+          &quot;name&quot;: &quot;Sugar&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 2500.0,
+          &quot;reorder_level&quot;: 500.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        },
+        {
+          &quot;id&quot;: 3,
+          &quot;name&quot;: &quot;Tea leaves&quot;,
+          &quot;unit&quot;: &quot;g&quot;,
+          &quot;convertible_units&quot;: [
+            &quot;g&quot;,
+            &quot;kg&quot;
+          ],
+          &quot;stock_quantity&quot;: 700.0,
+          &quot;reorder_level&quot;: 150.0,
+          &quot;low_stock&quot;: false,
+          &quot;active&quot;: true
+        }
+      ],
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;sales after duplicate&quot;,
+      &quot;expected&quot;: 9000,
+      &quot;actual&quot;: 9000.0,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;paid orders&quot;,
+      &quot;expected&quot;: 1,
+      &quot;actual&quot;: 1,
+      &quot;pass&quot;: true
+    },
+    {
+      &quot;check&quot;: &quot;uncaught browser errors&quot;,
+      &quot;expected&quot;: [],
+      &quot;actual&quot;: [],
+      &quot;pass&quot;: true
+    }
+  ],
+  &quot;duplicate_response&quot;: {
+    &quot;detail&quot;: &quot;This order has already been processed. Inventory was not deducted again.&quot;
+  },
+  &quot;screenshots&quot;: [
+    &quot;01-before-inventory.png&quot;,
+    &quot;02-before-sales-empty-state.png&quot;,
+    &quot;03-two-latte-cart.png&quot;,
+    &quot;04-unpaid-order.png&quot;,
+    &quot;08-paid-receipt.png&quot;,
+    &quot;09-final-inventory.png&quot;,
+    &quot;10-final-sales-dashboard.png&quot;,
+    &quot;11-paid-order-history.png&quot;,
+    &quot;12-reopened-receipt.png&quot;,
+    &quot;13-mobile-receipt.png&quot;
+  ],
+  &quot;browser_errors&quot;: []
+}</pre></html>
