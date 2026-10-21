@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import { OwnerManagement } from "./OwnerManagement";
 import "./styles.css";
 
-const API = "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
+const isOwnerPage = window.location.pathname.replace(/\/+$/, "") === "/etalogin";
 type MenuItem = { id: number; name: string; price: number };
 type MenuRecipe = { id: number; recipe: { ingredient_id: number; quantity: number }[] };
 type CartLine = MenuItem & { quantity: number };
@@ -17,9 +18,40 @@ const won = (value: number) => new Intl.NumberFormat("ko-KR", { style: "currency
 const koreaDate = (value = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(value);
 const dateTime = (value?: string | null) => value ? new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", year: "numeric", month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value)) : "—";
 async function readData<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${API}${endpoint}`);
+  const response = await fetch(`${API}${endpoint}`, { credentials: "include" });
   if (!response.ok) throw new Error("Could not load data. Please refresh and try again.");
   return response.json();
+}
+
+function OwnerAccess() {
+  const [ready, setReady] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    void readData<{ authenticated: boolean }>("/auth/session")
+      .then(result => setLoggedIn(result.authenticated))
+      .catch(() => setError("Could not check login. Please sign in again."))
+      .finally(() => setReady(true));
+  }, []);
+  if (!ready) return <main className="app-shell"><p>Checking login…</p></main>;
+  if (loggedIn) return <App />;
+  return <main className="app-shell"><section className="panel owner-login"><h1>Owner login</h1>
+    <form onSubmit={async event => {
+      event.preventDefault(); setBusy(true); setError("");
+      try {
+        const response = await fetch(`${API}/auth/login`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+        if (!response.ok) { const result = await response.json(); throw new Error(result.detail || "Login failed."); }
+        setPassword(""); setLoggedIn(true);
+      } catch (failure) { setError(failure instanceof Error ? failure.message : "Could not sign in."); }
+      finally { setBusy(false); }
+    }}>
+      <label>Username<input autoComplete="username" value={username} onChange={event => setUsername(event.target.value)} required /></label>
+      <label>Password<input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label>
+      {error && <p role="alert">{error}</p>}<button disabled={busy} type="submit">{busy ? "Signing in…" : "Log in"}</button>
+    </form><a href="/">Back to ordering</a></section></main>;
 }
 
 function App() {
@@ -39,7 +71,7 @@ function App() {
     document.addEventListener("pointerdown", closeOutside);
     return () => document.removeEventListener("pointerdown", closeOutside);
   }, [themeMenuOpen]);
-  const [tab, setTab] = useState<Tab>("cashier");
+  const [tab, setTab] = useState<Tab>(isOwnerPage ? "owner" : "cashier");
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [recipes, setRecipes] = useState<MenuRecipe[]>([]);
   const [stockReady, setStockReady] = useState(false);
@@ -217,7 +249,7 @@ function App() {
       <button className="theme-toggle" aria-label="Change theme" title="Change theme" aria-expanded={themeMenuOpen} aria-controls="theme-options" onClick={() => setThemeMenuOpen(open => !open)}><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.7-3.1 1.5 1.5 0 0 1 1.3-2.3h2a3 3 0 0 0 3-3A9.6 9.6 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="11" cy="6.8" r="1"/><circle cx="15.5" cy="8" r="1"/></svg></button>
       {themeMenuOpen && <fieldset id="theme-options" className="theme-options"><legend>Appearance</legend>{([{ value: "white", label: "White", detail: "Bright & clean" }, { value: "dark", label: "Dark", detail: "Soft contrast" }, { value: "code", label: "Code", detail: "Syntax highlights" }] as const).map(option => <label className={"theme-option " + (theme === option.value ? "selected" : "")} key={option.value}><input type="radio" name="theme" value={option.value} checked={theme === option.value} onChange={() => setTheme(option.value)} /><span className={"theme-swatch swatch-" + option.value} aria-hidden="true"/><span><strong>{option.label}</strong><small>{option.detail}</small></span></label>)}</fieldset>}
     </aside>
-    <header><div><p className="eyebrow">CAFÉ MANAGEMENT</p><h1>SmartServe POS</h1></div><nav aria-label="Main navigation">{(["cashier", "orders", "inventory", "owner"] as const).map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item)} key={item}>{item === "owner" ? "Owner dashboard" : item[0].toUpperCase() + item.slice(1)}</button>)}</nav></header>
+    <header><div><p className="eyebrow">CAFÉ MANAGEMENT</p><h1>SmartServe POS</h1></div><nav aria-label="Main navigation">{(isOwnerPage ? (["owner"] as const) : (["cashier", "orders", "inventory"] as const)).map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item)} key={item}>{item === "owner" ? "Owner dashboard" : item[0].toUpperCase() + item.slice(1)}</button>)}{isOwnerPage && <><a className="primary-link" href="/">Back to ordering</a><button onClick={async () => { const response = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" }); if (response.ok) window.location.assign("/etalogin"); else setMessage("Could not log out. Please retry."); }}>Log out</button></>}</nav></header>
     {message && <p className="notice" role="status">{message}</p>}
     {tab === "cashier" && <section className="cashier-grid">
       <div><p className="eyebrow">CHECKOUT</p><h2>Menu</h2><button disabled={busy} onClick={() => void loadMenu().catch(() => setStockReady(false))}>Refresh availability</button><p className="muted">Choose items, then take a simulated payment.</p><div className="menu-grid">{menu.map(item => { const shortages = shortagesFor([{ id: item.id, quantity: 1 }]); return <button className="menu-card" disabled={busy || pendingOrder !== null || !stockReady || shortages.length > 0} onClick={() => addToCart(item)} key={item.id}><strong>{item.name}</strong><span>{won(item.price)}</span><small>{shortages.length ? "Unavailable — " + shortages.join("; ") : "Add to order"}</small></button>; })}</div></div>
@@ -240,7 +272,7 @@ function App() {
       })}</div>{visibleOrders.length === 0 && <p className="empty-state">{ordersTrash ? "Trash is empty." : "No orders match these filters."}</p>}
     </section>}
     {tab === "inventory" && <section><h2>Inventory</h2><p className="muted">Stock is reduced only after a successful simulated payment.</p><table><thead><tr><th>Ingredient</th><th>In stock</th><th>Reorder level</th><th>Status</th></tr></thead><tbody>{inventory.map(item => <tr key={item.id}><td>{item.name}</td><td>{item.stock_quantity} {item.unit}</td><td>{item.reorder_level} {item.unit}</td><td><span className={item.low_stock ? "badge low" : "badge"}>{item.low_stock ? "Low stock" : "OK"}</span></td></tr>)}</tbody></table></section>}
-    {tab === "owner" && <section>
+    {isOwnerPage && tab === "owner" && <section>
       <div className="section-heading"><div><h2>Owner sales dashboard</h2><p className="muted">Daily totals include every paid order in the shared store, including test purchases.</p></div><a className="primary-link" href="#owner-management">Manage menu &amp; inventory</a></div>
       <div className="toolbar"><label>Sales date<input type="date" value={salesDate} onChange={event => { if (event.target.value) setSalesDate(event.target.value); }} /></label><button disabled={salesLoading} onClick={() => setSalesRefresh(value => value + 1)}>Refresh sales</button><span className="muted">Korea time (KST)</span></div>
       {salesLoading && <p role="status">Loading sales…</p>}{salesError && <p role="alert" className="notice">{salesError}</p>}
@@ -251,5 +283,5 @@ function App() {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode><App /></StrictMode>,
+  <StrictMode>{isOwnerPage ? <OwnerAccess /> : <App />}</StrictMode>,
 );

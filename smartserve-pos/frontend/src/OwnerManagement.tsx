@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 
-const API = "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 type Ingredient = { id: number; name: string; unit: string; stock_quantity: number; reorder_level: number; active: boolean; unit_editable?: boolean; convertible_units?: string[] };
 type MenuItem = { id: number; name: string; price: number; active: boolean; recipe: { ingredient_id: number; ingredient_name: string; quantity: number }[] };
 type RecipeInput = { ingredient_id: string; quantity: string; unit?: string };
@@ -8,7 +8,7 @@ type Props = { onMenuChanged: () => Promise<void>; onInventoryChanged: () => Pro
 const won = (value: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW", maximumFractionDigits: 0 }).format(value);
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API}${path}`, options);
+  const response = await fetch(`${API}${path}`, { ...options, credentials: "include" });
   const result = await response.json();
   if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : "Could not save changes");
   return result as T;

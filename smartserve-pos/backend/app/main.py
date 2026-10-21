@@ -16,9 +16,12 @@ from .schemas import IngredientCreate, MenuItemCreate, MenuItemOut, OrderCreate,
 from .seed import seed_demo_data
 
 app = FastAPI(title="SmartServe POS MVP")
+from .auth import install_owner_auth
+install_owner_auth(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
