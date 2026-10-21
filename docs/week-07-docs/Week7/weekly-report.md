@@ -63,6 +63,15 @@ Record only decisions that change scope, approach, ownership, or the next plan.
 | Keep known failures visible in the project documentation. | Passing backend tests and a frontend build do not resolve separately observed browser-level failures. |`Sammygit15` | [Automated Check](../week-06/automated-check.md), [Follow-up Problems](../week-06/follow-up-problems.md) |
 | Prioritize verification and correction of existing behavior before expanding the MVP. | The historical receipt and recipe-unit editing problems affect data correctness. |`daydevil80` | [Issue #20](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/20) |
 
+### Contributor Information
+
+Contributor: Lama Muskan
+
+GitHub username: Sammygit15
+
+Commit author clarification: The Week 7 documentation commits were authored under the display name LamaMuskan. This is the same contributor associated with the GitHub account Sammygit15. Git author configuration has been updated so future commits use Sammygit15 as the author name.
+
+
 ## Next week's bridge task
 
 - Review and address the historical receipt-name and alternate recipe-unit problems.
