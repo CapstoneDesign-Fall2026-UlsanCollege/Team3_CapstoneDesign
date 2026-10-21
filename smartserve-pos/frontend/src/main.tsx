@@ -55,6 +55,7 @@ function OwnerAccess() {
 }
 
 function App() {
+  const [showFeedback, setShowFeedback] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
     try { const saved = localStorage.getItem("smartserve.theme"); return saved === "dark" || saved === "code" ? saved : "white"; }
     catch { return "white"; }
@@ -273,7 +274,11 @@ function App() {
     </section>}
     {tab === "inventory" && <section><h2>Inventory</h2><p className="muted">Stock is reduced only after a successful simulated payment.</p><table><thead><tr><th>Ingredient</th><th>In stock</th><th>Reorder level</th><th>Status</th></tr></thead><tbody>{inventory.map(item => <tr key={item.id}><td>{item.name}</td><td>{item.stock_quantity} {item.unit}</td><td>{item.reorder_level} {item.unit}</td><td><span className={item.low_stock ? "badge low" : "badge"}>{item.low_stock ? "Low stock" : "OK"}</span></td></tr>)}</tbody></table></section>}
     {isOwnerPage && tab === "owner" && <section>
-      <div className="section-heading"><div><h2>Owner sales dashboard</h2><p className="muted">Daily totals include every paid order in the shared store, including test purchases.</p></div><a className="primary-link" href="#owner-management">Manage menu &amp; inventory</a></div>
+      <div className="section-heading"><div><h2>Owner sales dashboard</h2><p className="muted">Daily totals include every paid order in the shared store, including test purchases.</p></div><div className="dashboard-actions"><a className="primary-link" href="#owner-management">Manage menu &amp; inventory</a><button className="primary" aria-expanded={showFeedback} aria-controls="dashboard-feedback" onClick={() => setShowFeedback(open => !open)}>{showFeedback ? "Hide feedback form" : "Give feedback"}</button></div></div>
+      <section id="dashboard-feedback" className="dashboard-feedback" hidden={!showFeedback} aria-labelledby="feedback-heading">
+        <h3 id="feedback-heading">Share your feedback</h3>
+        <iframe title="SmartServe feedback form" src="https://docs.google.com/forms/d/e/1FAIpQLScRpmihHlNK9OvHRW0wjTLktS0NJnQ4WAz-pzQmr9QvdVaeSw/viewform?embedded=true" loading="lazy">Loading feedback form…</iframe>
+      </section>
       <div className="toolbar"><label>Sales date<input type="date" value={salesDate} onChange={event => { if (event.target.value) setSalesDate(event.target.value); }} /></label><button disabled={salesLoading} onClick={() => setSalesRefresh(value => value + 1)}>Refresh sales</button><span className="muted">Korea time (KST)</span></div>
       {salesLoading && <p role="status">Loading sales…</p>}{salesError && <p role="alert" className="notice">{salesError}</p>}
       {dashboard && <><div className="stats"><article><span>{"Sales on " + dashboard.date}</span><strong>{won(dashboard.sales_total)}</strong></article><article><span>Paid orders on {dashboard.date}</span><strong>{dashboard.paid_orders}</strong></article></div><h3>Paid sales on {dashboard.date}</h3><div className="table-wrap"><table><thead><tr><th>Order</th><th>Paid (KST)</th><th>Items</th><th>Type</th><th>Total</th><th>Payment</th></tr></thead><tbody>{dashboard.recent_sales.map(order => <tr key={order.id}><td>#{order.id}</td><td>{dateTime(order.paid_at)}</td><td>{order.items.map(item => item.name + " × " + item.quantity).join(", ")}</td><td>{order.order_type.replace("_", " ")}</td><td>{won(order.total)}</td><td>{order.payment_method?.toUpperCase()}</td></tr>)}</tbody></table>{dashboard.paid_orders === 0 && <p className="empty-state">No paid sales on this date.</p>}</div></>}
