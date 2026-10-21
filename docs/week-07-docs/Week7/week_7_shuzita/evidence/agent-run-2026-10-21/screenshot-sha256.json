@@ -1,0 +1,15 @@
+{
+  "01-before-inventory.png": "627c5cf52b4bbac5f4dded4319f56c4add63f51a0ff47f93db82035ca45df27e",
+  "02-before-sales-empty-state.png": "462f974f2edec02b84a6d577ce34f44c046de9562d42b0b9680a270b1490bd31",
+  "03-two-latte-cart.png": "7c97d3f46105cfb99e5592470b94a51bb96572c0b279dfd047065fdfe98a2262",
+  "04-unpaid-order.png": "395a7b0543b4b7829a1694006ab1e65797ef0aaef14ce79491d323a19b5a7481",
+  "05-failed-payment-message.png": "f4a1befffdc17278be13f38674db03894022d7fb15fdb748bfcf5341d45c49ca",
+  "06-stock-after-failure.png": "627c5cf52b4bbac5f4dded4319f56c4add63f51a0ff47f93db82035ca45df27e",
+  "07-sales-after-failure.png": "462f974f2edec02b84a6d577ce34f44c046de9562d42b0b9680a270b1490bd31",
+  "08-paid-receipt.png": "b9e9c746fbed05820a33caf6f435e78d09dc11bfdb8257e3b5a810022418d6d9",
+  "09-final-inventory.png": "da3a8aef9d9db4b929c63a556f87af6c3cc9a473f768255d1f40a6f8bc95cb37",
+  "10-final-sales-dashboard.png": "f4ef06ad5e72ebefa7cfe61b87cd58750af470f427309971029d40c0308ff2f1",
+  "11-paid-order-history.png": "03e32cf88799b7eb2c379e74dc10937c410008db2b21bad4291a9f179debe558",
+  "12-reopened-receipt.png": "b7af73405ff8bae06f7b00d9a6fedf2c881c768ebc34f928116fed5c468bb38d",
+  "14-http-browser-results-report.png": "aac1bf75c624255ef5f8a33dbffff5af85d30b1f55bbd7137c63b4ef063bce75"
+}
