@@ -50,6 +50,7 @@ class OrderItem(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"))
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"))
     quantity: Mapped[int] = mapped_column(Integer)
+    menu_item_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     unit_price: Mapped[float] = mapped_column(Numeric(12, 2))
 
 

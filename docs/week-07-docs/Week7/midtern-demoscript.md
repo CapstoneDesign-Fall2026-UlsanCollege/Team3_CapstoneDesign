@@ -7,6 +7,23 @@
 
 ## Opening
 
+**October 21 update:** [Current fixes/test evidence](evidence/2026-10-21/README.md) · [Shared report](weekly-report.md) · [Midterm Prep #21](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/21). Automated checks pass; independent browser testing and the timed spoken rehearsal remain pending.
+
+## Four-minute speaking plan
+
+These are planned times, not a completed rehearsal. Confirm speakers as a team. `daydevil80` prepares the fix/results segment; the other assignments are still open.
+
+| Time | Action and words to cover |
+|---|---|
+| 0:00–0:30 | “SmartServe is for café staff who need orders and ingredient stock to stay in sync. We'll show one sale from start to finish.” State that payments are simulated. |
+| 0:30–1:10 | Show starting inventory and daily sales in a separate demo database. Select two Caffè Lattes and point to the ₩9,000 total. |
+| 1:10–2:00 | Show a simulated failed payment: stock stays unchanged. Retry successfully, then show the paid receipt. |
+| 2:00–2:45 | Show milk −500 ml, beans −36 g, and daily sales +₩9,000. Use the before/after values rather than assuming the store starts at zero. |
+| 2:45–3:30 | daydevil80: “Last week an 18 g recipe edit saved as 18 kg, and menu renaming changed old receipt names. The edit now converts units, and new orders save their original item names.” Point to current expected/actual results. |
+| 3:30–4:00 | State the old-name migration limit, simulated payment boundary and pending independent check if still incomplete. Close with the next action. |
+
+Use [retest-and-rehearsal.md](retest-and-rehearsal.md) to record the actual start state, tester, duration and proof. If the app fails, show the dated recorded evidence and clearly say the live demo stopped. The recipe conversion is supporting proof, not an extra live feature tour.
+
 - **Project name:** SmartServe POS
 - **Target users:** Café staff and café owners who need to manage customer orders, payments, receipts, and ingredient inventory.
 - **Problem:** Managing orders, payments, and ingredient stock separately can make café operations difficult and time-consuming.
@@ -77,7 +94,7 @@
 | Student | GitHub Username | Contribution | Evidence |
 |---|---|---|---|
 | Lama Muskan | `Sammygit15` | Reviewed the SmartServe backend implementation and existing test evidence, examined the payment and inventory workflow, documented technical progress, and prepared Week 7 project documentation. | [GitHub Repository](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign) · [Week 6 Automated Check](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-06/automated-check.md) · [Week 6 Test Plan](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-06/test-plan.md) · [Week 6 Demo Instructions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-06/setup-and-demo.md) · [Issue #3 – Payment and Inventory](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/3) |
-| Sherap Hyolmo | `daydevil80` |  |  |
+| Sherap Hyolmo | `daydevil80` | Fixed recipe-unit editing and new-order receipt snapshots; added regression tests and current verification notes. Prepares the fix/results segment. | [Receipt](receipts/daydevil80.md) · [Current results](evidence/2026-10-21/README.md) |
 | Ualson Tamang | `ualsom` |  |  |
 | Shuzita Majhi | `Shuzita` |  |  |
 | Shreya | `shrey776` |  |  |

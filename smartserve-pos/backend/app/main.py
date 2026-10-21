@@ -30,6 +30,7 @@ def create_tables() -> None:
     if "trashed_at" not in {column["name"] for column in inspect(engine).get_columns("orders")}:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE orders ADD COLUMN trashed_at TIMESTAMP WITH TIME ZONE NULL"))
+    migrate_order_item_names()
     if engine.dialect.name == "postgresql":
         with engine.begin() as connection:
             for table, column in [("ingredients", "stock_quantity"), ("ingredients", "reorder_level"), ("recipe_items", "quantity"), ("inventory_movements", "quantity_change")]:
@@ -40,6 +41,15 @@ def create_tables() -> None:
             connection.execute(text("ALTER TABLE ingredients ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE"))
     with Session(engine) as db:
         seed_demo_data(db)
+
+
+def migrate_order_item_names() -> None:
+    # Legacy orders have no original-name snapshot. Preserve the current label once;
+    # an earlier name cannot be reconstructed from this database.
+    with engine.begin() as connection:
+        if "menu_item_name" not in {column["name"] for column in inspect(connection).get_columns("order_items")}:
+            connection.execute(text("ALTER TABLE order_items ADD COLUMN menu_item_name VARCHAR(120) NULL"))
+        connection.execute(text("UPDATE order_items SET menu_item_name = (SELECT name FROM menu_items WHERE menu_items.id = order_items.menu_item_id) WHERE menu_item_name IS NULL"))
 
 
 def permanently_delete_cancelled(order: models.Order, db: Session) -> None:
@@ -190,6 +200,7 @@ def update_menu_item(item_id: int, payload: MenuItemCreate, db: Session = Depend
     available = set(db.scalars(select(models.Ingredient.id).where(models.Ingredient.id.in_(ingredient_ids), models.Ingredient.active.is_(True)).with_for_update()).all())
     if available != set(ingredient_ids):
         raise HTTPException(status_code=422, detail="Recipe ingredients must be active inventory items")
+    normalize_recipe_units(payload, db)
     old_recipe = {(line.ingredient_id, Decimal(str(line.quantity))) for line in db.scalars(select(models.RecipeItem).where(models.RecipeItem.menu_item_id == item_id)).all()}
     new_recipe = {(line.ingredient_id, line.quantity) for line in payload.recipe}
     if old_recipe != new_recipe and db.scalar(select(models.OrderItem.id).join(models.Order).where(models.OrderItem.menu_item_id == item_id, models.Order.status == "open").limit(1)):
@@ -324,7 +335,7 @@ def order_view(order: models.Order, db: Session) -> dict:
         "paid_at": order.paid_at,
         "trashed_at": order.trashed_at,
         "delete_after": order.trashed_at + timedelta(days=30) if order.trashed_at else None,
-        "items": [{"menu_item_id": line.menu_item_id, "name": menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
+        "items": [{"menu_item_id": line.menu_item_id, "name": line.menu_item_name or menu[line.menu_item_id].name, "quantity": line.quantity, "unit_price": float(line.unit_price)} for line in lines],
         "payment_method": payment.method if payment else None,
         "simulated_reference": payment.simulated_reference if payment else None,
     }
@@ -343,7 +354,7 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
     order = models.Order(order_type=payload.order_type, status="open", total=total)
     db.add(order)
     db.flush()
-    db.add_all([models.OrderItem(order_id=order.id, menu_item_id=line.menu_item_id, quantity=line.quantity, unit_price=menu_by_id[line.menu_item_id].price) for line in payload.items])
+    db.add_all([models.OrderItem(order_id=order.id, menu_item_id=line.menu_item_id, menu_item_name=menu_by_id[line.menu_item_id].name, quantity=line.quantity, unit_price=menu_by_id[line.menu_item_id].price) for line in payload.items])
     db.commit()
     db.refresh(order)
     return order_view(order, db)

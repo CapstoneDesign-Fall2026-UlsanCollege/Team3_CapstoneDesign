@@ -4,7 +4,7 @@ os.environ['DATABASE_URL'] = 'sqlite://'
 
 import unittest
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import create_engine, inspect, select, text
 from sqlalchemy.orm import Session
 
 from app.database import Base, engine
@@ -111,6 +111,43 @@ class OwnerManagementTests(unittest.TestCase):
                 simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
             self.assertEqual(get_order(order['id'], self.db)['total'], 1000)
 
+    def test_edit_alternate_unit_preserves_availability_and_payment(self):
+        for stored, entered in [('kg', 'g'), ('l', 'ml')]:
+            with self.subTest(stored=stored):
+                ingredient = add_ingredient(IngredientCreate(name='Edit ' + stored, unit=stored, stock_quantity=1, reorder_level=0), self.db)
+                item = add_menu_item(MenuItemCreate(name='Edit drink ' + stored, price=4500, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 0.018}]), self.db)
+                order = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 2}]), self.db)
+                # Equivalent input must also pass the open-order recipe-change guard.
+                edited = update_menu_item(item['id'], MenuItemCreate(name=item['name'], price=4500, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 18, 'unit': entered}]), self.db)
+                self.assertEqual(edited['recipe'][0]['quantity'], 0.018)
+                self.assertEqual(next(i for i in owner_inventory(self.db) if i['id'] == ingredient['id'])['stock_quantity'], 1)
+                simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+                self.assertEqual(next(i for i in owner_inventory(self.db) if i['id'] == ingredient['id'])['stock_quantity'], 0.964)
+                with self.assertRaises(HTTPException) as duplicate:
+                    simulate_payment(order['id'], PaymentCreate(method='cash'), self.db)
+                self.assertEqual(duplicate.exception.status_code, 409)
+
+    def test_edit_rejects_incompatible_unit_without_changing_recipe(self):
+        ingredient, item = self.add_tea()
+        with self.assertRaises(HTTPException) as rejected:
+            update_menu_item(item['id'], MenuItemCreate(name=item['name'], price=6000, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 18, 'unit': 'ml'}]), self.db)
+        self.assertEqual(rejected.exception.status_code, 422)
+        self.assertEqual(next(i for i in owner_menu(self.db) if i['id'] == item['id'])['recipe'][0]['quantity'], 5)
+
+    def test_rename_keeps_old_receipt_name_and_price_but_new_order_uses_edit(self):
+        ingredient, item = self.add_tea()
+        old = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 2}]), self.db)
+        simulate_payment(old['id'], PaymentCreate(method='cash'), self.db)
+        update_menu_item(item['id'], MenuItemCreate(name='Matcha Special', price=7000, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 5}]), self.db)
+        self.db.expire_all()
+        receipt = get_order(old['id'], self.db)
+        self.assertEqual(receipt['items'][0]['name'], 'Matcha Latte')
+        self.assertEqual(receipt['items'][0]['unit_price'], 6000)
+        self.assertEqual(receipt['total'], 12000)
+        new = create_order(OrderCreate(order_type='takeaway', items=[{'menu_item_id': item['id'], 'quantity': 1}]), self.db)
+        self.assertEqual(new['items'][0]['name'], 'Matcha Special')
+        self.assertEqual(new['total'], 7000)
+
     def test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused(self):
         original = add_ingredient(IngredientCreate(name='sherap', unit='10', stock_quantity=10, reorder_level=5), self.db)
         remove_ingredient(original['id'], self.db)
@@ -146,6 +183,29 @@ class OwnerManagementTests(unittest.TestCase):
         with self.assertRaises(HTTPException) as inactive:
             add_menu_item(MenuItemCreate(name='Matcha Shake', price=6500, recipe=[{'ingredient_id': ingredient['id'], 'quantity': 5}]), self.db)
         self.assertEqual(inactive.exception.status_code, 422)
+
+
+class ReceiptMigrationTests(unittest.TestCase):
+    def test_legacy_schema_is_upgraded_and_backfill_runs_only_once(self):
+        from unittest.mock import patch
+        from app.main import migrate_order_item_names
+        legacy = create_engine('sqlite://')
+        try:
+            with legacy.begin() as connection:
+                connection.execute(text('CREATE TABLE menu_items (id INTEGER PRIMARY KEY, name VARCHAR(120))'))
+                connection.execute(text('CREATE TABLE order_items (id INTEGER PRIMARY KEY, menu_item_id INTEGER)'))
+                connection.execute(text("INSERT INTO menu_items VALUES (1, 'Legacy Latte')"))
+                connection.execute(text('INSERT INTO order_items VALUES (1, 1)'))
+            with patch('app.main.engine', legacy):
+                migrate_order_item_names()
+                self.assertIn('menu_item_name', {c['name'] for c in inspect(legacy).get_columns('order_items')})
+                with legacy.begin() as connection:
+                    connection.execute(text("UPDATE menu_items SET name = 'Renamed Latte'"))
+                migrate_order_item_names()
+                with legacy.connect() as connection:
+                    self.assertEqual(connection.scalar(text('SELECT menu_item_name FROM order_items')), 'Legacy Latte')
+        finally:
+            legacy.dispose()
 
 
 if __name__ == '__main__':

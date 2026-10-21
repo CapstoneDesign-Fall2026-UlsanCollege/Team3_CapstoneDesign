@@ -15,6 +15,13 @@ Complete the section for your current sprint at its final class meeting. These a
 
 ## Sprint 1 - Vertical Slice (Week 7)
 
+October 21: [24 current backend tests and frontend build](evidence/2026-10-21/README.md) pass. These are automated checks; independent browser verification and the spoken rehearsal remain incomplete. [Issue #21](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/21) tracks them.
+
+- [x] Failure/fallback checked in isolated service tests: failed payment returns 402 without changing stock; duplicate payment returns 409 without another deduction. [Expected/actual results](evidence/2026-10-21/demo-results.json).
+- [x] Week 6 recipe-unit and new-order receipt-name defects fixed and covered by regression tests. Legacy original names cannot be reconstructed.
+- [ ] A non-author teammate verifies the pushed app in a browser and links the result.
+- [ ] Team completes and records a real 3–5 minute rehearsal.
+
 - [x] The main order-to-payment workflow has been implemented.
 - [x] The system supports simulated payment methods.
 - [x] The system generates an order receipt.
