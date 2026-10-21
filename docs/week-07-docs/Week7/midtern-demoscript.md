@@ -2,7 +2,7 @@
 
 **Team:** Team 3  
 **Project:** SmartServe POS  
-**Week:** 7–8
+**Week:** 7
 
 ## Opening
 
