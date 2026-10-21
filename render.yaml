@@ -17,7 +17,7 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: SMARTSERVE_OWNER_USERNAME
-        value: sherap
+        value: admin
       - key: SMARTSERVE_OWNER_PASSWORD_SHA256
         value: f98111cb604d1a4a49c3931b9756c0aef42fcd09250d1a1c3cdab1857aea6fc0
       - key: SMARTSERVE_SESSION_SECRET
