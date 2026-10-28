@@ -109,13 +109,16 @@ This milestone focuses on the existing SmartServe POS functionality rather than 
 
 | Category | Evidence | Description |
 |---|---|---|
-| Main Repository | [Team 3 GitHub Repository](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign) | Source code and project documentation |
-| Working Branch | `smartserve-mvp` | Main development branch |
-| Payment and Inventory | Commit `67cf5d0` | Previously documented payment and inventory verification work |
-| Backend Tests | `smartserve-pos/backend/test_owner_management.py` | Previously documented backend test evidence |
-| Week 7 Contribution | Week 7 documentation | Recipe unit conversion and order item name improvements |
+| Main Repository | [Team 3 GitHub Repository](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign) | Main source code and project documentation |
+| Working Branch | [smartserve-mvp](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/tree/smartserve-mvp) | Development branch |
+| Payment and Inventory | [Commit 67cf5d0](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/67cf5d0e23ed4a19846b619a4f236594822bbe61) | Fix for duplicate inventory deduction after payment |
+| Backend Test File | [test_owner_management.py](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/smartserve-pos/backend/test_owner_management.py) | Backend tests covering owner management, recipes, orders, payments, and inventory |
+| Week 6 Automated Checks | [automated-check.md](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-06/automated-check.md) | Recorded workflow checks and their results |
+| Week 6 Individual Evidence | [Week 6 Receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-06/receipts/daydevil80.md) | Evidence and findings related to recipe conversion and historical order information |
+| Week 7 Individual Evidence | [Week 7 Receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-07-docs/Week7/receipts/daydevil80.md) | Documents recipe unit conversion and preserving saved order item names and prices |
+| Week 7 Weekly Report | [Week 7 Weekly Report](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-07-docs/Week7/weekly-report.md) | Team progress, identified issues, and follow-up actions |
 
-Additional evidence should be linked here when the corresponding Week 8 work has been completed and verified.
+**Evidence Note:** The links above refer to existing repository records. The Week 6 and Week 7 evidence should be treated as previous work, not as newly completed Week 8 testing. New Week 8 evidence can be added as the team completes further verification.
 
 ---
 
