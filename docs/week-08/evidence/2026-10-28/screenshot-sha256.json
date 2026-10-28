@@ -1,0 +1,14 @@
+{
+  "01-public-cashier.png": "1f775dbbb4bdc6390b3011d2aa45153609e43dd4b901cdae26787f28725b86e8",
+  "02-owner-login.png": "9162409316d97a11fe62c0766a6300f3c75aec66d8a2b779c63ef4eed4db2664",
+  "03-starting-sales.png": "c33fd1c0b81dcf83713954f47a5d938b2568f39898e50b4fa6f476847dbd859c",
+  "04-starting-inventory.png": "cd844b4a1292922dd3892ecbfe5d0b9b2d4914ba3768f7388cff96a7942ff23e",
+  "05-unpaid-order.png": "9cb6d9eb2c20d25116a9e0da6e6e8ade5e71d1405baf28722cc8bc39332e76d4",
+  "06-payment-failure.png": "598999f204f08df938cd1952a3a95edb29ecdd02014fa6bbebb19dd0da6a5656",
+  "07-paid-receipt.png": "bb795d1beccd217494a94d4428812c692bda1b398058e8e25478aaeed887b0e6",
+  "08-final-inventory.png": "dc1bc4ea4a00929e901bb34fa506afc261adde1e6dd51630956caf4b5ee1a005",
+  "09-paid-sales.png": "cf2264032eb2d624ec009b6e0bfbfb12dfcb9b9efc96814df38b15318cbbf3de",
+  "10-corrected-recipe-owner-view.png": "426c4653570b2735271625d8f54f8f293e99c56c2500fed542af706885c25683",
+  "11-original-receipt-after-rename.png": "6eeaa1d65edb474bee38aca1a1344f61dc727727ce6e23ebd1feb3c71191ea6c",
+  "12-final-sales-after-edit.png": "af3213740e66c15c6855380edf2d6d309dd8ab57924819527b9d67a8c109a4f9"
+}

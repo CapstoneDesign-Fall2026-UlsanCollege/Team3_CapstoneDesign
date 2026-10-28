@@ -1,0 +1,535 @@
+{
+  "date_kst": "2026-10-28T15:13:08.781229+09:00",
+  "source_commit": "b68df10eb46d25bc2ac00e28412b71df792deb7f",
+  "operator": "Codex automation at daydevil80's request",
+  "database": "fresh temporary PostgreSQL cluster on loopback port 18992",
+  "browser": "Chromium, 1440 x 1080",
+  "shared_data_changed": false,
+  "method": "Real built frontend and FastAPI HTTP routes through local same-origin proxy; failure injected with result=failed. Owner credentials generated per run and not recorded.",
+  "checks": [
+    {
+      "check": "public navigation hides owner dashboard",
+      "expected": 0,
+      "actual": 0,
+      "result": "PASS"
+    },
+    {
+      "check": "anonymous sales requires owner session",
+      "expected": 401,
+      "actual": 401,
+      "result": "PASS"
+    },
+    {
+      "check": "anonymous owner inventory requires session",
+      "expected": 401,
+      "actual": 401,
+      "result": "PASS"
+    },
+    {
+      "check": "owner login accepts isolated test identity",
+      "expected": 200,
+      "actual": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "fresh sales",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": [
+        0,
+        0.0
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "saved order HTTP",
+      "expected": 201,
+      "actual": 201,
+      "result": "PASS"
+    },
+    {
+      "check": "saved order",
+      "expected": [
+        "open",
+        9000
+      ],
+      "actual": [
+        "open",
+        9000.0
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "unpaid stock unchanged",
+      "expected": [
+        {
+          "id": 2,
+          "name": "Coffee beans",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 1200.0,
+          "reorder_level": 250.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 1,
+          "name": "Milk",
+          "unit": "ml",
+          "convertible_units": [
+            "ml",
+            "l"
+          ],
+          "stock_quantity": 5000.0,
+          "reorder_level": 1000.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 4,
+          "name": "Sugar",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 2500.0,
+          "reorder_level": 500.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 3,
+          "name": "Tea leaves",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 700.0,
+          "reorder_level": 150.0,
+          "low_stock": false,
+          "active": true
+        }
+      ],
+      "actual": [
+        {
+          "id": 2,
+          "name": "Coffee beans",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 1200.0,
+          "reorder_level": 250.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 1,
+          "name": "Milk",
+          "unit": "ml",
+          "convertible_units": [
+            "ml",
+            "l"
+          ],
+          "stock_quantity": 5000.0,
+          "reorder_level": 1000.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 4,
+          "name": "Sugar",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 2500.0,
+          "reorder_level": 500.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 3,
+          "name": "Tea leaves",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 700.0,
+          "reorder_level": 150.0,
+          "low_stock": false,
+          "active": true
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "refresh preserves saved order",
+      "expected": 1,
+      "actual": 1,
+      "result": "PASS"
+    },
+    {
+      "check": "failed payment HTTP",
+      "expected": 402,
+      "actual": 402,
+      "result": "PASS"
+    },
+    {
+      "check": "failed order remains open",
+      "expected": "open",
+      "actual": "open",
+      "result": "PASS"
+    },
+    {
+      "check": "failed stock unchanged",
+      "expected": [
+        {
+          "id": 2,
+          "name": "Coffee beans",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 1200.0,
+          "reorder_level": 250.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 1,
+          "name": "Milk",
+          "unit": "ml",
+          "convertible_units": [
+            "ml",
+            "l"
+          ],
+          "stock_quantity": 5000.0,
+          "reorder_level": 1000.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 4,
+          "name": "Sugar",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 2500.0,
+          "reorder_level": 500.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 3,
+          "name": "Tea leaves",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 700.0,
+          "reorder_level": 150.0,
+          "low_stock": false,
+          "active": true
+        }
+      ],
+      "actual": [
+        {
+          "id": 2,
+          "name": "Coffee beans",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 1200.0,
+          "reorder_level": 250.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 1,
+          "name": "Milk",
+          "unit": "ml",
+          "convertible_units": [
+            "ml",
+            "l"
+          ],
+          "stock_quantity": 5000.0,
+          "reorder_level": 1000.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 4,
+          "name": "Sugar",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 2500.0,
+          "reorder_level": 500.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 3,
+          "name": "Tea leaves",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 700.0,
+          "reorder_level": 150.0,
+          "low_stock": false,
+          "active": true
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "failed sales unchanged",
+      "expected": 0,
+      "actual": 0.0,
+      "result": "PASS"
+    },
+    {
+      "check": "retry payment HTTP",
+      "expected": 200,
+      "actual": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "paid stock",
+      "expected": [
+        4500,
+        1164
+      ],
+      "actual": [
+        4500.0,
+        1164.0
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "duplicate payment HTTP",
+      "expected": 409,
+      "actual": 409,
+      "result": "PASS"
+    },
+    {
+      "check": "duplicate stock unchanged",
+      "expected": [
+        {
+          "id": 2,
+          "name": "Coffee beans",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 1164.0,
+          "reorder_level": 250.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 1,
+          "name": "Milk",
+          "unit": "ml",
+          "convertible_units": [
+            "ml",
+            "l"
+          ],
+          "stock_quantity": 4500.0,
+          "reorder_level": 1000.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 4,
+          "name": "Sugar",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 2500.0,
+          "reorder_level": 500.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 3,
+          "name": "Tea leaves",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 700.0,
+          "reorder_level": 150.0,
+          "low_stock": false,
+          "active": true
+        }
+      ],
+      "actual": [
+        {
+          "id": 2,
+          "name": "Coffee beans",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 1164.0,
+          "reorder_level": 250.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 1,
+          "name": "Milk",
+          "unit": "ml",
+          "convertible_units": [
+            "ml",
+            "l"
+          ],
+          "stock_quantity": 4500.0,
+          "reorder_level": 1000.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 4,
+          "name": "Sugar",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 2500.0,
+          "reorder_level": 500.0,
+          "low_stock": false,
+          "active": true
+        },
+        {
+          "id": 3,
+          "name": "Tea leaves",
+          "unit": "g",
+          "convertible_units": [
+            "g",
+            "kg"
+          ],
+          "stock_quantity": 700.0,
+          "reorder_level": 150.0,
+          "low_stock": false,
+          "active": true
+        }
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "PUT /owner/inventory/2",
+      "expected": 200,
+      "actual": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "PUT /owner/menu/1",
+      "expected": 200,
+      "actual": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "18 g recipe edit stores kg",
+      "expected": 0.018,
+      "actual": 0.018,
+      "result": "PASS"
+    },
+    {
+      "check": "historical receipt name and price",
+      "expected": [
+        "Caff\u00e8 Latte",
+        4500,
+        9000
+      ],
+      "actual": [
+        "Caff\u00e8 Latte",
+        4500.0,
+        9000.0
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "next sale after unit edit",
+      "expected": 200,
+      "actual": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "stock after next sale",
+      "expected": [
+        4250,
+        1.146
+      ],
+      "actual": [
+        4250.0,
+        1.146
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "two paid sales",
+      "expected": [
+        2,
+        15000
+      ],
+      "actual": [
+        2,
+        15000.0
+      ],
+      "result": "PASS"
+    },
+    {
+      "check": "logout",
+      "expected": 200,
+      "actual": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "sales protected after logout",
+      "expected": 401,
+      "actual": 401,
+      "result": "PASS"
+    },
+    {
+      "check": "uncaught browser errors",
+      "expected": [],
+      "actual": [],
+      "result": "PASS"
+    }
+  ],
+  "limits": [
+    "Automated verification; no human tester or narrated presentation is attested",
+    "No public cloud deployment or concurrent-load claim",
+    "Payment remains simulated",
+    "Feedback iframe delivery not tested"
+  ]
+}

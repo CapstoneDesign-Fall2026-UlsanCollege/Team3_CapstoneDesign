@@ -141,11 +141,46 @@ This milestone focuses on the existing SmartServe POS functionality rather than 
 
 **GitHub:** [Sammygit15](https://github.com/Sammygit15)
 
+### Sherap Hyolmo — `daydevil80`
+
+**Week 8 Contribution: Current Verification, Evidence and Week 9 Planning**
+
+- Requested and documented a fresh check of the SmartServe POS workflow with coding-agent assistance. Codex executed the automated tests and browser run.
+- Recorded **24 passing backend tests** and a **successful frontend production build** on the current application source.
+- Recorded **27 passing browser/API checks** against a separate temporary **PostgreSQL database**, with no changes to the shared store data.
+- Collected **12 screenshots** and expected-versus-actual results covering order creation, refresh recovery, failed-payment handling, successful retry, duplicate-payment protection, inventory deduction and sales updates.
+- Verified that entering **18 g** in a recipe with stock stored in kilograms saves **0.018 kg**, and that an earlier receipt retains its original item name and price after menu editing.
+- Checked the local owner-session boundary: anonymous protected requests return **HTTP 401**, owner login permits access, and logout removes access.
+- Prepared the Week 8 contribution receipt and supporting addendum, connecting the technical results to the course lesson, project lesson and MVP-gap decision.
+- Recorded the next verification milestone in **Issue #22**, with `daydevil80` coordinating the non-author handoff before expanding the feature scope.
+
+**Previously Documented Technical Contributions (Week 7):**
+
+- Corrected recipe editing so quantities convert into the stored ingredient unit before comparison and saving.
+- Added original-name snapshots to new order items so later menu renaming does not change their receipt labels. Saved order prices remain unchanged.
+- Added **four regression tests** covering alternate recipe units, incompatible units, historical receipt information and the legacy migration.
+- Documented the limitation that original names never stored for older orders cannot be reconstructed automatically.
+
+**Evidence:**
+
+- [Week 8 individual receipt](receipts/daydevil80.md)
+- [October 28 verification summary](evidence/2026-10-28/README.md)
+- [Backend test output — 24 passed](evidence/2026-10-28/backend-tests.txt)
+- [Frontend build output](evidence/2026-10-28/frontend-build.txt)
+- [Browser/API checks — expected and actual results](evidence/2026-10-28/browser-results.json)
+- [Twelve screenshot records](evidence/2026-10-28/SCREENSHOTS.md)
+- [Week 8 lessons and milestone addendum](week8-addendum.md)
+- [Week 9 milestone — Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22)
+- [Week 7 implementation commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/0d5fecdf827deb12b7d4d560e392bfb06d868591)
+
+**Verification boundary:** The supplied checks were agent-run developer verification. They do not establish a teammate's independent test, a narrated presentation, public deployment or production payment processing.
+
+**GitHub:** [daydevil80](https://github.com/daydevil80)
+
 ### Other Team Members
 
 | Team Member | Week 8 Contribution | Evidence |
 |---|---|---|
-| Hyolmo Sherap | |  |
 | Ualson Tamang | |  |
 | Sujita | |  |
 | Shreya | |  |
