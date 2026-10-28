@@ -1,35 +1,59 @@
 # Week 8 Individual Evidence Receipt — Shreya
 
-**GitHub username:** `shrey776`  
-**Team:** Team 3 — SmartServe POS  
-**Week:** 8  
+**GitHub login:** `shrey776`
+**Team:** Team 3 — SmartServe POS
+**Week:** 8
 **Date:** October 28, 2026
 
-## Week 8 contribution status
+## Contribution: Evidence Review and Verification Planning
 
-The current Week 8 report does not yet record a specific Week 8 task or new Week 8 evidence for this member. The Week 6 receipt also says the member's contribution and proof link were still pending at that time. This does not mean that no work was done; it means the repository evidence reviewed so far does not establish a specific contribution. Add the member's actual Week 8 activity and evidence after confirmation.
+Reviewed the October 28 verification package and compared the documented claims with the recorded results and screenshots. Recorded the review, lessons and proposed Week 9 action in the shared report.
 
-## Previously documented responsibility
+**Contribution record:** [Week 8 Weekly Report](../weekly-report.md)
 
-The Team Working Agreement identifies this member as the testing and quality lead, responsible for preparing test cases, testing completed features, documenting results, reporting bugs, and verifying fixes.
+## Evidence Reviewed
 
-The Week 2 design document also lists test-case preparation and verification as support for inventory deduction and audit-record work.
+- [Verification summary](../evidence/2026-10-28/README.md)
+- [Expected and actual browser/API results](../evidence/2026-10-28/browser-results.json)
+- [Backend test output](../evidence/2026-10-28/backend-tests.txt)
+- [Frontend build output](../evidence/2026-10-28/frontend-build.txt)
+- [Screenshot gallery](../evidence/2026-10-28/SCREENSHOTS.md)
 
-**Evidence:**
-- [Team Working Agreement](../../week-01/team-working-agreement.md)
-- [Week 2 Design Document — MVP feature ownership](../../week-02/design-doc-v1.md)
-- [Week 6 individual receipt](../../week-06/receipts/shrey776.md)
+## Review Findings
 
-## Week 8 entry — member confirmation required
+| Claim reviewed | Recorded evidence | Finding |
+|---|---|---|
+| Backend regression tests | Test output reports 24 passing tests | Supports the checked backend cases |
+| Frontend production build | TypeScript and Vite completed | Supports successful compilation, not every live behavior |
+| Current browser/API behavior | 27 passing checks against temporary PostgreSQL | Supports the specific recorded cases |
+| Payment and inventory consistency | Receipt, stock and sales screenshots with raw results | Two lattes total ₩9,000 and deduct 500 ml milk and 36 g beans once |
+| Owner access | Anonymous protected requests return 401; login permits access; logout removes access | Current local session checks differ from older documentation describing unenforced access |
+| Verification boundaries | Results identify the source commit, environment and automation operator | These records do not establish public deployment or independent human testing |
 
-- **Actual Week 8 task:** Pending confirmation.
-- **Evidence link:** Add the actual test cases, test results, issue, screenshot, or review link.
-- **How it was checked:** Pending confirmation; do not claim an independent test without a recorded tester and result.
-- **Result or remaining issue:** Pending confirmation.
-- **Next action:** Confirm the actual Week 8 contribution and update this receipt.
+## Course Lesson
 
-## Team role recorded in the working agreement
+Different forms of evidence support different claims. A screenshot, passing build and independent teammate test cannot be treated as interchangeable proof. Important claims should link directly to the evidence that supports them.
 
-Testing and quality lead: prepare test cases, test completed features, document results, report bugs, and verify fixes.
+**Source:** [Midterm Presentation Rubric](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/course-materials/blob/main/student-starter-kit/docs/midterm-presentation-rubric.md)
 
-**Reference:** [Team Working Agreement](../../week-01/team-working-agreement.md)
+## Project Lesson
+
+Project evidence needs a date, application commit and test environment. Older records may describe an earlier version or different verification method. Therefore, current claims should reference the relevant current results and clearly preserve their limitations.
+
+**Decision:** Record the tested version and actual results when performing the next verification task.
+
+## MVP Status
+
+**Still has a gap.** Current automated evidence supports the checked simulated transaction path. The team’s next milestone is the documented verification handoff, tracked in [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22).
+
+## Proposed Week 9 Action
+
+- **Owner:** Shreya (`shrey776`), after confirming the assignment.
+- **Task:** Personally follow the setup instructions and repeat the frozen two-latte path using separate sample data.
+- **Success signal:** A ₩9,000 paid order produces the correct receipt, deducts 500 ml milk and 36 g beans once, and creates the matching sales update.
+- **Evidence to record:** Tester login, date, application commit, setup, browser/device, starting values, expected/actual results, screenshots and the first failure if one occurs.
+- **Instructions:** [Verification handoff](../verification-handoff.md)
+
+## Assistance and Evidence Boundary
+
+Codex automation executed the reviewed browser/API run at daydevil80’s request. My contribution is the personal review and planning described above, provided that I completed that review. This receipt does not claim that I independently executed the supplied tests or completed a narrated rehearsal.
