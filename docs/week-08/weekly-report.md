@@ -1,1 +1,187 @@
 
+# Weekly Report — Week 8: Midterm Gate, Feedback Review & MVP Scope Reset
+
+**Course:** Capstone Design — Fall 2026  
+**Team:** Team 3 — SmartServe POS  
+**Week:** 8 (Midterm Gate Checkpoint)  
+**Date:** Wednesday, October 28, 2026  
+**Status:** Midterm presentation completed  
+**Repository:** [Team3_CapstoneDesign](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign)  
+**Working Branch:** `smartserve-mvp`
+
+---
+
+## 1. This Week's Goal
+
+The goal for Week 8 was to review the SmartServe POS project following the midterm presentation, assess the current implementation, identify remaining MVP gaps, and establish development priorities for the next stage.
+
+The team focused on reviewing the existing point-of-sale workflow, evaluating the connection between order processing, simulated payment, and inventory management, and identifying areas that require further testing and improvement.
+
+Rather than expanding the project with unnecessary features, the focus is on completing and verifying the main POS workflow.
+
+---
+
+## 2. Post-Midterm Lessons Learned
+
+### Lesson 1: Course Lesson — Focus on a Verifiable MVP
+
+- **Reflection:** A project does not become more complete simply by adding more features. A smaller workflow that can be clearly demonstrated and verified provides stronger evidence of implementation progress.
+- **What We Learned:** The team should prioritize the main user workflow and make sure that each important step works consistently.
+- **Week 9 Decision:** Focus on completing and testing the existing SmartServe POS workflow before considering additional features.
+
+### Lesson 2: Project Lesson — Order and Inventory Consistency
+
+- **Reflection:** A POS system must maintain consistency between order information, payment status, and inventory records. Recording an order alone is not enough if the related stock changes are not handled correctly.
+- **What We Learned:** Payment confirmation and recipe-based inventory deduction must be handled carefully to avoid incorrect or repeated stock changes.
+- **Week 9 Decision:** Continue verifying the transaction workflow, including payment status, inventory deduction, and inventory movement records.
+
+---
+
+## 3. Current Project Proof
+
+The current SmartServe POS implementation is organized around the following workflow:
+
+1. **Menu Selection:** Users select menu items and enter quantities.
+2. **Order Calculation:** The system calculates the order total using stored item prices.
+3. **Order Creation:** The system creates a unique order record.
+4. **Simulated Payment:** Payment confirmation updates the order status to `paid`.
+5. **Inventory Deduction:** Recipe ingredients are deducted from inventory after successful payment.
+6. **Inventory Movement Records:** Stock changes are recorded through inventory movement records.
+
+The project also includes work on recipe management and order item history.
+
+**Previously documented evidence:**
+
+- Recipe editing was improved to convert units before saving and comparing ingredient quantities.
+- Order records were improved to preserve item names and saved prices at the time of order creation.
+- The Week 7 contribution record identifies backend tests in `smartserve-pos/backend/test_owner_management.py` and reports that 24 backend tests passed.
+- Commit `67cf5d0` is associated with payment and inventory verification work.
+
+These are previously documented results and should not be treated as new Week 8 test results.
+
+---
+
+## 4. MVP Status Assessment: Still Has a Gap
+
+The project has implemented important parts of the POS workflow, but further verification and improvement are required before considering the MVP complete.
+
+| What Is Implemented or Previously Documented | What Still Requires Attention |
+|---|---|
+| Menu item selection and quantity handling | Verify different order combinations and quantities |
+| Order total calculation using stored prices | Verify price accuracy in different order scenarios |
+| Unique order creation | Verify order creation and duplicate-submission handling |
+| Simulated payment status update | Define and verify the payment boundary |
+| Recipe-based inventory deduction | Verify stock deduction for different recipes |
+| Inventory movement records | Verify that movements match actual stock changes |
+| Recipe unit conversion improvements | Test additional unit conversion cases |
+| Saved item names in order records | Verify receipt and order history consistency |
+
+**MVP Assessment:** The project has an implemented core workflow, but it should remain classified as **Still Has a Gap** until the complete transaction flow and its important edge cases are verified.
+
+---
+
+## 5. Main Focus Milestone for Sprint 2 (Week 9–11)
+
+### Milestone 1: Complete and Verify the SmartServe POS Transaction Workflow
+
+- **Objective:** Ensure that menu selection, order creation, simulated payment confirmation, and recipe-based inventory deduction work together consistently.
+- **Main Focus:** Verify the relationship between order status, payment confirmation, inventory deduction, and inventory movement records.
+- **Additional Focus:** Improve error handling and test important edge cases involving quantities, recipes, and repeated requests.
+- **Success Signal:** A test order can be created, marked as paid through the simulated payment flow, and have its required ingredients deducted exactly once, with corresponding inventory movement records.
+
+This milestone focuses on the existing SmartServe POS functionality rather than introducing a new payment provider or unrelated features.
+
+---
+
+## 6. Week 8 Deliverables
+
+- Review the project following the midterm presentation.
+- Record lessons learned from the course and technical implementation.
+- Assess the current MVP status.
+- Identify the remaining gaps in the main POS workflow.
+- Establish priorities for Weeks 9–11.
+- Define expected behavior for completing and verifying the transaction workflow.
+- Organize available project evidence and individual contributions.
+
+---
+
+## 7. Evidence Links & Document Matrix
+
+| Category | Evidence | Description |
+|---|---|---|
+| Main Repository | [Team 3 GitHub Repository](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign) | Source code and project documentation |
+| Working Branch | `smartserve-mvp` | Main development branch |
+| Payment and Inventory | Commit `67cf5d0` | Previously documented payment and inventory verification work |
+| Backend Tests | `smartserve-pos/backend/test_owner_management.py` | Previously documented backend test evidence |
+| Week 7 Contribution | Week 7 documentation | Recipe unit conversion and order item name improvements |
+
+Additional evidence should be linked here when the corresponding Week 8 work has been completed and verified.
+
+---
+
+## 8. Individual Contribution Entries
+
+### Lama Muskan — `Sammygit15`
+
+**Week 8 Contribution: Documentation and MVP Planning**
+
+- Prepared the Week 8 post-midterm weekly report for Team 3 — SmartServe POS.
+- Organized the project's current implementation status and identified remaining MVP gaps.
+- Documented lessons learned and priorities for the next development stage.
+- Prepared the development direction for Weeks 9–11, focusing on the main POS transaction workflow.
+
+**Previously Documented Technical Contributions (Week 7):**
+
+- Improved recipe editing by converting ingredient quantities into the correct stock units before saving and comparing values.
+- Worked on preserving menu item names and saved prices in order records so that later menu renaming does not change historical order information.
+- Documented backend testing evidence in `smartserve-pos/backend/test_owner_management.py`, with 24 backend tests reported as passed.
+
+**GitHub:** [Sammygit15](https://github.com/Sammygit15)
+
+### Other Team Members
+
+| Team Member | Week 8 Contribution | Evidence |
+|---|---|---|
+| Hyolmo Sherap | |  |
+| Ualson Tamang | |  |
+| Sujita | |  |
+| Shreya | |  |
+
+---
+
+## 9. Risks and Mitigation Strategy
+
+| Risk | Potential Impact | Mitigation Strategy |
+|---|---|---|
+| Incorrect inventory deduction | Stock quantities may become inaccurate | Verify recipe calculations and stock changes |
+| Repeated payment requests | Ingredients may be deducted more than once | Verify duplicate-submission and deduction protection |
+| Recipe unit conversion errors | Incorrect ingredient quantities | Test equivalent quantities across supported units |
+| Order history inconsistency | Receipts may show incorrect item information | Preserve and verify saved order item details |
+| Incomplete transaction testing | Important workflow errors may remain undetected | Perform end-to-end testing of the main POS workflow |
+
+---
+
+## 10. Decision Record
+
+| Decision | Reason | Priority |
+|---|---|---|
+| Prioritize the existing POS workflow | The main transaction flow is the core purpose of the project | High |
+| Verify payment and inventory consistency | Order and stock records must remain consistent | High |
+| Test recipe calculations and unit conversion | Ingredient deductions depend on correct quantities | High |
+| Preserve order item history | Historical order information should remain reliable | Medium |
+| Postpone unrelated advanced features | Avoid unnecessary scope expansion before MVP completion | Medium |
+
+---
+
+## 11. Next Week's Bridge Task — Week 9
+
+- Review the current implementation and confirm the remaining MVP requirements.
+- Test the complete order-to-payment-to-inventory workflow.
+- Verify that inventory deduction occurs only once for a paid order.
+- Test recipe unit conversions and inventory movement records.
+- Identify and fix issues discovered during testing.
+- Update the project documentation with verified evidence.
+
+**Week 8 Conclusion**
+
+Week 8 marked the transition from the midterm checkpoint to the next stage of SmartServe POS development. The team reviewed the existing implementation, identified areas requiring further verification, and established a focused direction for completing the MVP. The priority for the coming weeks is to deliver a reliable and verifiable POS transaction workflow.
