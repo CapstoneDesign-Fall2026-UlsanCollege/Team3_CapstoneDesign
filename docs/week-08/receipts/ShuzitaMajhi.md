@@ -1,34 +1,62 @@
 # Week 8 Individual Evidence Receipt — Shuzita Majhi
 
-**GitHub username:** `shuzita` (the Week 6 receipt filename uses `Shuzita`; confirm exact capitalization/login)  
-**Team:** Team 3 — SmartServe POS  
-**Week:** 8  
+**GitHub login:** `Shuzita`
+**Team:** Team 3 — SmartServe POS
+**Week:** 8
 **Date:** October 28, 2026
 
-## Week 8 contribution status
+## Contribution: Payment Recovery Evidence Review and Test Planning
 
-The current Week 8 report does not yet record a specific Week 8 task or new Week 8 evidence for this member. Do not treat earlier documentation and demo-preparation work below as work completed during Week 8. Add the member's actual Week 8 activity and evidence after confirmation.
+Reviewed the recorded payment-failure, successful-retry and duplicate-payment evidence, and documented the review and lessons in the shared Week 8 report.
 
-## Previously documented contributions
+**Contribution record:** [Week 8 Weekly Report](../weekly-report.md)
 
-The Week 3 report records that this member created the Week 4 Chuseok checkpoint, including sketches, a midterm-demo sentence, a Week 5 question, and the first action after the break. It also records uploaded two-Latte demo evidence with six screenshots and expected-versus-actual results. The report explicitly says the automated demo was performed by browser automation; personal review or reproduction was not recorded.
+## Evidence Reviewed
 
-**Evidence:**
-- [Week 3 weekly report](../../week-03/weekly-report.md)
-- [Week 4 Chuseok checkpoint](../../week-04-chuseok/chuseok-checkpoint.md)
-- [Two-Latte demo evidence](../../week-04-chuseok/evidence/two-latte-demo/README.md)
-- [Week 6 individual receipt](../../week-06/receipts/Shuzita.md)
+- [October 28 verification summary](../evidence/2026-10-28/README.md)
+- [Expected and actual browser/API results](../evidence/2026-10-28/browser-results.json)
+- [Failed-payment screenshot](../evidence/2026-10-28/06-payment-failure.png)
+- [Successful retry receipt](../evidence/2026-10-28/07-paid-receipt.png)
+- [Inventory after successful payment](../evidence/2026-10-28/08-final-inventory.png)
+- [Sales after successful payment](../evidence/2026-10-28/09-paid-sales.png)
 
-## Week 8 entry — member confirmation required
+## What the Recorded Evidence Shows
 
-- **Actual Week 8 task:** Pending confirmation.
-- **Evidence link:** Add the Week 8 document, design, issue, screenshot, or presentation-material link.
-- **How it was checked:** Pending confirmation.
-- **Result or remaining issue:** Pending confirmation.
-- **Next action:** Confirm the actual Week 8 contribution and update this receipt.
+| Scenario | Expected behavior | Recorded result |
+|---|---|---|
+| Failed simulated payment | Order remains open; stock and sales unchanged | HTTP 402; expected behavior recorded |
+| Successful cash retry | Same order becomes paid for ₩9,000 | HTTP 200; paid receipt recorded |
+| Ingredient deduction | Two lattes deduct 500 ml milk and 36 g beans | Milk changed from 5,000 to 4,500 ml; beans changed from 1,200 to 1,164 g |
+| Duplicate payment | No second deduction or additional sale | HTTP 409; stock and sales unchanged |
 
-## Team role recorded in the working agreement
+These are results from the linked automated run, not a new test executed by me.
 
-Documentation and design lead: maintain project documentation and help create interface designs, diagrams, and presentation materials.
+## Course Lesson
 
-**Reference:** [Team Working Agreement](../../week-01/team-working-agreement.md)
+A presentation or interface alone does not establish that a workflow is verified. Claims need direct evidence, and each student should explain their own contribution. Reviewing existing results and independently running a test are different activities.
+
+**Source:** [Midterm Presentation Rubric](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/course-materials/blob/main/student-starter-kit/docs/midterm-presentation-rubric.md)
+
+## Project Lesson
+
+Payment status and inventory changes must remain consistent. Testing only a successful payment would miss important recovery and duplicate-request cases. The evidence shows why failed payment must leave stock unchanged and why retrying must not deduct ingredients twice.
+
+**Decision:** Include failure, recovery and duplicate-payment checks in my next verification task.
+
+## MVP Status
+
+**Still has a gap.** The automated evidence supports the simulated transaction path. The team’s next verification milestone remains tracked in [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22).
+
+Real payment-provider integration is outside the current simulated-payment scope.
+
+## Proposed Week 9 Action
+
+- **Owner:** Shuzita (`Shuzita`), subject to confirming the assignment.
+- **Task:** Personally follow the setup and repeat failed-payment recovery and duplicate-payment checks using separate sample data.
+- **Success signal:** Failed payment changes neither stock nor sales; successful retry deducts the correct ingredients once; duplicate payment causes no additional deduction.
+- **Evidence to record:** Date, tested commit, browser/device, starting values, expected and actual results, screenshots, and the first failure if one occurs.
+- **Instructions:** [Verification handoff](../verification-handoff.md)
+
+## Assistance and Evidence Boundary
+
+The reviewed browser run was executed by Codex automation at daydevil80’s request. My contribution is the review and planning recorded in the shared report. This receipt does not claim that I independently executed that run or completed a narrated rehearsal.
