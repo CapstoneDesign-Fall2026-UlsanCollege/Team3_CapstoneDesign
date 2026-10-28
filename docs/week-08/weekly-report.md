@@ -177,12 +177,61 @@ This milestone focuses on the existing SmartServe POS functionality rather than 
 
 **GitHub:** [daydevil80](https://github.com/daydevil80)
 
+### Shuzita Majhi — `Shuzita`
+
+**Week 8 Contribution: Payment Recovery Evidence Review and Week 9 Test Planning**
+
+- Reviewed the recorded payment-failure, successful-retry and duplicate-payment evidence for SmartServe POS.
+- Compared the expected behavior with the actual values reported in the October 28 automated verification.
+- Documented the payment boundary: payments are simulated, and the recorded checks demonstrate application behavior rather than real payment-provider processing.
+- Selected payment-failure recovery as my proposed Week 9 verification task.
+
+**Review Details**
+
+- **Review date:** [Enter the actual date.]
+- **Evidence I personally opened:** [List the result file and screenshot links reviewed.]
+- **My finding or question:** [Write your own observation from the evidence.]
+
+**Course Lesson**
+
+A completed interface or presentation does not establish that a workflow is verified. Important claims need evidence, and each student should explain their own contribution. Therefore, I will distinguish reviewing existing results from personally executing a test.
+
+**Source:** [Midterm Presentation Rubric](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/course-materials/blob/main/student-starter-kit/docs/midterm-presentation-rubric.md)
+
+**Project Lesson**
+
+The recorded results show why payment status and inventory changes must stay consistent. Failed simulated payment returns HTTP 402 and leaves the order open without changing stock or sales. A successful retry pays the same order. Repeating payment returns HTTP 409 without another deduction.
+
+Therefore, my next verification task will check both recovery and duplicate protection, rather than only a successful payment.
+
+**Current Evidence**
+
+- [October 28 verification summary](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0b84c062adc05f082e70d6c1dba67dacd1d82d93/docs/week-08/evidence/2026-10-28/README.md)
+- [Expected and actual browser/API results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0b84c062adc05f082e70d6c1dba67dacd1d82d93/docs/week-08/evidence/2026-10-28/browser-results.json)
+- [Failure screenshot](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0b84c062adc05f082e70d6c1dba67dacd1d82d93/docs/week-08/evidence/2026-10-28/06-payment-failure.png)
+- [Successful retry receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0b84c062adc05f082e70d6c1dba67dacd1d82d93/docs/week-08/evidence/2026-10-28/07-paid-receipt.png)
+
+**MVP Status: Still Has a Gap**
+
+The current automated evidence supports the simulated sale. The team still needs to complete the verification milestone recorded in Issue #22 before treating the path as fully handed off.
+
+**My Proposed Week 9 Action**
+
+- **Owner:** Shuzita (`Shuzita`), after I confirm this assignment.
+- **Task:** Follow the written setup and personally test failed payment, successful retry and duplicate payment using separate sample data.
+- **Success signal:** Failure leaves stock and sales unchanged; successful retry deducts 500 ml milk and 36 g beans once for two lattes; repeated payment creates no additional deduction.
+- **Evidence to record:** Tested commit, date, browser, starting values, expected/actual results, screenshots and the first failure if one occurs.
+- **Tracking:** [Week 9 verification milestone — Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22)
+
+**Evidence boundary:** The linked automated run was executed by Codex at daydevil80’s request. My contribution recorded here is my personal review and planning; it does not claim that I executed that earlier run.
+
+**GitHub:** [Shuzita](https://github.com/Shuzita)
+
 ### Other Team Members
 
 | Team Member | Week 8 Contribution | Evidence |
 |---|---|---|
 | Ualson Tamang | |  |
-| Sujita | |  |
 | Shreya | |  |
 
 ---
