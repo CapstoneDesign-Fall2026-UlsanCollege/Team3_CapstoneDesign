@@ -227,12 +227,62 @@ The current automated evidence supports the simulated sale. The team still needs
 
 **GitHub:** [Shuzita](https://github.com/Shuzita)
 
+### Shreya — `shrey776`
+
+**Week 8 Contribution: Evidence Review and Verification Planning**
+
+- Reviewed the October 28 verification summary, browser/API results and supporting screenshots.
+- Compared the documented claims with the recorded order, payment, inventory and sales results.
+- Distinguished the 24 backend tests from the separate 27 PostgreSQL browser/API checks.
+- Identified that the current evidence includes local owner-session protection, while earlier documentation described owner access as unenforced.
+- Kept automated verification, public deployment and independent teammate testing separate.
+- Selected a clean-setup reproduction of the frozen transaction path as my proposed Week 9 task.
+
+**Course Lesson**
+
+A project claim needs direct evidence that supports its exact meaning. A screenshot, passing test suite and independent teammate test provide different kinds of proof.
+
+**Source:** [Midterm Presentation Rubric](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/course-materials/blob/main/student-starter-kit/docs/midterm-presentation-rubric.md)
+
+**Project Lesson**
+
+Evidence must identify the application version, date and environment. The October 28 browser run checked PostgreSQL and local owner sessions, while earlier evidence described a different verification environment. Therefore, current claims should point to the relevant current result rather than rely only on older screenshots.
+
+**Review Finding**
+
+The October 28 records support the checked simulated-payment, stock, receipt-history and local owner-session behavior. They do not establish a public deployment, production security or a completed human rehearsal.
+
+**MVP Status: Still Has a Gap**
+
+The core workflow has automated evidence. The next milestone is to reproduce it through the team’s verification handoff and record a named tester’s actual results.
+
+**Proposed Week 9 Action**
+
+- **Owner:** Shreya (`shrey776`), after confirming the assignment.
+- **Task:** Follow the written setup and personally repeat the frozen two-latte transaction path.
+- **Success signal:** Record the correct ₩9,000 order, receipt, 500 ml milk deduction, 36 g bean deduction and matching sales update.
+- **Proof to record:** Tested commit, date, setup, browser/device, expected/actual values, screenshots and the first failure if one occurs.
+- **Tracking:** [Week 9 milestone — Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22)
+
+**Evidence**
+
+- [October 28 verification summary](evidence/2026-10-28/README.md)
+- [Expected and actual browser/API results](evidence/2026-10-28/browser-results.json)
+- [Backend test output](evidence/2026-10-28/backend-tests.txt)
+- [Screenshot evidence](evidence/2026-10-28/SCREENSHOTS.md)
+- [Verification handoff](verification-handoff.md)
+- [Individual receipt](receipts/Shreya.md)
+
+**Evidence Boundary:** My contribution is reviewing the recorded evidence and planning the next check. Codex executed the supplied automated run; I do not claim that execution as my own independent test.
+
+**GitHub:** [shrey776](https://github.com/shrey776)
+
 ### Other Team Members
 
 | Team Member | Week 8 Contribution | Evidence |
 |---|---|---|
 | Ualson Tamang | |  |
-| Shreya | |  |
+
 
 ---
 
