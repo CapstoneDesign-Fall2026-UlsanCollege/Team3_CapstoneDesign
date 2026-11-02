@@ -9,29 +9,27 @@
 
 I opened the POS application and checked the sales dashboard, paid-order history, menu/recipe display, inventory view and payment receipt. The screenshots captured during this check show:
 
-1. **Sales dashboard:** November 2 sales displayed as ₩12,500 across 3 paid orders.
-2. **Paid-order history:** Order #2 and #3 are Caffè Latte × 1 at ₩4,500 each (CASH and QR); order #4 is Americano × 1 at ₩3,500 (CASH).
-3. **Menu and recipe display:** Americano, Caffè Latte and Milk Tea are listed with their configured ingredient quantities.
-4. **Inventory view:** Coffee beans, milk, sugar babies and tea leaves display current stock, reorder levels and OK status.
-5. **Receipt view:** Receipt #4 displays Americano × 1, ₩3,500, CASH, with a payment-complete status.
+1. **Sales dashboard and paid-order history:** November 2 sales displayed as ₩12,500 across 3 paid orders. The same screenshot shows order #2 and #3 as Caffè Latte × 1 at ₩4,500 each (CASH and QR), and order #4 as Americano × 1 at ₩3,500 (CASH).
+2. **Menu and recipe display:** Americano, Caffè Latte and Milk Tea are listed with their configured ingredient quantities.
+3. **Inventory view:** Coffee beans, milk, sugar babies and tea leaves display current stock, reorder levels and OK status.
+4. **Receipt view:** Receipt #4 displays Americano × 1, ₩3,500, CASH, with a payment-complete status.
 
 ### Screenshot evidence
 
-All five screenshots are committed in the repository:
+The four screenshots are committed in the repository:
 
-- [Sales dashboard](evidence/render-paid-order-history.png)
-- [Paid-order history](evidence/render-paid-order-history.png)
-- [Menu and recipes](evidence/render-menu-recipes.png)
-- [Inventory after order #4](evidence/render-inventory-after-order-4.png)
-- [Receipt #4](evidence/render-receipt-4.png)
-- [Week 9 evidence folder](evidence/)
+- [Sales dashboard and paid-order history](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-paid-order-history.png)
+- [Menu and recipes](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-menu-recipes.png)
+- [Inventory after order #4](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-inventory-after-order-4.png)
+- [Receipt #4](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-receipt-4.png)
+- [Open the Week 9 evidence folder](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/tree/main/docs/week-09/evidence)
 
 **Evidence boundary:** These screenshots document the state visible in the application during the manual check. They do not, by themselves, prove every possible payment, inventory, authorization or failure scenario.
 
 ## 2. GitHub Actions validation workflow
 
 - **Contribution:** Added and refined a repeatable GitHub Actions workflow covering backend unit tests, the frontend production build and isolated browser/API transaction regression checks.
-- **Implementation evidence:** [Workflow file](../../.github/workflows/week9-validation.yml) · [Browser/API validation script](../run_validation.py) · [Validation documentation](../validation-workflow.md).
+- **Implementation evidence:** [Workflow file](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/.github/workflows/week9-validation.yml) · [Browser/API validation script](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/run_validation.py) · [Validation documentation](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/validation-workflow.md).
 - **Successful run:** [Week 9 validation — Run #5](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/41421184139).
 - **Result:** All three jobs completed successfully: backend unit tests, frontend production build and browser/API transaction regression. The browser/API job also uploaded its result and screenshot artifact.
 - **Troubleshooting:** An earlier run failed because the browser test used a different owner test username from the isolated CI setup. I corrected the test identity and workflow trigger, then checked the subsequent successful run.
@@ -42,11 +40,11 @@ All five screenshots are committed in the repository:
 
 The following evidence was produced on October 28, 2026, against application source commit `b68df10eb46d25bc2ac00e28412b71df792deb7f`. The recorded operator was Codex automation at daydevil80's request. I include it as prior team verification context, not as a test I personally executed.
 
-- [October 28 verification summary](../../week-08/evidence/2026-10-28/README.md)
-- [24 backend unit-test output](../../week-08/evidence/2026-10-28/backend-tests.txt)
-- [Frontend build output](../../week-08/evidence/2026-10-28/frontend-build.txt)
-- [27 browser/API expected-versus-actual checks](../../week-08/evidence/2026-10-28/browser-results.json)
-- [12 screenshot gallery](../../week-08/evidence/2026-10-28/SCREENSHOTS.md)
+- [October 28 verification summary](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-08/evidence/2026-10-28/README.md)
+- [24 backend unit-test output](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-08/evidence/2026-10-28/backend-tests.txt)
+- [Frontend build output](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-08/evidence/2026-10-28/frontend-build.txt)
+- [27 browser/API expected-versus-actual checks](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-08/evidence/2026-10-28/browser-results.json)
+- [12 screenshot gallery](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-08/evidence/2026-10-28/SCREENSHOTS.md)
 
 ## 4. Learning and next action
 
