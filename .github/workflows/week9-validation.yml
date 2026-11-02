@@ -71,3 +71,40 @@ jobs:
           name: week9-frontend-build-results
           path: smartserve-pos/frontend/frontend-build-results.txt
           if-no-files-found: warn
+
+  browser-api-regression:
+    name: Browser and API transaction regression
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install backend and browser dependencies
+        run: |
+          python -m pip install -r smartserve-pos/backend/requirements.txt playwright
+          python -m playwright install --with-deps chromium
+      - name: Install frontend dependencies
+        working-directory: smartserve-pos/frontend
+        run: npm install
+      - name: Build frontend
+        run: npm --prefix smartserve-pos/frontend run build
+      - name: Run isolated browser/API regression checks
+        run: |
+          set -o pipefail
+          python -B docs/week-09/run_validation.py --output docs/week-09/evidence/latest 2>&1 | tee week9-browser-results.txt
+      - name: Upload browser/API results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: week9-browser-api-evidence
+          path: |
+            docs/week-09/evidence/latest/
+            week9-browser-results.txt
+          if-no-files-found: warn
