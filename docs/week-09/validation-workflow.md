@@ -9,7 +9,7 @@
 The GitHub Actions workflow configuration must live in the repository-level `.github/workflows/` directory for GitHub to recognize it. The Week 9 documentation and evidence index live in this folder.
 
 - [Week 9 validation workflow file](../../.github/workflows/week9-validation.yml)
-- [GitHub Actions runs](../../actions/workflows/week9-validation.yml)
+- [GitHub Actions runs](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml)
 
 ## Checks configured
 
@@ -24,8 +24,8 @@ The workflow configuration has been committed to `main`. A passing test result m
 | Evidence | Link | Status |
 |---|---|---|
 | Workflow configuration | [week9-validation.yml](../../.github/workflows/week9-validation.yml) | Committed |
-| Backend unit-test run | [GitHub Actions](../../actions/workflows/week9-validation.yml) | Awaiting run result |
-| Frontend build run | [GitHub Actions](../../actions/workflows/week9-validation.yml) | Awaiting run result |
+| Backend unit-test run | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
+| Frontend build run | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
 
 ## Scope and attribution
 
