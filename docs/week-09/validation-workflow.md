@@ -2,31 +2,47 @@
 
 **Team:** Team 3 — SmartServe POS  
 **Branch:** `main`  
-**Purpose:** Run repeatable backend unit tests and a frontend production build through GitHub Actions.
+**Purpose:** Run repeatable backend tests, a frontend production build and an isolated browser/API transaction regression check.
 
-## Workflow
+## Workflow and run history
 
-The GitHub Actions workflow configuration must live in the repository-level `.github/workflows/` directory for GitHub to recognize it. The Week 9 documentation and evidence index live in this folder.
+- [Week 9 GitHub Actions workflow](../../.github/workflows/week9-validation.yml)
+- [GitHub Actions run history](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml)
+- [Week 9 browser/API regression script](run_validation.py)
 
-- [Week 9 validation workflow file](../../.github/workflows/week9-validation.yml)
-- [GitHub Actions runs](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml)
+## Automated checks
 
-## Checks configured
+1. **Backend unit tests** — runs `test_issue3`, `test_owner_management` and `test_trash` using isolated test data.
+2. **Frontend production build** — runs TypeScript compilation and the Vite production build.
+3. **Browser/API transaction regression** — builds the frontend, starts the app against a fresh temporary SQLite database, and exercises cashier order creation, refresh recovery, failed payment, successful retry, duplicate payment, inventory deduction, recipe unit conversion, historical receipt preservation, sales totals and local owner-session behavior.
+4. **Artifacts** — uploads backend/frontend logs and the browser/API JSON result plus screenshots, when produced.
 
-1. **Backend unit tests** — runs `python -m unittest -v test_issue3 test_owner_management test_trash` from `smartserve-pos/backend`.
-2. **Frontend production build** — runs `npm install` and `npm run build` from `smartserve-pos/frontend`.
-3. **Artifacts** — uploads backend test output and frontend build output when those files are produced.
+The browser/API regression uses isolated local sample data and does not touch the shared Render/demo database. The CI run uses SQLite; do not describe it as PostgreSQL verification.
+
+## Previous evidence — October 28, 2026
+
+These are prior team results, not the Week 9 CI result and not an independent test by the author of this Week 9 document.
+
+- [Verification summary](../week-08/evidence/2026-10-28/README.md)
+- [24 backend test output](../week-08/evidence/2026-10-28/backend-tests.txt)
+- [Frontend build output](../week-08/evidence/2026-10-28/frontend-build.txt)
+- [27 browser/API expected-versus-actual checks](../week-08/evidence/2026-10-28/browser-results.json)
+- [12 screenshots](../week-08/evidence/2026-10-28/SCREENSHOTS.md)
+
+The October 28 run was performed by Codex automation at daydevil80's request against source commit `b68df10eb46d25bc2ac00e28412b71df792deb7f`.
 
 ## Evidence status
 
-The workflow configuration has been committed to `main`. A passing test result must only be recorded after a GitHub Actions run completes successfully. Open the Actions link above and use the run summary and downloadable artifacts as the evidence.
+A workflow configuration is not proof of a passing run. Use the Actions run summary and downloadable artifacts after the run completes. Record the exact run, tested commit, job status and any failures.
 
 | Evidence | Link | Status |
 |---|---|---|
 | Workflow configuration | [week9-validation.yml](../../.github/workflows/week9-validation.yml) | Committed |
-| Backend unit-test run | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
-| Frontend build run | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
+| Browser/API test script | [run_validation.py](run_validation.py) | Committed |
+| Backend unit tests | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
+| Frontend build | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
+| Browser/API regression + screenshots | [GitHub Actions](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/workflows/week9-validation.yml) | Awaiting run result |
 
-## Scope and attribution
+## Limits
 
-This workflow automates the listed backend and frontend checks. It does not perform a complete browser-based end-to-end test, verify the public Render deployment, test real payment processing, or establish production security. Do not describe those areas as tested based on this workflow alone.
+The browser run uses a local temporary database and simulated payment. It does not verify the public Render deployment, real payment processing, production security, feedback-form delivery or concurrent load. Local owner-session checks are not a complete production security audit.
