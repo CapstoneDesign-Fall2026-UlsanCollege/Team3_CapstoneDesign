@@ -66,19 +66,18 @@ The earlier Run #4 failed because the browser test used an owner login name that
 
 | Area | Week 9 evidence | Assessment |
 |---|---|---|
-| Sales dashboard and paid-order history | Manually viewed and screenshots retained | Evidence captured |
-| Menu and recipe display | Manually viewed and screenshot retained | Evidence captured |
-| Inventory display | Manually viewed and screenshot retained | Evidence captured |
-| Receipt display | Manually viewed and screenshot retained | Evidence captured |
-| Backend tests | CI Run #5 backend job passed | Automated check passed |
-| Frontend production build | CI Run #5 frontend job passed | Automated check passed |
-| Browser/API transaction regression | CI Run #5 browser/API job passed in isolated SQLite environment | Automated check passed |
-| Independent teammate reproduction | No completed non-author result is linked in this report | Still pending |
-| Real payment gateway | Current payment flow is simulated | Not part of current verified scope |
-| Production security and concurrent-load testing | Not established by the Week 9 evidence | Not verified |
+| Sales dashboard and paid-order history | [Screenshot — dashboard and orders #2–#4](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-paid-order-history.png) · [Manual-check receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/receipts/lamaMuskan.md) | Evidence captured |
+| Menu and recipe display | [Screenshot — menu and recipes](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-menu-recipes.png) | Evidence captured |
+| Inventory display | [Screenshot — inventory after order #4](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-inventory-after-order-4.png) | Evidence captured |
+| Receipt display | [Screenshot — receipt #4](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/evidence/render-receipt-4.png) | Evidence captured |
+| Backend tests | [Successful CI Run #5](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/41421184139) · [Workflow definition](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/.github/workflows/week9-validation.yml) | Automated check passed |
+| Frontend production build | [Successful CI Run #5](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/41421184139) · [Workflow definition](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/.github/workflows/week9-validation.yml) | Automated check passed |
+| Browser/API transaction regression | [Successful CI Run #5 and uploaded artifacts](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/41421184139) · [Regression script](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/run_validation.py) | Automated check passed in isolated SQLite environment |
+| Independent teammate reproduction | [Issue #22 — verification milestone](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22) | Still pending; no completed non-author result is linked |
+| Real payment gateway | [Week 8 project scope and MVP assessment](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-08/weekly-report.md) · [Week 9 validation limits](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/validation-workflow.md) | Current payment flow is simulated; real gateway is not verified |
+| Production security and concurrent-load testing | [Week 9 validation scope and limitations](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/validation-workflow.md) · [CI regression script](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/main/docs/week-09/run_validation.py) | Not verified by the available Week 9 evidence |
 
-**MVP assessment: Still has a gap.** Week 9 provides useful manual screen evidence and a successful automated validation run. The team should not mark the complete MVP transaction workflow as independently verified until a non-author teammate records the agreed reproduction and its results.
-
+**MVP assessment: Still has a gap.** Week 9 provides useful manual screen evidence and a successful automated validation run. The team should not mark the complete MVP transaction workflow as independently verified until a non-author teammate records the agreed reproduction and its results in [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22).
 ## 4. Individual Contributions
 
 Each member should confirm their own entry and attach links to work they personally completed. Do not attribute another member's commits, AI-assisted work, or tests to yourself.
@@ -97,29 +96,6 @@ Each member should confirm their own entry and attach links to work they persona
 - [Validation script](run_validation.py)
 - [Screenshot evidence](evidence/)
 
-### Sherap Hyolmo — `daydevil80`
-
-**Contribution:** To be completed and confirmed by the member.
-
-Add the actual Week 9 work, the member's role in any AI-assisted task, and direct evidence links. Earlier October 28 automated verification was recorded as Codex automation at daydevil80's request; do not describe that earlier run as a personal manual test or as another teammate's independent verification.
-
-### Shuzita Majhi — `Shuzita`
-
-**Contribution:** To be completed and confirmed by the member.
-
-Add the actual Week 9 work, any personally reviewed or executed checks, findings, and direct evidence links.
-
-### Shreya — `shrey776`
-
-**Contribution:** To be completed and confirmed by the member.
-
-Add the actual Week 9 work, any personally reviewed or executed checks, findings, and direct evidence links.
-
-### Ualson Tamang — `ualsom`
-
-**Contribution:** To be completed and confirmed by the member.
-
-Add the actual Week 9 work, any personally reviewed or executed checks, findings, and direct evidence links.
 
 ## 5. Issues and Remaining Work
 
