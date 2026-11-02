@@ -33,7 +33,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Run backend test suite
         working-directory: smartserve-pos/backend
-        run: python -m unittest -v test_issue3 test_owner_management test_trash 2>&1 | tee backend-test-results.txt
+        run: set -o pipefail\n          python -m unittest -v test_issue3 test_owner_management test_trash 2>&1 | tee backend-test-results.txt
       - name: Upload backend test output
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,7 +57,7 @@ jobs:
         run: npm install
       - name: Build frontend
         working-directory: smartserve-pos/frontend
-        run: npm run build 2>&1 | tee frontend-build-results.txt
+        run: set -o pipefail\n          npm run build 2>&1 | tee frontend-build-results.txt
       - name: Upload frontend build output
         if: always()
         uses: actions/upload-artifact@v4
