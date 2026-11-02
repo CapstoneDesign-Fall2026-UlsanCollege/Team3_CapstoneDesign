@@ -1,2 +1,6 @@
 docs/.two-latte-upload-backup/
 docs/week-05/mixed-order-evidence/
+
+# Python cache files
+__pycache__/
+*.py[cod]
