@@ -162,7 +162,7 @@ def main():
                     page.goto(ORIGIN + "/etalogin")
                     expect(page.get_by_role("heading", name="Owner login", exact=True)).to_be_visible()
                     shot("02-owner-login.png")
-                    check("owner login accepts isolated test identity", 200, context.request.post(ORIGIN + "/auth/login", data={"username": "week8-demo-owner", "password": password}).status)
+                    check("owner login accepts isolated test identity", 200, context.request.post(ORIGIN + "/auth/login", data={"username": "week9-ci-owner", "password": password}).status)
                     page.reload()
                     expect(page.get_by_role("heading", name="Owner sales dashboard", exact=True)).to_be_visible()
                     initial_sales = get("/dashboard/sales")
@@ -261,7 +261,11 @@ def main():
                     print(f"PASS: {len(checks)} checks; {len(hashes)} screenshots; {database}")
         finally:
             if browser:
-                browser.close()
+                try:
+                    browser.close()
+                except Exception:
+                    # The Playwright context may already have closed after a test assertion.
+                    pass
             if server:
                 server.shutdown()
                 server.server_close()
