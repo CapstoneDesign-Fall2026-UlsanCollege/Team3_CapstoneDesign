@@ -8,6 +8,7 @@ on:
       - "smartserve-pos/backend/**"
       - "smartserve-pos/frontend/**"
       - "smartserve-pos/requirements*.txt"
+      - "docs/week-09/run_validation.py"
   pull_request:
     paths:
       - "smartserve-pos/backend/**"
