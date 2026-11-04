@@ -1,0 +1,60 @@
+# Week 9 Individual Evidence Receipt — Shuzita Majhi
+
+**GitHub:** `Shuzita`
+**Team:** Team 3 — SmartServe POS
+**Date:** [Actual test date]
+**Focus:** Independent verification of the two-latte transaction and edit/history workflow
+**Status:** Pending execution
+
+## 1. My task
+
+My task is to follow the Week 9 verification handoff on the agreed demo setup and record my own observations.
+
+I will confirm that I did not author the fix before serving as the non-author tester.
+
+Instructions:
+[Week 9 verification handoff](../verification-handoff.md)
+
+Tracking:
+[Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22)
+
+## 2. Test setup
+
+- Tested source commit: [Full commit hash]
+- Environment and URL: [Actual demo environment]
+- Database: [Database type]
+- Browser/device: [Details]
+- Test date/time, Korea: [Actual date/time]
+- Setup assistance received: [None, or describe assistance]
+- Starting milk inventory: [Value and unit]
+- Starting coffee-bean inventory: [Value and unit]
+- Starting paid-order count and daily sales: [Values]
+
+## 3. Expected and actual results
+
+| Check | Expected result | My actual observation | Evidence |
+|---|---|---|---|
+| Create two lattes | ₩9,000 open order; no stock deduction | Not tested | Pending |
+| Refresh | Same saved order and total | Not tested | Pending |
+| Failed simulated payment | Order remains open; stock and sales unchanged | Not tested | Pending |
+| Successful retry | Deduct 500 ml milk and 36 g beans once; add ₩9,000 sales | Not tested | Pending |
+| Duplicate payment | HTTP 409; no additional deduction or sale | Not tested | Pending |
+| Convert beans from g to kg | Stock, threshold and recipes convert consistently | Not tested | Pending |
+| Edit recipe using 18 g | Save as 0.018 kg when inventory uses kg | Not tested | Pending |
+| Rename/reprice menu item | Earlier receipt retains original name and ₩4,500 unit price | Not tested | Pending |
+| Sell renamed latte | New receipt uses updated name and ₩6,000 price; correct stock deduction | Not tested | Pending |
+| Owner access/logout | Protected access requires login and is denied after logout | Not tested | Pending |
+
+## 4. Result and limitations
+
+**Overall result:** Not tested.
+
+This receipt currently records my planned task, not a completed test. I will replace the pending entries with actual observations and screenshot/log links after execution.
+
+Payments are simulated. A local result does not establish live Render behavior, real payment processing, production security or concurrency.
+
+## 5. Lesson and next action
+
+The feedback shows that screenshots and automated checks do not replace a separate teammate reproducing the workflow.
+
+My next action is to confirm the demo setup with `daydevil80`, execute the handoff, and add my actual result and evidence to the shared Week 9 report and Issue #22.
