@@ -38,7 +38,7 @@ class Proxy(BaseHTTPRequestHandler):
 
     def do_GET(self):
         pathname = self.path.split("?")[0]
-        if pathname.startswith(("/auth/", "/owner/", "/orders", "/menu", "/inventory", "/dashboard/", "/health")):
+        if pathname.startswith(("/tables", "/business", "/auth/", "/owner/", "/orders", "/menu", "/inventory", "/dashboard/", "/health")):
             return self.proxy()
         filename = (FRONTEND / pathname.lstrip("/")).resolve()
         if not filename.is_relative_to(FRONTEND.resolve()) or not filename.is_file():
@@ -138,6 +138,15 @@ def main():
                     page = context.new_page()
                     page.on("pageerror", lambda error: errors.append(str(error)))
                     page.route("**/docs.google.com/**", lambda route: route.abort())
+                    # Set up the original café transaction fixture through the real
+                    # onboarding API before testing anonymous/owner boundaries.
+                    login = context.request.post(ORIGIN + "/auth/login", data={"username": "week9-ci-owner", "password": password})
+                    if login.status != 200:
+                        raise AssertionError("Could not authenticate the isolated setup owner")
+                    setup = context.request.post(ORIGIN + "/owner/business/setup", data={"name": "SmartServe POS", "business_type": "cafe", "operation_mode": "takeaway", "catalog_action": "keep"})
+                    if setup.status != 200:
+                        raise AssertionError(("Could not prepare cafe regression setup", setup.status))
+                    context.request.post(ORIGIN + "/auth/logout")
 
                     def shot(name):
                         page.screenshot(path=str(args.output / name), full_page=True)

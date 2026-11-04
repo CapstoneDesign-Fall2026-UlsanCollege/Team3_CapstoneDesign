@@ -7,12 +7,16 @@ on:
       - ".github/workflows/week9-validation.yml"
       - "smartserve-pos/backend/**"
       - "smartserve-pos/frontend/**"
+      - "smartserve-pos/verify_business.py"
+      - "smartserve-pos/business_scenarios.py"
       - "smartserve-pos/requirements*.txt"
       - "docs/week-09/run_validation.py"
   pull_request:
     paths:
       - "smartserve-pos/backend/**"
       - "smartserve-pos/frontend/**"
+      - "smartserve-pos/verify_business.py"
+      - "smartserve-pos/business_scenarios.py"
   workflow_dispatch:
 
 permissions:
@@ -37,7 +41,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -m unittest -v test_issue3 test_owner_management test_trash 2>&1 | tee backend-test-results.txt
+          python -m unittest discover -v 2>&1 | tee backend-test-results.txt
       - name: Upload backend test output
         if: always()
         uses: actions/upload-artifact@v4
@@ -100,6 +104,8 @@ jobs:
         run: |
           set -o pipefail
           python -B docs/week-09/run_validation.py --output docs/week-09/evidence/latest 2>&1 | tee week9-browser-results.txt
+      - name: Run business preset browser checks
+        run: python -B smartserve-pos/verify_business.py --output business-preset-evidence
       - name: Upload browser/API results and screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -108,4 +114,5 @@ jobs:
           path: |
             docs/week-09/evidence/latest/
             week9-browser-results.txt
+            business-preset-evidence/
           if-no-files-found: warn

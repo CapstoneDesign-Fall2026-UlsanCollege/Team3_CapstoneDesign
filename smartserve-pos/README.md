@@ -1,6 +1,31 @@
 # SmartServe POS
 
-Café POS built with React/TypeScript/Vite, FastAPI/SQLAlchemy, PostgreSQL, and Docker Compose.
+Configurable single-store POS built with React/TypeScript/Vite, FastAPI/SQLAlchemy, PostgreSQL, and Docker Compose.
+
+## Business setup and presets
+
+New stores start with a profile-first setup at `/setup` after owner sign-in:
+
+1. Choose Café, Restaurant, Bakery, Retail, Grocery, Barbershop, Salon/Beauty, Repair, Professional Services, or Custom setup.
+2. Choose your operating model. Food businesses support takeaway only, tables only, or both. Retail supports in-store, pickup, or both. Barbershops/salons support walk-ins, appointments, or both. Repair shops support immediate service, jobs, or both. Custom setup lets you select your tools.
+3. Set the business name, address, optional phone/HTTPS logo URL, and receipt footer. Checkout currently uses KRW.
+4. Keep your current catalog, use editable sample items, or start empty. Sample/empty choices archive existing catalog items rather than deleting history or stock. Archived catalog items can be restored in owner management. Review sample opening stock and prices before use.
+5. Review the profile and open the configured POS. Edit it later from the owner dashboard. Settle open bills and complete/cancel work before disabling its workflow.
+
+**Working tools:** table selection, saved table bills, additional items on open table bills, product/recipe stock deductions, fixed-price services, staff/resource appointment scheduling with overlapping-time rejection, walk-in queue, repair-job status tracking, and linked service checkout. A paid work bill completes its work item; cancelled unpaid bills can be replaced. Appointments/job details require an owner session. The floor table board and ordinary checkout follow the existing public demo model.
+
+Catalog items support prepared recipes, stocked products (one connected `pcs` inventory item per sale), and services without stock consumption. Search by name/category/SKU. Tables are released when their bill is paid/cancelled. Changes to business type never rewrite order item snapshots or totals. Configuration changes preserve stock and use additive tables.
+
+This is one store with simulated payments, KRW amounts, and fixed-duration appointments per staff/resource. It does not implement separate merchant accounts, real payment providers, tax/refund processing, product variants, booking reminders, recurring appointments, parts purchasing, or offline checkout.
+
+Acceptance checks (build frontend first):
+
+```bash
+python -m unittest discover -s backend -v
+python verify_business.py --output ../docs/output/profile-onboarding
+```
+
+Install backend requirements and Playwright; run `python -m playwright install chromium` first. `--browser` selects an installed Chromium executable. `--postgres-bin` optionally points to PostgreSQL binaries for a fresh local PostgreSQL test cluster; otherwise the browser run uses temporary SQLite. Test data is isolated from the shared store. The suite walks through onboarding, table bills, retail, appointments/overlap rejection, walk-ins, repair checkout, Custom setup, retained history, and mobile layout. CI runs this plus the original café transaction regression.
 
 ## Render deployment
 
@@ -69,7 +94,7 @@ In Owner dashboard → Manage menu & inventory:
 3. Add a menu item, price in KRW, and recipe amounts for one serving.
 4. Recipe quantities use each ingredient's stored unit. Editing g/kg or ml/l converts the existing recipe quantities automatically.
 
-Removed items disappear from active lists while historical records remain. Ingredients used by active menu items or open orders cannot be removed until dependencies are settled. Archived names remain reserved. Owner-only access is not enforced yet.
+Removed items disappear from active lists while historical records remain. Ingredients used by active menu items or open orders cannot be removed until dependencies are settled. Archived names remain reserved. Owner management and sales endpoints require an owner session.
 
 ## Sales and appearance
 

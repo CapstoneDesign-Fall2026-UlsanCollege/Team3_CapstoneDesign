@@ -3,7 +3,7 @@ from decimal import Decimal
 from uuid import uuid4
 import asyncio
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import delete, func, inspect, select, text
 from sqlalchemy.exc import IntegrityError
@@ -12,10 +12,15 @@ from sqlalchemy.orm import Session
 from .database import Base, engine
 from . import models  # Registers models before create_all.
 from .database import get_db
-from .schemas import IngredientCreate, MenuItemCreate, MenuItemOut, OrderCreate, PaymentCreate
+from .schemas import AddOrderItems, IngredientCreate, MenuItemCreate, MenuItemOut, OrderCreate, PaymentCreate
 from .seed import seed_demo_data
+from .business import router as business_router, catalog_fields, save_catalog_fields, get_profile
+from .workflows import router as workflow_router
+from .auth import authenticated
 
 app = FastAPI(title="SmartServe POS MVP")
+app.include_router(business_router)
+app.include_router(workflow_router)
 from .auth import install_owner_auth
 install_owner_auth(app)
 app.add_middleware(
@@ -44,6 +49,9 @@ def create_tables() -> None:
             connection.execute(text("ALTER TABLE ingredients ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE"))
     with Session(engine) as db:
         seed_demo_data(db)
+        if db.get(models.BusinessProfile, 1) is None:
+            db.add(models.BusinessProfile(id=1, name="SmartServe POS", business_type="cafe"))
+            db.commit()
 
 
 def migrate_order_item_names() -> None:
@@ -106,7 +114,11 @@ def health() -> dict[str, str]:
 
 @app.get("/menu", response_model=list[MenuItemOut])
 def list_menu(db: Session = Depends(get_db)):
-    return db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
+    items = db.scalars(select(models.MenuItem).where(models.MenuItem.active.is_(True)).order_by(models.MenuItem.name)).all()
+    for item in items:
+        for key, value in catalog_fields(item, db).items():
+            setattr(item, key, value)
+    return items
 
 
 UNIT_FACTORS = {"g": ("mass", Decimal("1")), "kg": ("mass", Decimal("1000")), "ml": ("volume", Decimal("1")), "l": ("volume", Decimal("1000")), "pcs": ("count", Decimal("1"))}
@@ -133,6 +145,10 @@ def ingredient_view(ingredient: models.Ingredient, db: Session | None = None) ->
 
 
 def normalize_recipe_units(payload: MenuItemCreate, db: Session) -> None:
+    if payload.item_type == "service" and payload.recipe:
+        raise HTTPException(422, "Services do not consume stock. Choose a prepared item for a service with supplies.")
+    if payload.item_type != "service" and not payload.recipe:
+        raise HTTPException(422, "Connect stock to this item before saving")
     for line in payload.recipe:
         ingredient = db.get(models.Ingredient, line.ingredient_id)
         if not ingredient or not line.unit:
@@ -144,6 +160,12 @@ def normalize_recipe_units(payload: MenuItemCreate, db: Session) -> None:
         if quantity != quantity.quantize(Decimal("0.000001")) or quantity >= Decimal("1000000000000"):
             raise HTTPException(status_code=422, detail="Recipe conversion exceeds supported quantity precision")
         line.quantity, line.unit = quantity, ingredient.unit
+    if payload.item_type == "product":
+        if len(payload.recipe) != 1 or payload.recipe[0].quantity != 1:
+            raise HTTPException(422, "A stocked product must use one piece of a single inventory item")
+        stock = db.get(models.Ingredient, payload.recipe[0].ingredient_id)
+        if stock is None or stock.unit != "pcs":
+            raise HTTPException(422, "Choose inventory measured in pieces (pcs) for a stocked product")
 
 
 def owner_menu_view(item: models.MenuItem, db: Session) -> dict:
@@ -151,6 +173,7 @@ def owner_menu_view(item: models.MenuItem, db: Session) -> dict:
     ingredients = {ingredient.id: ingredient.name for ingredient in db.scalars(select(models.Ingredient)).all()}
     return {
         "id": item.id, "name": item.name, "price": float(item.price), "active": item.active,
+        **catalog_fields(item, db),
         "recipe": [{"ingredient_id": line.ingredient_id, "ingredient_name": ingredients[line.ingredient_id], "quantity": float(line.quantity)} for line in recipe],
     }
 
@@ -179,6 +202,7 @@ def add_menu_item(payload: MenuItemCreate, db: Session = Depends(get_db)):
     db.add(item)
     try:
         db.flush()
+        save_catalog_fields(item, payload, db)
         db.add_all([models.RecipeItem(menu_item_id=item.id, ingredient_id=line.ingredient_id, quantity=line.quantity) for line in payload.recipe])
         db.commit()
     except IntegrityError:
@@ -209,6 +233,7 @@ def update_menu_item(item_id: int, payload: MenuItemCreate, db: Session = Depend
     if old_recipe != new_recipe and db.scalar(select(models.OrderItem.id).join(models.Order).where(models.OrderItem.menu_item_id == item_id, models.Order.status == "open").limit(1)):
         raise HTTPException(status_code=409, detail="Pay or cancel open orders for this item before changing its recipe")
     item.name, item.price = name, payload.price
+    save_catalog_fields(item, payload, db)
     db.execute(delete(models.RecipeItem).where(models.RecipeItem.menu_item_id == item_id))
     try:
         db.flush()
@@ -228,6 +253,19 @@ def remove_menu_item(item_id: int, db: Session = Depends(get_db)):
     if not item.active:
         raise HTTPException(status_code=409, detail="Menu item is already removed")
     item.active = False
+    db.commit()
+    return owner_menu_view(item, db)
+
+
+@app.post("/owner/menu/{item_id}/restore")
+def restore_menu_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.get(models.MenuItem, item_id)
+    if not item:
+        raise HTTPException(404, "Catalog item not found")
+    ingredient_ids = db.scalars(select(models.RecipeItem.ingredient_id).where(models.RecipeItem.menu_item_id == item_id)).all()
+    if ingredient_ids and db.scalar(select(models.Ingredient.id).where(models.Ingredient.id.in_(ingredient_ids), models.Ingredient.active.is_(False)).limit(1)):
+        raise HTTPException(409, "Restore the required stock items before restoring this catalog item")
+    item.active = True
     db.commit()
     return owner_menu_view(item, db)
 
@@ -328,9 +366,12 @@ def order_view(order: models.Order, db: Session) -> dict:
     lines = db.scalars(select(models.OrderItem).where(models.OrderItem.order_id == order.id)).all()
     menu = {item.id: item for item in db.scalars(select(models.MenuItem).where(models.MenuItem.id.in_([line.menu_item_id for line in lines]))).all()} if lines else {}
     payment = db.scalar(select(models.Payment).where(models.Payment.order_id == order.id))
+    context = db.get(models.OrderContext, order.id)
     return {
         "id": order.id,
         "order_type": order.order_type,
+        "table_number": context.table_number if context else None,
+        "ticket_id": context.ticket_id if context else None,
         "status": order.status,
         "inventory_deducted": inventory_was_deducted(order.id, db),
         "total": float(order.total),
@@ -345,7 +386,28 @@ def order_view(order: models.Order, db: Session) -> dict:
 
 
 @app.post("/orders", status_code=201)
-def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
+def create_order(payload: OrderCreate, db: Session = Depends(get_db), request: Request = None):
+    if payload.table_number is not None or payload.ticket_id is not None:
+        db.scalar(select(models.BusinessProfile).where(models.BusinessProfile.id == 1).with_for_update())
+    profile = get_profile(db)
+    if profile["onboarding_complete"] and payload.order_type not in profile["order_types"]:
+        raise HTTPException(422, "This order type is not enabled in your business profile")
+    if payload.table_number is not None:
+        if "tables" not in profile["features"] or payload.order_type != "dine_in" or payload.table_number > profile["table_count"]:
+            raise HTTPException(422, "Choose an available table for a dine-in order")
+        occupied = db.scalar(select(models.OrderContext.order_id).join(models.Order).where(models.OrderContext.table_number == payload.table_number, models.Order.status == "open").limit(1))
+        if occupied:
+            raise HTTPException(409, f"Table already has open order #{occupied}. Resume it from Tables.")
+    if profile["onboarding_complete"] and payload.order_type == "dine_in" and payload.table_number is None:
+        raise HTTPException(422, "Choose a table before creating this dine-in order")
+    if payload.ticket_id is not None:
+        if request is not None and not authenticated(request):
+            raise HTTPException(401, "Owner login required for appointments and jobs")
+        ticket = db.scalar(select(models.WorkTicket).where(models.WorkTicket.id == payload.ticket_id).with_for_update())
+        if ticket is None or ticket.status in ("completed", "cancelled") or payload.order_type != "service":
+            raise HTTPException(409, "This appointment or job is not available for checkout")
+        if db.scalar(select(models.OrderContext.order_id).where(models.OrderContext.ticket_id == payload.ticket_id)):
+            raise HTTPException(409, "This work item already has a bill. Resume the existing order.")
     requested_ids = [line.menu_item_id for line in payload.items]
     menu_items = db.scalars(select(models.MenuItem).where(models.MenuItem.id.in_(requested_ids), models.MenuItem.active.is_(True)).with_for_update()).all()
     menu_by_id = {item.id: item for item in menu_items}
@@ -357,6 +419,8 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
     order = models.Order(order_type=payload.order_type, status="open", total=total)
     db.add(order)
     db.flush()
+    if payload.table_number is not None or payload.ticket_id is not None:
+        db.add(models.OrderContext(order_id=order.id, table_number=payload.table_number, ticket_id=payload.ticket_id))
     db.add_all([models.OrderItem(order_id=order.id, menu_item_id=line.menu_item_id, menu_item_name=menu_by_id[line.menu_item_id].name, quantity=line.quantity, unit_price=menu_by_id[line.menu_item_id].price) for line in payload.items])
     db.commit()
     db.refresh(order)
@@ -368,6 +432,24 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
     order = db.get(models.Order, order_id)
     if not order or order.trashed_at:
         raise HTTPException(status_code=404, detail="Order not found")
+    return order_view(order, db)
+
+
+@app.post("/orders/{order_id}/items")
+def add_order_items(order_id: int, payload: AddOrderItems, db: Session = Depends(get_db)):
+    order = db.scalar(select(models.Order).where(models.Order.id == order_id).with_for_update())
+    context = db.get(models.OrderContext, order_id)
+    if not order or order.status != "open" or order.trashed_at or not context or context.table_number is None:
+        raise HTTPException(409, "Only an open table bill can receive additional items")
+    ids = [line.menu_item_id for line in payload.items]
+    items = {item.id: item for item in db.scalars(select(models.MenuItem).where(models.MenuItem.id.in_(ids), models.MenuItem.active.is_(True)))}
+    if set(ids) != set(items):
+        raise HTTPException(404, "One or more items are no longer available")
+    for line in payload.items:
+        item = items[line.menu_item_id]
+        db.add(models.OrderItem(order_id=order.id, menu_item_id=item.id, menu_item_name=item.name, quantity=line.quantity, unit_price=item.price))
+        order.total += Decimal(str(item.price)) * line.quantity
+    db.commit()
     return order_view(order, db)
 
 
@@ -419,6 +501,9 @@ def cancel_order(order_id: int, db: Session = Depends(get_db)):
     if order.trashed_at or order.status != "open" or inventory_was_deducted(order.id, db):
         raise HTTPException(status_code=409, detail="Only an unpaid open order can be cancelled.")
     order.status = "cancelled"
+    context = db.get(models.OrderContext, order.id)
+    if context:
+        context.ticket_id = None
     db.commit()
     db.refresh(order)
     return order_view(order, db)
@@ -458,6 +543,9 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     # Successful simulated payment and stock changes commit atomically.
     order.status = "paid"
     order.paid_at = datetime.now(timezone.utc)
+    context = db.get(models.OrderContext, order.id)
+    if context and context.ticket_id:
+        db.get(models.WorkTicket, context.ticket_id).status = "completed"
     for ingredient_id, amount in required.items():
         ingredient = ingredient_by_id[ingredient_id]
         ingredient.stock_quantity = Decimal(str(ingredient.stock_quantity)) - amount
@@ -465,7 +553,7 @@ def simulate_payment(order_id: int, payload: PaymentCreate, db: Session = Depend
     db.add(models.Payment(order_id=order.id, method=payload.method, amount=order.total, simulated_reference=f"SIM-{uuid4().hex[:10].upper()}"))
     db.commit()
     db.refresh(order)
-    return {"message": "Simulated payment successful. Ingredients deducted once.", "order": order_view(order, db)}
+    return {"message": "Simulated payment successful. Stock updated once." if required else "Simulated payment successful. Service sale recorded.", "order": order_view(order, db)}
 
 
 @app.get("/inventory")
