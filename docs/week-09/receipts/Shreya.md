@@ -1,0 +1,36 @@
+# Week 9 Evidence Receipt — Shreya (`shrey776`)
+
+**Date:** November 4, 2026
+**Team:** Team 3 — SmartServe POS
+**Focus:** Attributed automated verification evidence and remaining independent-test gate
+**Status:** Automated evidence complete; Shreya's personal review and independent execution not attested.
+
+## Evidence supplied with this receipt
+
+This submission package contains an actual November 4 run: 24 passing backend unit tests, a passing frontend build, 27 passing browser/API checks, 12 screenshots, raw logs and screenshot hashes.
+
+**Attribution:** Codex executed the checks at daydevil80's request. This package was prepared for submission by Shreya; it does not claim that Shreya personally ran the tests, reviewed the results, or authored the fixes. Account ownership of a push is not execution evidence.
+
+[Full result, exact source hash, expected/actual checks and limitations](../evidence/2026-11-04-shrey776/README.md)
+
+[Screenshot gallery](../evidence/2026-11-04-shrey776/SCREENSHOTS.md)
+
+[Raw browser/API results](../evidence/2026-11-04-shrey776/logs/browser-results.json)
+
+[Backend output](../evidence/2026-11-04-shrey776/logs/backend-tests.txt)
+
+[Build output](../evidence/2026-11-04-shrey776/logs/frontend-build.txt)
+
+## Result and lesson supported by this package
+
+The automated run supports the checked payment-failure/retry/duplicate, stock deduction, unit conversion and historical receipt cases. It illustrates why exact source versions, before/after values and execution attribution must accompany screenshots. It does not replace a teammate's independent reproduction.
+
+## Remaining action
+
+Shreya should confirm eligibility as a non-author tester with daydevil80, follow the [handoff](../verification-handoff.md) on the agreed actual demo setup, and record her own setup, assistance, observations and evidence in this report and [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22).
+
+Payments are simulated. The fresh PostgreSQL browser run and isolated SQLite unit tests do not verify live Render data, real-provider processing, production security or concurrency. The independent gate remains open.
+
+## Shared evidence attribution
+
+The linked logs/screenshots are the same shared Codex run supplied with the Sujita package, not a new run by Shreya. Shreya must add her own observed review or test findings after personally completing that work. No personal completion is claimed by this prepared receipt.
