@@ -129,3 +129,19 @@ Each member should confirm their own entry and attach links to work they persona
 ## 8. Week 9 Conclusion
 
 Week 9 added traceable validation evidence for SmartServe POS. The manual screenshots show the dashboard, paid-order history, menu and recipes, inventory view, and receipt. GitHub Actions Run #5 passed its backend, frontend, and isolated browser/API jobs. The main remaining gap is independent reproduction of the transaction workflow with clear before-and-after inventory evidence. The next stage should focus on closing that verification gap and preparing a reliable MVP demonstration.
+
+## 9. November 4 feedback response — additive update
+
+The original report and Lama Muskan's contribution above are retained. Read the [feedback follow-up](feedback-follow-up.md), [complete current evidence index](evidence-index.md) and [non-author handoff](verification-handoff.md) together with this report. No fresh application test or independent pass is claimed in this update.
+
+| Member | Current Week 9 contribution / confirmation status | Evidence / next action |
+|---|---|---|
+| Lama Muskan — `Sammygit15` | Existing author-linked manual review and CI contribution, preserved in section 4 | [Original receipt](receipts/lamaMuskan.md); [Run #5](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/41421184139) |
+| Sherap Hyolmo — `daydevil80` | Requested this feedback response; Codex prepared the additive documentation and evidence organization. Student review/confirmation pending; independent reproduction not performed | [Documentation receipt](receipts/daydevil80.md); confirm eligible tester and record result/blocker in Issue #22 |
+| Shuzita Majhi — `Shuzita` | Awaiting student's own current contribution/result and confirmation | Add personally completed work, lesson and direct evidence; no completed work attributed here |
+| Ualson Tamang — `ualsom` | Awaiting student's own current contribution/result and confirmation | Add personally completed work, lesson and direct evidence; no completed work attributed here |
+| Shreya — `shrey776` | Awaiting student's own current contribution/result and confirmation | Add personally completed work, lesson and direct evidence; no completed work attributed here |
+
+**Acceptance remains open:** Issue #22 still requires a confirmed non-author's exact login, source/deployment version, actual demo setup, starting stock, expected/actual transaction/edit/history values and screenshots. The [handoff result form](verification-handoff.md) is unexecuted. Each student's own confirmed entry is also required; the pending rows above do not satisfy that requirement by themselves.
+
+The [milestone supplement](feedback-follow-up.md#reviewable-milestone-checks) provides accountable coordination, observable checks, planned evidence destinations and fallbacks. Execution roles other than the existing coordinator remain proposals until confirmed. Payments remain simulated; CI and local results do not verify the live Render database, production security or concurrency.

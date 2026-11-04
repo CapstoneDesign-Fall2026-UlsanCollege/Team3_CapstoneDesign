@@ -185,3 +185,11 @@ For every important feature, preserve:
 - Clear identification of automated testing versus independent teammate testing.
 
 Do not describe historical failed checks as passing results. Keep earlier evidence as part of the development history and use the latest verified results for final-demo claims.
+
+## 10. November 4 feedback supplement
+
+The existing roadmap and evidence above are preserved. The [feedback follow-up](feedback-follow-up.md#reviewable-milestone-checks) supplements section 6 with owners, executable acceptance checks, evidence destinations and fallbacks for Weeks 9–16. Unconfirmed execution roles and future evidence paths are explicitly marked as planned.
+
+**Current gate: MVP gap.** Section 4's screenshots and deployment URL record prior evidence; they do not establish a fresh live-system check or independent two-latte reproduction. Payments are simulated. Production security, concurrent load and the live Render database are not verified by isolated CI.
+
+Immediate next action: coordinator `daydevil80` confirms a non-author tester and actual demo version/setup, then uses the [handoff](verification-handoff.md) to capture a real result or blocker for [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22). See the [evidence index](evidence-index.md) for proof boundaries and the [shared report](weekly-report.md#9-november-4-feedback-response--additive-update) for current contribution status. No independent pass or teammate-authored confirmation is created by this supplement.
