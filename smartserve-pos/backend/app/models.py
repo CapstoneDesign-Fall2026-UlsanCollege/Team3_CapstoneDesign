@@ -24,6 +24,56 @@ class MenuItem(Base):
     active: Mapped[bool] = mapped_column(default=True)
 
 
+class BusinessProfile(Base):
+    __tablename__ = "business_profile"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), default="SmartServe POS")
+    business_type: Mapped[str] = mapped_column(String(30), default="cafe")
+
+
+class CatalogDetails(Base):
+    __tablename__ = "catalog_details"
+    menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"), primary_key=True)
+    category: Mapped[str] = mapped_column(String(60), default="General")
+    item_type: Mapped[str] = mapped_column(String(20), default="prepared")
+    sku: Mapped[str] = mapped_column(String(60), default="")
+    starter_key: Mapped[str | None] = mapped_column(String(80), unique=True, nullable=True)
+
+
+class BusinessConfiguration(Base):
+    __tablename__ = "business_configuration"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    operation_mode: Mapped[str] = mapped_column(String(30), default="both")
+    features: Mapped[str] = mapped_column(String(300), default="checkout,inventory,tables")
+    address: Mapped[str] = mapped_column(String(300), default="")
+    phone: Mapped[str] = mapped_column(String(40), default="")
+    logo_url: Mapped[str] = mapped_column(String(2048), default="")
+    receipt_footer: Mapped[str] = mapped_column(String(300), default="Thank you for your visit!")
+    table_count: Mapped[int] = mapped_column(Integer, default=8)
+    onboarding_complete: Mapped[bool] = mapped_column(default=False)
+
+
+class WorkTicket(Base):
+    __tablename__ = "work_tickets"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    title: Mapped[str] = mapped_column(String(120))
+    customer: Mapped[str] = mapped_column(String(120))
+    resource: Mapped[str] = mapped_column(String(80), default="Any staff")
+    starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    notes: Mapped[str] = mapped_column(String(1000), default="")
+    status: Mapped[str] = mapped_column(String(20), default="booked")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class OrderContext(Base):
+    __tablename__ = "order_context"
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), primary_key=True)
+    table_number: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    ticket_id: Mapped[int | None] = mapped_column(ForeignKey("work_tickets.id"), unique=True, nullable=True)
+
+
 class RecipeItem(Base):
     __tablename__ = "recipe_items"
     id: Mapped[int] = mapped_column(primary_key=True)
