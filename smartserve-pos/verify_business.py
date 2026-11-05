@@ -34,7 +34,7 @@ class Proxy(SimpleHTTPRequestHandler):
 
     def forward(self):
         body = self.rfile.read(int(self.headers.get("Content-Length", 0)))
-        headers = {key: self.headers[key] for key in ("Content-Type", "Cookie") if key in self.headers}
+        headers = {key: self.headers[key] for key in ("Content-Type", "Cookie", "X-CSRF-Token", "Origin") if key in self.headers}
         try:
             result = urllib.request.urlopen(urllib.request.Request(API + self.path, data=body or None, method=self.command, headers=headers))
         except urllib.error.HTTPError as error:
@@ -51,9 +51,9 @@ class Proxy(SimpleHTTPRequestHandler):
                 pass  # Navigating away cancels in-flight browser requests.
 
     def do_GET(self):
-        if self.path.startswith(("/business", "/auth/", "/owner/", "/menu", "/inventory", "/orders", "/dashboard/", "/tables")):
+        if self.path.startswith(("/platform/", "/business", "/auth/", "/owner/", "/menu", "/inventory", "/orders", "/dashboard/", "/tables")):
             return self.forward()
-        if self.path.split("?")[0] in ("/etalogin", "/setup"):
+        if self.path.split("?")[0] in ("/etalogin", "/setup", "/platform", "/activate", "/login"):
             self.path = "/index.html"
         super().do_GET()
 
@@ -78,9 +78,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix="smartserve-business-", ignore_cleanup_errors=True) as temp:
         password = secrets.token_urlsafe(24)
         env = dict(os.environ, DATABASE_URL="sqlite:///" + str(Path(temp) / "business.db").replace("\\", "/"),
-                   SMARTSERVE_OWNER_USERNAME="business-test-owner",
-                   SMARTSERVE_OWNER_PASSWORD_SHA256=hashlib.sha256(password.encode()).hexdigest(),
-                   SMARTSERVE_SESSION_SECRET=secrets.token_hex(32), PYTHONDONTWRITEBYTECODE="1")
+                   SMARTSERVE_ENV="test", SMARTSERVE_BOOTSTRAP_ADMIN="false", SMARTSERVE_TEST_PASSWORD=password,
+                   SMARTSERVE_AUTH_SECRET=secrets.token_urlsafe(48), SMARTSERVE_PUBLIC_ORIGIN=ORIGIN,
+                   SMARTSERVE_LOCAL_DATA=str(Path(temp) / "private"), SMARTSERVE_TEST_MAIL_OUTBOX=str(Path(temp) / "outbox"), PYTHONDONTWRITEBYTECODE="1")
         def pg(command, *arguments):
             subprocess.run([str(args.postgres_bin / (command + (".exe" if os.name == "nt" else ""))), *map(str, arguments)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=HIDDEN, timeout=60)
         if args.postgres_bin:
@@ -89,6 +89,7 @@ def main():
             env["DATABASE_URL"] = "postgresql+psycopg://business_test@127.0.0.1:18996/postgres"
         server = None
         with (args.output / "api.log").open("w", encoding="utf-8") as log:
+            subprocess.run([sys.executable, "-B", "security_fixture.py"], cwd=ROOT / "backend", env=env, check=True, stdout=log, stderr=log, creationflags=HIDDEN)
             process = subprocess.Popen([sys.executable, "-B", "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "18995"], cwd=ROOT / "backend", env=env, stdout=log, stderr=log, creationflags=HIDDEN)
             try:
                 for _ in range(100):
@@ -110,6 +111,8 @@ def main():
                     page.route("**/docs.google.com/**", lambda route: route.abort())
                     check("business writes require owner", 401, context.request.put(ORIGIN + "/owner/business", data={"name": "No", "business_type": "retail"}).status)
                     check("preset writes require owner", 401, context.request.post(ORIGIN + "/owner/business/presets/retail").status)
+                    from security_browser_scenarios import run_security_scenarios
+                    run_security_scenarios(browser, page, context, check, args.output, password, ORIGIN, Path(temp) / "outbox")
                     from business_scenarios import run_scenarios
                     run_scenarios(page, context, check, args.output, password, ORIGIN)
                     check("no uncaught browser errors", [], errors)

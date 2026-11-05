@@ -1,4 +1,26 @@
 :root { font-family: Inter, system-ui, sans-serif; color: #1f2937; background: #f8fafc; }
+.auth-page { min-height: 100vh; padding: 35px 24px 70px; background: radial-gradient(ellipse at top, #e9f1df, transparent 70%), #f7f9f4; color: #20382b; }
+.auth-page > .setup-brand { display: flex; width: fit-content; margin: 0 auto 30px; }
+.auth-card { background: white; border: 1px solid #dfe6d7; border-radius: 18px; padding: clamp(24px, 4vw, 42px); max-width: 500px; margin: 30px auto 0; box-shadow: 0 15px 60px #1b412409; }
+.auth-card h1 { font-size: 2rem; letter-spacing: -.045em; line-height: 1.13; }
+.auth-card > p { line-height: 1.7; font-size: .87rem; }
+.auth-card form { display: grid; gap: 12px; margin-top: 24px; }
+.auth-card input, .reauthentication input, .account-settings input, .platform-console input { padding: 12px; border: 1px solid #d1ddc8; border-radius: 8px; font: inherit; color: inherit; background: transparent; min-width: 0; }
+.auth-card label { font-size: .85rem; }
+.auth-footnote { border-top: 1px solid #e4eadf; padding-top: 20px; margin-top: 25px; color: #7c8975; font-size: .72rem !important; }
+.recovery-codes { display: grid; gap: 8px; padding: 15px; background: #f2f6ed; border-radius: 8px; margin: 22px 0; overflow-wrap: anywhere; font-size: .78rem; }
+.recovery-codes code { background: transparent; }
+.business-account-list { display: grid; gap: 14px; margin: 32px 0; }
+.business-account { display: flex; gap: 20px; justify-content: space-between; align-items: center; }
+.business-account h3 { margin-bottom: 7px; }
+.business-account small { color: #7c8975; }
+.private-invitation { margin: 24px 0; border-color: #d5b477; }
+.private-invitation textarea { width: 100%; min-height: 90px; resize: vertical; border: 1px solid #d1ddc8; border-radius: 8px; padding: 12px; font: inherit; }
+.reauthentication { margin: 24px 0; }
+.reauthentication summary { cursor: pointer; font-weight: 650; }
+.reauthentication form { display: grid; gap: 10px; margin-top: 18px; max-width: 420px; }
+.account-settings { display: grid; gap: 20px; margin: 24px 0; }
+@media (max-width: 700px) { .business-account { flex-direction: column; align-items: stretch; } .auth-page { padding: 24px 14px; } .auth-card { margin-top: 20px; } }
 .setup-shell { min-height: 100vh; display: grid; grid-template-columns: 300px minmax(0, 1fr); background: #fafbf9; color: #172b2a; }
 .setup-sidebar { background: #123f38; color: #edf7ed; padding: 38px 30px; display: flex; flex-direction: column; gap: 42px; position: sticky; top: 0; height: 100vh; }
 .setup-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 750; color: inherit; text-decoration: none; }

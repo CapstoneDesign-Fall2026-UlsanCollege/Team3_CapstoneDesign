@@ -17,10 +17,12 @@ from .seed import seed_demo_data
 from .business import router as business_router, catalog_fields, save_catalog_fields, get_profile
 from .workflows import router as workflow_router
 from .auth import authenticated
+from .accounts import router as account_router
 
 app = FastAPI(title="SmartServe POS MVP")
 app.include_router(business_router)
 app.include_router(workflow_router)
+app.include_router(account_router)
 from .auth import install_owner_auth
 install_owner_auth(app)
 app.add_middleware(
@@ -34,6 +36,10 @@ app.add_middleware(
 
 @app.on_event("startup")
 def create_tables() -> None:
+    from .tenancy import initialize_identity
+    from .security_primitives import auth_key
+    auth_key()  # Fail closed on missing/invalid production authentication configuration.
+    initialize_identity()
     Base.metadata.create_all(bind=engine)
     if "trashed_at" not in {column["name"] for column in inspect(engine).get_columns("orders")}:
         with engine.begin() as connection:
@@ -53,6 +59,9 @@ def create_tables() -> None:
             db.add(models.BusinessProfile(id=1, name="SmartServe POS", business_type="cafe"))
             db.commit()
 
+    from .bootstrap import bootstrap_configured_admin
+    bootstrap_configured_admin()
+
 
 def migrate_order_item_names() -> None:
     # Legacy orders have no original-name snapshot. Preserve the current label once;
@@ -66,6 +75,7 @@ def migrate_order_item_names() -> None:
 def permanently_delete_cancelled(order: models.Order, db: Session) -> None:
     if order.status != "cancelled" or db.scalar(select(models.Payment.id).where(models.Payment.order_id == order.id)) or inventory_was_deducted(order.id, db):
         raise HTTPException(status_code=409, detail="Orders with payment or inventory history cannot be deleted.")
+    db.execute(delete(models.OrderContext).where(models.OrderContext.order_id == order.id))
     db.execute(delete(models.OrderItem).where(models.OrderItem.order_id == order.id))
     db.delete(order)
 
@@ -79,8 +89,13 @@ def purge_expired_trash(db: Session) -> None:
 
 
 def run_trash_cleanup() -> None:
-    with Session(engine) as db:
-        purge_expired_trash(db)
+    from .identity_models import Store
+    from .tenancy import tenant_engine
+    with Session(engine) as identities:
+        namespaces = identities.scalars(select(Store.namespace).where(Store.active.is_(True))).all()
+    for namespace in namespaces:
+        with Session(tenant_engine(namespace)) as db:
+            purge_expired_trash(db)
 
 
 async def trash_cleanup_loop() -> None:

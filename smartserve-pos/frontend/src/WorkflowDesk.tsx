@@ -1,9 +1,10 @@
+import { apiFetch } from "./api";
 import { useEffect, useState } from "react";
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 export type WorkTicket = { id: number; kind: string; title: string; customer: string; resource: string; starts_at: string | null; ends_at: string | null; notes: string; status: string; order_id: number | null; order_status: string | null };
 type Table = { number: number; order_id: number | null; total: number };
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API}${path}`, { ...options, credentials: "include" });
+  const response = await apiFetch(`${API}${path}`, { ...options, credentials: "include" });
   const result = await response.json();
   if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : "Check the fields and try again.");
   return result;

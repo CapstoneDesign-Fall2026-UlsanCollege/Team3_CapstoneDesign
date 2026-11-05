@@ -56,7 +56,7 @@ class Proxy(BaseHTTPRequestHandler):
 
     def proxy(self):
         payload = self.rfile.read(int(self.headers.get("Content-Length", 0))) if self.command != "GET" else None
-        headers = {key: self.headers[key] for key in ("Content-Type", "Cookie") if key in self.headers}
+        headers = {key: self.headers[key] for key in ("Content-Type", "Cookie", "X-CSRF-Token", "Origin") if key in self.headers}
         request = urllib.request.Request(API + self.path, data=payload, method=self.command, headers=headers)
         try:
             response = urllib.request.urlopen(request)
@@ -68,7 +68,10 @@ class Proxy(BaseHTTPRequestHandler):
                 if key.lower() in ("content-type", "set-cookie", "cache-control"):
                     self.send_header(key, value)
             self.end_headers()
-            self.wfile.write(response.read())
+            try:
+                self.wfile.write(response.read())
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                pass  # The browser navigated away before the response finished.
 
 
 def main():
@@ -97,9 +100,9 @@ def main():
         process, server, browser = None, None, None
         password = secrets.token_urlsafe(24)
         environment = os.environ.copy()
-        environment.update({"PYTHONDONTWRITEBYTECODE": "1", "SMARTSERVE_OWNER_USERNAME": "week9-ci-owner",
-                            "SMARTSERVE_OWNER_PASSWORD_SHA256": hashlib.sha256(password.encode()).hexdigest(),
-                            "SMARTSERVE_SESSION_SECRET": secrets.token_hex(32)})
+        environment.update({"PYTHONDONTWRITEBYTECODE": "1", "SMARTSERVE_ENV": "test", "SMARTSERVE_BOOTSTRAP_ADMIN": "false", "SMARTSERVE_TEST_PASSWORD": password,
+                            "SMARTSERVE_AUTH_SECRET": secrets.token_urlsafe(48), "SMARTSERVE_PUBLIC_ORIGIN": ORIGIN,
+                            "SMARTSERVE_LOCAL_DATA": str(temp / "private"), "SMARTSERVE_TEST_MAIL_OUTBOX": str(temp / "outbox")})
         try:
             if args.postgres_bin:
                 def pg(command, *extra):
@@ -114,6 +117,7 @@ def main():
             else:
                 environment["DATABASE_URL"] = "sqlite:///" + str(temp / "sample.db").replace("\\", "/")
                 database = "fresh temporary SQLite file"
+            subprocess.run([sys.executable, "-B", "security_fixture.py"], cwd=REPO / "smartserve-pos/backend", env=environment, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=HIDDEN)
             with open(temp / "api.log", "w", encoding="utf-8") as log:
                 process = subprocess.Popen([sys.executable, "-B", "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "18991"],
                                            cwd=REPO / "smartserve-pos/backend", env=environment, stdout=log, stderr=log, creationflags=HIDDEN)
@@ -138,15 +142,22 @@ def main():
                     page = context.new_page()
                     page.on("pageerror", lambda error: errors.append(str(error)))
                     page.route("**/docs.google.com/**", lambda route: route.abort())
-                    # Set up the original café transaction fixture through the real
-                    # onboarding API before testing anonymous/owner boundaries.
-                    login = context.request.post(ORIGIN + "/auth/login", data={"username": "week9-ci-owner", "password": password})
+                    anonymous = playwright.request.new_context()
+                    login = context.request.post(ORIGIN + "/auth/login", data={"email": "browser-admin@example.test", "password": password})
                     if login.status != 200:
-                        raise AssertionError("Could not authenticate the isolated setup owner")
-                    setup = context.request.post(ORIGIN + "/owner/business/setup", data={"name": "SmartServe POS", "business_type": "cafe", "operation_mode": "takeaway", "catalog_action": "keep"})
+                        raise AssertionError("Could not authenticate the isolated setup administrator")
+                    def mutation(endpoint, data=None, method="POST"):
+                        csrf = context.request.get(ORIGIN + "/auth/session").json().get("csrf_token", "")
+                        return context.request.fetch(ORIGIN + endpoint, method=method, data=data, headers={"X-CSRF-Token": csrf})
+                    messages = [json.loads(path.read_text()) for path in (temp / "outbox").glob("*.json")]
+                    code = next(item["code"] for item in messages if item["to"] == "browser-admin@example.test")
+                    if mutation("/auth/mfa/verify", {"code": code}).status != 200:
+                        raise AssertionError("Could not verify isolated email challenge")
+                    if mutation("/auth/switch-business", {"store_id": "legacy"}).status != 200:
+                        raise AssertionError("Could not select isolated legacy fixture")
+                    setup = mutation("/owner/business/setup", {"name": "SmartServe POS", "business_type": "cafe", "operation_mode": "takeaway", "catalog_action": "keep"})
                     if setup.status != 200:
                         raise AssertionError(("Could not prepare cafe regression setup", setup.status))
-                    context.request.post(ORIGIN + "/auth/logout")
 
                     def shot(name):
                         page.screenshot(path=str(args.output / name), full_page=True)
@@ -158,20 +169,20 @@ def main():
                         return response.json()
 
                     def put(endpoint, data):
-                        response = context.request.put(ORIGIN + endpoint, data=data)
+                        response = mutation(endpoint, data, method="PUT")
                         check("PUT " + endpoint, 200, response.status)
                         return response.json()
 
                     page.goto(ORIGIN)
                     expect(page.get_by_role("button", name="Caffè Latte", exact=False)).to_be_enabled()
-                    check("public navigation hides owner dashboard", 0, page.get_by_role("button", name="Owner dashboard", exact=True).count())
-                    check("anonymous sales requires owner session", 401, context.request.get(ORIGIN + "/dashboard/sales").status)
-                    check("anonymous owner inventory requires session", 401, context.request.get(ORIGIN + "/owner/inventory").status)
-                    shot("01-public-cashier.png")
+                    check("authorized administrator sees owner dashboard", 1, page.get_by_role("button", name="Owner dashboard", exact=True).count())
+                    check("anonymous sales requires owner session", 401, anonymous.get(ORIGIN + "/dashboard/sales").status)
+                    check("anonymous owner inventory requires session", 401, anonymous.get(ORIGIN + "/owner/inventory").status)
+                    shot("01-authorized-cashier.png")
                     page.goto(ORIGIN + "/etalogin")
-                    expect(page.get_by_role("heading", name="Owner login", exact=True)).to_be_visible()
-                    shot("02-owner-login.png")
-                    check("owner login accepts isolated test identity", 200, context.request.post(ORIGIN + "/auth/login", data={"username": "week9-ci-owner", "password": password}).status)
+                    expect(page.get_by_role("heading", name="Owner sales dashboard", exact=True)).to_be_visible()
+                    shot("02-authorized-owner-dashboard.png")
+                    check("administrator session passed email MFA", True, context.request.get(ORIGIN + "/auth/session").json()["authenticated"])
                     page.reload()
                     expect(page.get_by_role("heading", name="Owner sales dashboard", exact=True)).to_be_visible()
                     initial_sales = get("/dashboard/sales")
@@ -217,7 +228,7 @@ def main():
                     after = get("/inventory")
                     stock = {item["name"]: item for item in after}
                     check("paid stock", [4500, 1164], [stock["Milk"]["stock_quantity"], stock["Coffee beans"]["stock_quantity"]])
-                    check("duplicate payment HTTP", 409, context.request.post(ORIGIN + f"/orders/{oid}/pay", data={"method": "cash"}).status)
+                    check("duplicate payment HTTP", 409, mutation(f"/orders/{oid}/pay", {"method": "cash"}).status)
                     check("duplicate stock unchanged", after, get("/inventory"))
                     page.get_by_role("button", name="inventory", exact=True).click()
                     expect(page.get_by_role("cell", name="4500 ml", exact=True)).to_be_visible()
@@ -254,14 +265,14 @@ def main():
                     page.goto(ORIGIN + "/etalogin")
                     expect(page.locator(".stats")).to_contain_text("15,000")
                     shot("12-final-sales-after-edit.png")
-                    check("logout", 200, context.request.post(ORIGIN + "/auth/logout").status)
+                    check("logout", 200, mutation("/auth/logout").status)
                     check("sales protected after logout", 401, context.request.get(ORIGIN + "/dashboard/sales").status)
                     check("uncaught browser errors", [], errors)
                     context.close()
                     browser.close()
                     browser = None
                     metadata = {"date_kst": datetime.now(timezone(timedelta(hours=9))).isoformat(), "source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip(),
-                                "operator": "GitHub Actions CI workflow", "database": database, "browser": "Chromium, 1440 x 1080", "shared_data_changed": False,
+                                "operator": "GitHub Actions CI workflow" if os.getenv("GITHUB_ACTIONS") else "Local automated verification", "database": database, "browser": "Chromium, 1440 x 1080", "shared_data_changed": False,
                                 "method": "Real built frontend and FastAPI HTTP routes through local same-origin proxy; failure injected with result=failed. Owner credentials generated per run and not recorded.",
                                 "checks": checks, "limits": ["Automated verification; no human tester or narrated presentation is attested", "No public cloud deployment or concurrent-load claim", "Payment remains simulated", "Feedback iframe delivery not tested"]}
                     (args.output / "browser-results.json").write_text(json.dumps(metadata, ensure_ascii=True, indent=2), encoding="utf-8")

@@ -1,3 +1,7 @@
+import { AccountSecurity } from "./AccountSecurity";
+import { apiFetch, apiRequest, jsonBody, type AccountSession } from "./api";
+import { AccountAccess } from "./AccountAccess";
+import { PlatformConsole, BusinessAccountSettings } from "./AccountManagement";
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { OwnerManagement } from "./OwnerManagement";
@@ -21,43 +25,16 @@ const won = (value: number) => new Intl.NumberFormat("ko-KR", { style: "currency
 const koreaDate = (value = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(value);
 const dateTime = (value?: string | null) => value ? new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", year: "numeric", month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value)) : "—";
 async function readData<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${API}${endpoint}`, { credentials: "include" });
+  const response = await apiFetch(`${API}${endpoint}`, { credentials: "include" });
   if (!response.ok) throw new Error("Could not load data. Please refresh and try again.");
   return response.json();
 }
 
-function OwnerAccess() {
-  const [ready, setReady] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    void readData<{ authenticated: boolean }>("/auth/session")
-      .then(result => setLoggedIn(result.authenticated))
-      .catch(() => setError("Could not check login. Please sign in again."))
-      .finally(() => setReady(true));
-  }, []);
-  if (!ready) return <main className="app-shell"><p>Checking login…</p></main>;
-  if (loggedIn) return <App />;
-  return <main className="app-shell"><section className="panel owner-login"><h1>Owner login</h1>
-    <form onSubmit={async event => {
-      event.preventDefault(); setBusy(true); setError("");
-      try {
-        const response = await fetch(`${API}/auth/login`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
-        if (!response.ok) { const result = await response.json(); throw new Error(result.detail || "Login failed."); }
-        setPassword(""); setLoggedIn(true);
-      } catch (failure) { setError(failure instanceof Error ? failure.message : "Could not sign in."); }
-      finally { setBusy(false); }
-    }}>
-      <label>Username<input autoComplete="username" value={username} onChange={event => setUsername(event.target.value)} required /></label>
-      <label>Password<input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label>
-      {error && <p role="alert">{error}</p>}<button disabled={busy} type="submit">{busy ? "Signing in…" : "Log in"}</button>
-    </form><a href="/">Back to ordering</a></section></main>;
-}
-
-function App() {
+function App({ account }: { account: AccountSession }) {
+  const canConfigure = account.user?.role === "platform_admin";
+  const canManage = canConfigure || account.user?.role === "owner";
+  const pendingStorageKey = `smartserve.pendingOrder.${account.store_id}.${account.user?.id}`;
+  const [deferSetup, setDeferSetup] = useState(false);
   const [showSetup, setShowSetup] = useState(isSetupPage);
   const [tableNumber, setTableNumber] = useState<number | null>(null);
   const [workTicket, setWorkTicket] = useState<WorkTicket | null>(null);
@@ -87,7 +64,7 @@ function App() {
     document.addEventListener("pointerdown", closeOutside);
     return () => document.removeEventListener("pointerdown", closeOutside);
   }, [themeMenuOpen]);
-  const [tab, setTab] = useState<Tab>(isOwnerPage ? "owner" : "cashier");
+  const [tab, setTab] = useState<Tab>(account.user?.role === "owner" || (isOwnerPage && !isSetupPage) ? "owner" : "cashier");
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [recipes, setRecipes] = useState<MenuRecipe[]>([]);
   const [stockReady, setStockReady] = useState(false);
@@ -111,7 +88,7 @@ function App() {
   const paying = useRef(false);
   const [busy, setBusy] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<number | null>(() => {
-    const saved = Number(sessionStorage.getItem("smartserve.pendingOrder"));
+    const saved = Number(sessionStorage.getItem(pendingStorageKey));
     return Number.isSafeInteger(saved) && saved > 0 ? saved : null;
   });
   const foodBusiness = ["cafe", "restaurant", "bakery"].includes(business.business_type);
@@ -135,12 +112,12 @@ function App() {
   }, [tab, salesDate, salesRefresh]);
   useEffect(() => {
     if (!pendingOrder) return;
-    void fetch(`${API}/orders/${pendingOrder}`).then(async response => {
+    void apiFetch(`${API}/orders/${pendingOrder}`).then(async response => {
       if (!response.ok) throw new Error("Could not load the saved order. Check the API and reload.");
       return response.json();
     }).then((order: Order) => {
       if (order.status === "open") setSavedOrder(order);
-      else { setPendingOrder(null); sessionStorage.removeItem("smartserve.pendingOrder"); }
+      else { setPendingOrder(null); sessionStorage.removeItem(pendingStorageKey); }
     }).catch(error => setMessage(error instanceof Error ? error.message : "Could not load saved order"));
   }, [pendingOrder]);
   const loadMenu = async () => {
@@ -169,16 +146,16 @@ function App() {
     : [...current, { ...item, quantity: 1 }]);
   const changeQty = (id: number, delta: number) => setCart(current => current.flatMap(line => line.id !== id ? [line] : line.quantity + delta > 0 ? [{ ...line, quantity: line.quantity + delta }] : []));
   const saveCartOrder = async (): Promise<Order> => {
-    const response = await fetch(`${API}/orders`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_type: orderType, table_number: orderType === "dine_in" ? tableNumber : null, ticket_id: workTicket?.id, items: cart.map(({ id, quantity }) => ({ menu_item_id: id, quantity })) }) });
+    const response = await apiFetch(`${API}/orders`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_type: orderType, table_number: orderType === "dine_in" ? tableNumber : null, ticket_id: workTicket?.id, items: cart.map(({ id, quantity }) => ({ menu_item_id: id, quantity })) }) });
     if (!response.ok) { const result = await response.json(); throw new Error(typeof result.detail === "string" ? result.detail : "Could not create order. Check your order and try again."); }
     const order: Order = await response.json();
-    sessionStorage.setItem("smartserve.pendingOrder", String(order.id));
+    sessionStorage.setItem(pendingStorageKey, String(order.id));
     setSavedOrder(order); setPendingOrder(order.id); setCart([]); setReceipt(null);
     return order;
   };
   const appendCart = async (orderId: number) => {
     if (!cart.length) return;
-    const response = await fetch(`${API}/orders/${orderId}/items`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: cart.map(({ id, quantity }) => ({ menu_item_id: id, quantity })) }) });
+    const response = await apiFetch(`${API}/orders/${orderId}/items`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: cart.map(({ id, quantity }) => ({ menu_item_id: id, quantity })) }) });
     const result = await response.json();
     if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : "Could not add items.");
     setSavedOrder(result); setCart([]);
@@ -210,20 +187,20 @@ function App() {
       orderId = order.id;
       }
       if (pendingOrder && cart.length) await appendCart(pendingOrder);
-      const pay = await fetch(`${API}/orders/${orderId}/pay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ method }) });
+      const pay = await apiFetch(`${API}/orders/${orderId}/pay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ method }) });
       const result = await pay.json();
       if (pay.status === 409) {
-        const existing = await fetch(`${API}/orders/${orderId}`);
+        const existing = await apiFetch(`${API}/orders/${orderId}`);
         if (existing.ok) {
           const saved: Order = await existing.json();
           if (saved.status === "paid") {
             setReceipt(saved); setCart([]); setSavedOrder(null); setPendingOrder(null);
-            sessionStorage.removeItem("smartserve.pendingOrder");
+            sessionStorage.removeItem(pendingStorageKey);
           }
         }
       }
       if (!pay.ok) throw new Error(typeof result.detail === "string" ? result.detail : [result.detail.message, ...(result.detail.shortages ?? [])].join(". "));
-      sessionStorage.removeItem("smartserve.pendingOrder"); setPendingOrder(null); setSavedOrder(null);
+      sessionStorage.removeItem(pendingStorageKey); setPendingOrder(null); setSavedOrder(null);
       setReceipt(result.order); setCart([]); setTableNumber(null); setWorkTicket(null); setMessage(result.message);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Payment failed"); }
     finally { paying.current = false; setBusy(false); }
@@ -232,22 +209,22 @@ function App() {
   const resumeOrder = (order: Order) => {
     setTableNumber(order.table_number ?? null); setWorkTicket(null);
     setCart([]); setReceipt(null); setSavedOrder(order); setPendingOrder(order.id);
-    sessionStorage.setItem("smartserve.pendingOrder", String(order.id));
+    sessionStorage.setItem(pendingStorageKey, String(order.id));
     setTab("cashier"); setMessage(`Order #${order.id} is ready for payment.`);
   };
   const viewReceipt = (order: Order) => {
     setCart([]); setSavedOrder(null); setPendingOrder(null);
-    sessionStorage.removeItem("smartserve.pendingOrder");
+    sessionStorage.removeItem(pendingStorageKey);
     setTableNumber(null); setWorkTicket(null); setReceipt(order); setTab("cashier"); setMessage(`Showing the saved receipt for order #${order.id}.`);
   };
   const cancelOrder = async (order: Order) => {
     setBusy(true);
     try {
-      const response = await fetch(`${API}/orders/${order.id}/cancel`, {method:"POST"});
+      const response = await apiFetch(`${API}/orders/${order.id}/cancel`, {method:"POST"});
       const result = await response.json();
       if (!response.ok) throw new Error(result.detail || "Could not cancel order");
       setOrders(current => current.map(item => item.id === result.id ? result : item));
-      if (pendingOrder === order.id) { setPendingOrder(null); setSavedOrder(null); sessionStorage.removeItem("smartserve.pendingOrder"); }
+      if (pendingOrder === order.id) { setPendingOrder(null); setSavedOrder(null); sessionStorage.removeItem(pendingStorageKey); }
       setMessage(`Order #${order.id} was cancelled. Inventory is unchanged.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not cancel order"); }
     finally { setBusy(false); }
@@ -263,7 +240,7 @@ function App() {
     setBusy(true); setMessage("");
     try {
       const endpoint = "/orders/" + order.id + (action === "delete" ? "" : "/" + action);
-      const response = await fetch(API + endpoint, { method: action === "delete" ? "DELETE" : "POST" });
+      const response = await apiFetch(API + endpoint, { method: action === "delete" ? "DELETE" : "POST" });
       if (!response.ok) { const result = await response.json(); throw new Error(result.detail || "Could not update order"); }
       setOrders(await readData<Order[]>("/orders?trash=" + ordersTrash));
       setMessage(action === "trash" ? "Order moved to Trash. You can restore it for 30 days." : action === "restore" ? "Order restored to the cancelled-orders list." : "Order permanently deleted.");
@@ -281,14 +258,16 @@ function App() {
   const orderMonths = Object.keys(ordersByMonth).sort().reverse();
   const monthLabel = (month: string) => new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Asia/Seoul" }).format(new Date(month + "-01T00:00:00+09:00"));
 
-  if (businessReady && isOwnerPage && (showSetup || !business.onboarding_complete)) return <BusinessSetup profile={business} onClose={business.onboarding_complete ? () => setShowSetup(false) : undefined} onChanged={async profile => { setShowSetup(true); setBusiness(profile); setCategory("All items"); await loadMenu(); setCatalogVersion(value => value + 1); }} />;
-  if (businessReady && !isOwnerPage && !business.onboarding_complete) return <main className="setup-welcome"><a className="setup-brand" href="/setup"><span>S</span> SmartServe</a><p className="setup-kicker">A WORKSPACE THAT WORKS YOUR WAY</p><h1>A POS for<br/>your kind of business.</h1><p>From the first coffee to the next appointment.<br/>Choose your business. Build your workspace. Start serving.</p><a className="setup-primary" href="/setup">Set up my business →</a><div className="welcome-types">Cafés · Retail · Barbershops · Repairs · And your next idea</div></main>;
+  if (businessReady && canConfigure && (showSetup || (!business.onboarding_complete && !deferSetup))) return <BusinessSetup profile={business} onClose={() => { setShowSetup(false); setDeferSetup(true); }} onChanged={async profile => { setShowSetup(true); setBusiness(profile); setCategory("All items"); await loadMenu(); setCatalogVersion(value => value + 1); }} />;
+  if (isSetupPage && !canConfigure) return <main className="auth-page"><section className="auth-card"><h1>Setup is managed by your platform administrator.</h1><p>Your account cannot create businesses or change their preset/workflows.</p><a href="/">Return to your workspace</a></section></main>;
+  if (businessReady && !business.onboarding_complete && !canConfigure) return <main className="auth-page"><section className="auth-card"><h1>Your business is being set up.</h1><p>The platform administrator needs to finish your business profile before the workspace opens.</p><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></section></main>;
   return <main className="app-shell">
     <aside className="theme-control" ref={themePanel} onKeyDown={event => { if (event.key === "Escape") { setThemeMenuOpen(false); themePanel.current?.querySelector<HTMLButtonElement>(".theme-toggle")?.focus(); } }}>
       <button className="theme-toggle" aria-label="Change theme" title="Change theme" aria-expanded={themeMenuOpen} aria-controls="theme-options" onClick={() => setThemeMenuOpen(open => !open)}><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.7-3.1 1.5 1.5 0 0 1 1.3-2.3h2a3 3 0 0 0 3-3A9.6 9.6 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="11" cy="6.8" r="1"/><circle cx="15.5" cy="8" r="1"/></svg></button>
       {themeMenuOpen && <fieldset id="theme-options" className="theme-options"><legend>Appearance</legend>{([{ value: "white", label: "White", detail: "Bright & clean" }, { value: "dark", label: "Dark", detail: "Soft contrast" }, { value: "code", label: "Code", detail: "Syntax highlights" }] as const).map(option => <label className={"theme-option " + (theme === option.value ? "selected" : "")} key={option.value}><input type="radio" name="theme" value={option.value} checked={theme === option.value} onChange={() => setTheme(option.value)} /><span className={"theme-swatch swatch-" + option.value} aria-hidden="true"/><span><strong>{option.label}</strong><small>{option.detail}</small></span></label>)}</fieldset>}
     </aside>
-    <header><div><p className="eyebrow">SMARTSERVE · {businessLabels[business.business_type] ?? "POINT OF SALE"}</p><h1>{business.logo_url && <img className="business-logo" src={business.logo_url} alt="" onError={event => { event.currentTarget.hidden = true; }}/>} {business.name}</h1></div><nav aria-label="Main navigation">{(isOwnerPage ? (["owner", ...(business.features.some(feature => ["appointments", "walk_ins", "jobs"].includes(feature)) ? ["work" as const] : [])]) : (["cashier", "orders", ...(business.features.includes("inventory") ? ["inventory" as const] : []), ...(business.features.includes("tables") ? ["tables" as const] : []), ...(business.features.some(feature => ["appointments", "walk_ins", "jobs"].includes(feature)) ? ["work" as const] : [])])).map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item as Tab)} key={item}>{item === "owner" ? "Owner dashboard" : item === "work" ? "Appointments & jobs" : item[0].toUpperCase() + item.slice(1)}</button>)}{!isOwnerPage && <a className="primary-link" href="/etalogin">Business settings</a>}{isOwnerPage && <><a className="primary-link" href="/">Back to ordering</a><button onClick={async () => { const response = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" }); if (response.ok) window.location.assign("/etalogin"); else setMessage("Could not log out. Please retry."); }}>Log out</button></>}</nav></header>
+    <header><div><p className="eyebrow">SMARTSERVE · {businessLabels[business.business_type] ?? "POINT OF SALE"}</p><h1>{business.logo_url && <img className="business-logo" src={business.logo_url} alt="" onError={event => { event.currentTarget.hidden = true; }}/>} {business.name}</h1></div><nav aria-label="Main navigation">{([...(canManage ? ["owner" as const] : []), "cashier", "orders", ...(business.features.includes("inventory") ? ["inventory" as const] : []), ...(business.features.includes("tables") ? ["tables" as const] : []), ...(business.features.some(feature => ["appointments", "walk_ins", "jobs"].includes(feature)) ? ["work" as const] : [])]).map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item as Tab)} key={item}>{item === "owner" ? "Owner dashboard" : item === "work" ? "Appointments & jobs" : item[0].toUpperCase() + item.slice(1)}</button>)}{canConfigure && <a className="primary-link" href="/platform">Platform admin</a>}{(account.businesses?.length || 0) > 1 && <select aria-label="Switch business" value={account.store_id || ""} onChange={async event => { await apiRequest("/auth/switch-business", jsonBody({ store_id: event.target.value })); window.location.assign("/"); }}>{account.businesses?.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>}<button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></nav></header>
+    <AccountSecurity/>
     {businessError && <p role="alert" className="notice">{businessError}</p>}
     {message && <p className="notice" role="status">{message}</p>}
     {tab === "cashier" && <section className="cashier-grid">
@@ -324,7 +303,7 @@ function App() {
       })}</div>{visibleOrders.length === 0 && <p className="empty-state">{ordersTrash ? "Trash is empty." : "No orders match these filters."}</p>}
     </section>}
     {tab === "inventory" && <section><h2>Inventory</h2><p className="muted">Stock is reduced only after a successful simulated payment.</p><table><thead><tr><th>Stock item</th><th>In stock</th><th>Reorder level</th><th>Status</th></tr></thead><tbody>{inventory.map(item => <tr key={item.id}><td>{item.name}</td><td>{item.stock_quantity} {item.unit}</td><td>{item.reorder_level} {item.unit}</td><td><span className={item.low_stock ? "badge low" : "badge"}>{item.low_stock ? "Low stock" : "OK"}</span></td></tr>)}</tbody></table></section>}
-    {isOwnerPage && tab === "owner" && <section>
+    {canManage && tab === "owner" && <section>
       <div className="section-heading"><div><h2>Owner sales dashboard</h2><p className="muted">Daily totals include every paid order in the shared store, including test purchases.</p></div><div className="dashboard-actions"><a className="primary-link" href="#owner-management">Manage catalog &amp; inventory</a><button className="primary" aria-expanded={showFeedback} aria-controls="dashboard-feedback" onClick={() => setShowFeedback(open => !open)}>{showFeedback ? "Hide feedback form" : "Give feedback"}</button></div></div>
       <section id="dashboard-feedback" className="dashboard-feedback" hidden={!showFeedback} aria-labelledby="feedback-heading">
         <h3 id="feedback-heading">Share your feedback</h3>
@@ -333,12 +312,17 @@ function App() {
       <div className="toolbar"><label>Sales date<input type="date" value={salesDate} onChange={event => { if (event.target.value) setSalesDate(event.target.value); }} /></label><button disabled={salesLoading} onClick={() => setSalesRefresh(value => value + 1)}>Refresh sales</button><span className="muted">Korea time (KST)</span></div>
       {salesLoading && <p role="status">Loading sales…</p>}{salesError && <p role="alert" className="notice">{salesError}</p>}
       {dashboard && <><div className="stats"><article><span>{"Sales on " + dashboard.date}</span><strong>{won(dashboard.sales_total)}</strong></article><article><span>Paid orders on {dashboard.date}</span><strong>{dashboard.paid_orders}</strong></article></div><h3>Paid sales on {dashboard.date}</h3><div className="table-wrap"><table><thead><tr><th>Order</th><th>Paid (KST)</th><th>Items</th><th>Type</th><th>Total</th><th>Payment</th></tr></thead><tbody>{dashboard.recent_sales.map(order => <tr key={order.id}><td>#{order.id}</td><td>{dateTime(order.paid_at)}</td><td>{order.items.map(item => item.name + " × " + item.quantity).join(", ")}</td><td>{(order.table_number ? `Table ${order.table_number}` : orderLabels[order.order_type] || order.order_type.replace("_", " "))}</td><td>{won(order.total)}</td><td>{order.payment_method?.toUpperCase()}</td></tr>)}</tbody></table>{dashboard.paid_orders === 0 && <p className="empty-state">No paid sales on this date.</p>}</div></>}
-      <section className="panel profile-summary"><div><p className="eyebrow">BUSINESS PROFILE</p><h3>{business.name}</h3><p className="muted">{businessLabels[business.business_type]} · {business.operation_mode.replace(/_/g, " ")} · {business.features.join(" / ")}</p></div><button className="primary" onClick={() => setShowSetup(true)}>Edit business profile</button></section>
+      <section className="panel profile-summary"><div><p className="eyebrow">BUSINESS PROFILE</p><h3>{business.name}</h3><p className="muted">{businessLabels[business.business_type]} · {business.operation_mode.replace(/_/g, " ")} · {business.features.join(" / ")}</p></div>{canConfigure ? <button className="primary" onClick={() => setShowSetup(true)}>Edit business profile</button> : <span className="badge">Owner workspace</span>}</section>
+      <BusinessAccountSettings session={account} profile={business} onChanged={setBusiness} />
       <OwnerManagement key={catalogVersion} onMenuChanged={loadMenu} onInventoryChanged={loadInventory} />
     </section>}
   </main>;
 }
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>{isOwnerPage ? <OwnerAccess /> : <App />}</StrictMode>,
+  <StrictMode><AccountAccess>{account => {
+    if (account.user?.role === "platform_admin" && (!account.store_id || window.location.pathname === "/platform")) return <PlatformConsole session={account} />;
+    if (window.location.pathname === "/platform" && account.user?.role !== "platform_admin") return <main className="auth-page"><section className="auth-card"><h1>Platform administrator access required.</h1><a href="/">Return to your workspace</a></section></main>;
+    return <App key={`${account.user?.id}:${account.store_id}`} account={account}/>;
+  }}</AccountAccess></StrictMode>,
 );

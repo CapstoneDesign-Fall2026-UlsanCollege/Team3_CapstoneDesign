@@ -11,7 +11,7 @@ from app import models
 from app.database import Base
 from app.business import SetupInput, complete_setup, get_profile
 from app.workflows import TicketInput, StatusInput, create_ticket, change_status, list_tables
-from app.main import add_order_items, cancel_order, create_order, get_order, list_menu, restore_menu_item, simulate_payment
+from app.main import add_order_items, cancel_order, create_order, get_order, list_menu, permanently_delete_cancelled, restore_menu_item, simulate_payment
 from app.schemas import AddOrderItems, OrderCreate, PaymentCreate
 from app.seed import seed_demo_data
 
@@ -125,6 +125,16 @@ class WorkflowTests(unittest.TestCase):
             create_ticket(TicketInput(kind="job", title="Repair", customer="A"), self.db)
         with self.assertRaises(ValidationError):
             TicketInput(kind="appointment", title="Cut", customer="A")
+
+    def test_cancelled_table_order_can_be_deleted_without_orphaned_context(self):
+        self.setup_store()
+        order = self.order(order_type="dine_in", table_number=1)
+        cancel_order(order["id"], self.db)
+        permanently_delete_cancelled(self.db.get(models.Order, order["id"]), self.db)
+        self.db.commit()
+        self.assertIsNone(self.db.get(models.OrderContext, order["id"]))
+        with self.assertRaises(HTTPException):
+            get_order(order["id"], self.db)
 
 
 if __name__ == "__main__":
