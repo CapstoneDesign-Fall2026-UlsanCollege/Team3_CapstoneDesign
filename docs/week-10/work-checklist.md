@@ -71,11 +71,20 @@
 
 These automated backend unit tests do not complete the separate end-to-end MVP checks listed above.
 
-### F. Documentation and Evidence
+### F. Frontend Production Build
 
 | Task | Required Evidence | Status |
 |---|---|---|
-| Update the Week 10 evidence index | Evidence links and descriptions | Planned |
+| Run frontend TypeScript/Vite production build | [Build log](evidence/frontend-build/w10-frontend-production-build.txt) | Completed — PASS, exit code 0 |
+| Record build warning and limitations | Vite config compatibility warning retained in the build log; exact source SHA not captured | Completed |
+
+The build generated the production bundle successfully. This is a compilation/build check only; it does not replace browser/API end-to-end testing or independent review.
+
+### G. Documentation and Evidence
+
+| Task | Required Evidence | Status |
+|---|---|---|
+| Update the Week 10 evidence index | Evidence links and descriptions | Completed — backend and frontend build evidence indexed |
 | Save relevant screenshots | Original screenshot files | Planned |
 | Save test logs and results | Original log or result files | Planned |
 | Link related GitHub issues and commits | Issue and commit URLs | Planned |
@@ -93,7 +102,7 @@ Use clear names that identify the workflow and test:
 - `inventory-after-sale.png`
 - `duplicate-deduction-check.png`
 - `backend-test-results.txt`
-- `frontend-build-results.txt`
+- `w10-frontend-production-build.txt`
 - `independent-review-results.md`
 
 Use actual filenames and dates when collecting evidence. Do not create placeholder screenshots or logs and present them as test results.
