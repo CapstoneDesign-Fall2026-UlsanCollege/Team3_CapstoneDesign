@@ -17,9 +17,9 @@
 
 | Date | Contributor / GitHub Username | Work Performed | Result | Evidence / Link |
 |---|---|---|---|---|
-| Pending | Pending | Pending | Pending | Pending |
-| Pending | Pending | Pending | Pending | Pending |
-| Pending | Pending | Pending | Pending | Pending |
+| 2026-11-10 | Sammygit15 | Ran the frontend production build (`npm run build`) and captured the terminal output as Week 10 evidence | PASS; exit code 0; TypeScript + Vite 8.3.0; 16 modules transformed; Vite config warning retained | [Build log](evidence/frontend-build/w10-frontend-production-build.txt); [evidence commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/d35dc492dca6743c54056f24181d2813970453a2) |
+| Sammygit15 | Frontend production build evidence | `smartserve-pos/frontend` build script (`tsc -b && vite build`) | PASS; exit code 0; 16 modules transformed; Vite compatibility warning recorded | [Build log](evidence/frontend-build/w10-frontend-production-build.txt) | Pending |
+| Sammygit15 | `d35dc492dca6743c54056f24181d2813970453a2` | Add Week 10 frontend production build evidence | 2026-11-10 | [Commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/d35dc492dca6743c54056f24181d2813970453a2) | Pending |
 
 Add one row for each meaningful contribution. Use separate rows when multiple people contribute to the same task.
 
@@ -55,7 +55,7 @@ A person must not be described as an independent reviewer for changes they autho
 
 ### Recorded Backend Test Evidence
 
-The repository contains the November 10, 2026 backend unit-test output: [owner management (12/12)](evidence/test-results/w10-owner-management-tests.txt), [Issue 3 (9/9)](evidence/test-results/w10-issue3-tests.txt), [trash (3/3)](evidence/test-results/w10-trash-tests.txt), and the [24/24 consolidated summary](evidence/test-results/w10-backend-test-summary.md). The supplied logs do not identify the tester, so individual credit must remain unassigned until confirmed.
+The repository contains the November 10, 2026 backend unit-test output: [owner management (12/12)](evidence/test-results/w10-owner-management-tests.txt), [Issue 3 (9/9)](evidence/test-results/w10-issue3-tests.txt), [trash (3/3)](evidence/test-results/w10-trash-tests.txt), and the [24/24 consolidated summary](evidence/test-results/w10-backend-test-summary.md). The supplied backend logs do not identify the tester, so individual backend-test credit must remain unassigned until confirmed. The frontend build was run and its evidence commit was authored by `Sammygit15`.
 
 ## 6. GitHub Activity
 
