@@ -27,7 +27,7 @@ Add one row for each meaningful contribution. Use separate rows when multiple pe
 
 | Document | Contributor | Contribution | Evidence |
 |---|---|---|---|
-| Plan.md | Pending confirmation | Week 10 planning | [Plan](Plan.md) |
+| work-plan-expanded.md | Pending confirmation | Week 10 planning | [Expanded work plan](work-plan-expanded.md) |
 | work-checklist.md | Pending confirmation | Task and evidence tracking | [Checklist](work-checklist.md) |
 | mvp-requirement-review.md | Pending confirmation | MVP requirement review structure | [Requirement review](mvp-requirement-review.md) |
 | bug-review.md | Pending confirmation | Bug investigation and reporting structure | [Bug review](bug-review.md) |
