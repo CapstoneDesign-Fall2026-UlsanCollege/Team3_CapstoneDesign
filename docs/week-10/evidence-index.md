@@ -50,9 +50,9 @@
 
 ## 5. Build, Test, and CI Evidence
 
-| ID | Check | Run Date | Commit | Result | Original Evidence |
-|---|---|---|---|---|---|
-| CI10-01 | Backend unit test suites (owner management, Issue 3, trash) | 2026-11-10 | 0bcd9da | PASS: 24/24 (12 + 9 + 3); Python 3.13 virtual environment; isolated SQLite | Local artifacts collected; repository publication pending: `evidence/test-results/w10-backend-test-summary.md`, `w10-owner-management-tests.txt`, `w10-issue3-tests.txt`, `w10-trash-tests.txt` | Collected |
+| ID | Check | Run Date | Commit | Result | Original Evidence | Status |
+|---|---|---|---|---|---|---|
+| CI10-01 | Backend unit test suites (owner management, Issue 3, trash) | 2026-11-10 | `0bcd9da` | PASS: 24/24 (12 + 9 + 3); Python 3.13 virtual environment; isolated SQLite | [Summary](evidence/test-results/w10-backend-test-summary.md); [Owner management log](evidence/test-results/w10-owner-management-tests.txt); [Issue 3 log](evidence/test-results/w10-issue3-tests.txt); [Trash log](evidence/test-results/w10-trash-tests.txt). Tester name was not recorded in the supplied logs. | Linked |
 | CI10-02 | Frontend production build | Pending | Pending | Not Run | Pending |
 | CI10-03 | Browser/API verification | Pending | Pending | Not Run | Pending |
 | CI10-04 | CI workflow | Pending | Pending | Not Run | Pending |
