@@ -60,7 +60,18 @@
 | Prepare the reviewer result template | Completed template structure | Planned |
 | Record any verification limitations | Environment details and limitation notes | Planned |
 
-### E. Documentation and Evidence
+### E. Backend Automated Test Evidence
+
+| Task | Required Evidence | Status |
+|---|---|---|
+| Run owner management backend unit tests | [12/12 passed](evidence/test-results/w10-owner-management-tests.txt) | Completed |
+| Run Issue 3 backend unit tests | [9/9 passed](evidence/test-results/w10-issue3-tests.txt) | Completed |
+| Run trash lifecycle backend unit tests | [3/3 passed](evidence/test-results/w10-trash-tests.txt) | Completed |
+| Publish consolidated backend test summary and suite logs | [24/24 summary and all three logs](evidence-index.md#5-build-test-and-ci-evidence) | Completed |
+
+These automated backend unit tests do not complete the separate end-to-end MVP checks listed above.
+
+### F. Documentation and Evidence
 
 | Task | Required Evidence | Status |
 |---|---|---|
