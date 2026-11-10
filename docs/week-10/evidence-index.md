@@ -53,11 +53,11 @@
 | ID | Check | Run Date | Commit | Result | Original Evidence | Status |
 |---|---|---|---|---|---|---|
 | CI10-01 | Backend unit test suites (owner management, Issue 3, trash) | 2026-11-10 | `0bcd9da` | PASS: 24/24 (12 + 9 + 3); Python 3.13 virtual environment; isolated SQLite | [Summary](evidence/test-results/w10-backend-test-summary.md); [Owner management log](evidence/test-results/w10-owner-management-tests.txt); [Issue 3 log](evidence/test-results/w10-issue3-tests.txt); [Trash log](evidence/test-results/w10-trash-tests.txt). Tester name was not recorded in the supplied logs. | Linked |
-| CI10-02 | Frontend production build | Pending | Pending | Not Run | Pending |
+| CI10-02 | Frontend production build (`tsc -b` + Vite 8.3.0) | 2026-11-10 | Source SHA not captured; evidence commit `d35dc49` | **PASS** (exit code 0; 16 modules transformed; production bundle generated). Vite config compatibility warning recorded; did not fail build. | [Frontend build log](evidence/frontend-build/w10-frontend-production-build.txt) | Linked |
 | CI10-03 | Browser/API verification | Pending | Pending | Not Run | Pending |
 | CI10-04 | CI workflow | Pending | Pending | Not Run | Pending |
 
-The four linked CI10-01 artifacts are the original repository evidence for this run. Do not copy historical Week 9 results into these rows as Week 10 results. Add a dated row for each actual run.
+The four linked CI10-01 artifacts are the original repository evidence for this run. CI10-02 records the November 10 local frontend production build; the exact source commit was not captured in the terminal log. Its evidence file was committed in `d35dc49`. The build passed, with a Vite configuration compatibility warning retained in the log. Do not copy historical Week 9 results into these rows as Week 10 results. Add a dated row for each actual run.
 
 ## 6. Bug and Independent Review Evidence
 
@@ -75,6 +75,7 @@ docs/week-10/
     ├── screenshots/
     ├── logs/
     ├── test-results/
+    ├── frontend-build/
     └── independent-review/
 ```
 
