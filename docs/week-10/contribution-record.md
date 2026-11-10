@@ -27,7 +27,7 @@ Add one row for each meaningful contribution. Use separate rows when multiple pe
 
 | Document | Contributor | Contribution | Evidence |
 |---|---|---|---|
-| Plan.md | Pending confirmation | Week 10 planning | [Plan](Plan.md) |
+| work-plan-expanded.md | Pending confirmation | Week 10 planning | [Expanded work plan](work-plan-expanded.md) |
 | work-checklist.md | Pending confirmation | Task and evidence tracking | [Checklist](work-checklist.md) |
 | mvp-requirement-review.md | Pending confirmation | MVP requirement review structure | [Requirement review](mvp-requirement-review.md) |
 | bug-review.md | Pending confirmation | Bug investigation and reporting structure | [Bug review](bug-review.md) |
@@ -52,6 +52,10 @@ Record implementation, testing, debugging, or deployment work separately from do
 | Pending | Pending | Pending | Not Performed | Pending |
 
 A person must not be described as an independent reviewer for changes they authored. Record the reviewer's identity and tested commit.
+
+### Recorded Backend Test Evidence
+
+The repository contains the November 10, 2026 backend unit-test output: [owner management (12/12)](evidence/test-results/w10-owner-management-tests.txt), [Issue 3 (9/9)](evidence/test-results/w10-issue3-tests.txt), [trash (3/3)](evidence/test-results/w10-trash-tests.txt), and the [24/24 consolidated summary](evidence/test-results/w10-backend-test-summary.md). The supplied logs do not identify the tester, so individual credit must remain unassigned until confirmed.
 
 ## 6. GitHub Activity
 

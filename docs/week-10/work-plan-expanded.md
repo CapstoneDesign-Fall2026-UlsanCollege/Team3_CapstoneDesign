@@ -161,7 +161,20 @@ Evidence should include:
 
 **Expected result:** A structured Week 10 evidence folder and an updated evidence index.
 
-## 4. Week 10 Task and Evidence Tracking
+## 4. Recorded Backend Unit-Test Evidence
+
+On November 10, 2026, the three backend unit-test suites ran against application commit `0bcd9da` in a Python 3.13 virtual environment using isolated SQLite. All 24 tests passed:
+
+| Suite | Result | Evidence |
+|---|---:|---|
+| Owner management | 12/12 passed | [Test output](evidence/test-results/w10-owner-management-tests.txt) |
+| Issue 3 | 9/9 passed | [Test output](evidence/test-results/w10-issue3-tests.txt) |
+| Trash | 3/3 passed | [Test output](evidence/test-results/w10-trash-tests.txt) |
+| **Total** | **24/24 passed** | [Consolidated summary](evidence/test-results/w10-backend-test-summary.md) |
+
+These are automated backend unit tests only. They do not mark the separate end-to-end workflow checks or independent review as complete.
+
+## 5. Week 10 Task and Evidence Tracking
 
 | Task | Required evidence | Status |
 |---|---|---|
@@ -176,7 +189,7 @@ Evidence should include:
 
 Statuses must be updated based on actual work. Do not change a status to Completed without evidence.
 
-## 5. Evidence Collection Standards
+## 6. Evidence Collection Standards
 
 Every completed task should have a corresponding evidence record.
 
@@ -203,7 +216,7 @@ Use descriptive names, for example:
 
 Do not create empty evidence files and describe them as proof of completed work.
 
-## 6. Scope and Limitations
+## 7. Scope and Limitations
 
 Week 10 prioritizes verification of the existing MVP.
 
@@ -219,7 +232,7 @@ The payment workflow remains simulated.
 
 Existing automated results against isolated test databases must not be presented as verification of the live production database.
 
-## 7. Risks and Mitigation
+## 8. Risks and Mitigation
 
 | Risk | Mitigation |
 |---|---|
@@ -230,7 +243,7 @@ Existing automated results against isolated test databases must not be presented
 | Late code changes break existing behavior | Repeat relevant regression checks |
 | Evidence is incomplete or unclear | Use a consistent evidence naming and indexing process |
 
-## 8. Week 11 Handoff Criteria
+## 9. Week 11 Handoff Criteria
 
 Week 10 should prepare the following for the next milestone:
 
@@ -246,7 +259,7 @@ Week 10 should prepare the following for the next milestone:
 
 These are targets, not claims of completion.
 
-## 9. Final Week 10 Decision
+## 10. Final Week 10 Decision
 
 The team should finish Week 10 with a clear understanding of:
 

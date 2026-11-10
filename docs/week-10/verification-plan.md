@@ -282,6 +282,19 @@ Complete one record for every executed test.
 | Related issue | |
 | Notes or limitations | |
 
+### Recorded Backend Unit-Test Evidence — November 10, 2026
+
+The following automated backend unit-test suites were executed against the tested application commit `0bcd9da`, using Python 3.13 and isolated SQLite:
+
+| Suite | Result | Original output |
+|---|---:|---|
+| Owner management | 12/12 passed | [Test log](evidence/test-results/w10-owner-management-tests.txt) |
+| Issue 3 | 9/9 passed | [Test log](evidence/test-results/w10-issue3-tests.txt) |
+| Trash | 3/3 passed | [Test log](evidence/test-results/w10-trash-tests.txt) |
+| **Total** | **24/24 passed** | [Consolidated summary](evidence/test-results/w10-backend-test-summary.md) |
+
+These are backend unit-test results, not execution results for TC-01 through TC-09. The functional test cases above remain Not Run until separately executed and evidenced.
+
 ## 7. Independent Verification
 
 Independent verification should be performed by a person who did not author the specific changes being tested.

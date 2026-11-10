@@ -49,6 +49,12 @@ These are investigation areas, not confirmed defects.
 | FR-07 Duplicate deduction prevention | Not Verified | Pending | |
 | FR-08 Owner-facing information | Not Verified | Pending | |
 
+### Supporting Automated Backend Evidence
+
+The backend unit-test suites recorded on November 10, 2026 passed 24/24: [owner management (12)](evidence/test-results/w10-owner-management-tests.txt), [Issue 3 (9)](evidence/test-results/w10-issue3-tests.txt), and [trash (3)](evidence/test-results/w10-trash-tests.txt). See the [consolidated summary](evidence/test-results/w10-backend-test-summary.md).
+
+This evidence supports backend unit-level behavior only. It does not change the Not Verified status of FR-01 through FR-08 above, which require their own functional evidence.
+
 ## 5. Known Verification Limitations
 
 - Historical automated results are not new Week 10 test results.

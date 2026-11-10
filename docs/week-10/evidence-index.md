@@ -26,7 +26,7 @@
 
 | ID | Task / Document | Evidence Expected | Evidence Link | Status |
 |---|---|---|---|---|
-| E10-01 | Week 10 work plan | Approved plan in repository | [plan.md](plan.md) | Linked |
+| E10-01 | Week 10 work plan | Approved plan in repository | [Expanded work plan](work-plan-expanded.md) | Linked |
 | E10-02 | Work checklist | Task/status checklist | [work-checklist.md](work-checklist.md) | Linked |
 | E10-03 | MVP requirement review | Requirement checks and results | [mvp-requirement-review.md](mvp-requirement-review.md) | Linked |
 | E10-04 | Bug review | Reproduction records and issue links | [bug-review.md](bug-review.md) | Linked |
@@ -50,14 +50,14 @@
 
 ## 5. Build, Test, and CI Evidence
 
-| ID | Check | Run Date | Commit | Result | Original Evidence |
-|---|---|---|---|---|---|
-| CI10-01 | Backend unit test suites (owner management, Issue 3, trash) | 2026-11-10 | 0bcd9da | PASS: 24/24 (12 + 9 + 3); Python 3.13 virtual environment; isolated SQLite | Local artifacts collected; repository publication pending: `evidence/test-results/w10-backend-test-summary.md`, `w10-owner-management-tests.txt`, `w10-issue3-tests.txt`, `w10-trash-tests.txt` | Collected |
+| ID | Check | Run Date | Commit | Result | Original Evidence | Status |
+|---|---|---|---|---|---|---|
+| CI10-01 | Backend unit test suites (owner management, Issue 3, trash) | 2026-11-10 | `0bcd9da` | PASS: 24/24 (12 + 9 + 3); Python 3.13 virtual environment; isolated SQLite | [Summary](evidence/test-results/w10-backend-test-summary.md); [Owner management log](evidence/test-results/w10-owner-management-tests.txt); [Issue 3 log](evidence/test-results/w10-issue3-tests.txt); [Trash log](evidence/test-results/w10-trash-tests.txt). Tester name was not recorded in the supplied logs. | Linked |
 | CI10-02 | Frontend production build | Pending | Pending | Not Run | Pending |
 | CI10-03 | Browser/API verification | Pending | Pending | Not Run | Pending |
 | CI10-04 | CI workflow | Pending | Pending | Not Run | Pending |
 
-Do not copy historical Week 9 results into these rows as Week 10 results. Add a dated row for each actual run.
+The four linked CI10-01 artifacts are the original repository evidence for this run. Do not copy historical Week 9 results into these rows as Week 10 results. Add a dated row for each actual run.
 
 ## 6. Bug and Independent Review Evidence
 

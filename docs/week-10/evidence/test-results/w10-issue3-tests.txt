@@ -1,0 +1,20 @@
+Week 10 backend test evidence
+Date: 2026-11-10
+Suite: test_issue3
+Environment: Python 3.13 virtual environment; isolated SQLite
+Command: python -B -m unittest -v test_issue3
+
+test_cancelled_order_cannot_be_paid_or_counted_as_sale ... ok
+test_failed_payment_then_retry ... ok
+test_insufficient_stock ... ok
+test_latte_and_duplicate_after_new_session ... ok
+test_ledger_guard_even_if_status_is_inconsistent ... ok
+test_order_keeps_original_unit_price_after_menu_price_change ... ok
+test_paid_order_cannot_be_cancelled ... ok
+test_sales_date_uses_korea_midnight_and_filters_rows ... ok
+test_unique_order_ids ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.162s
+
+OK
