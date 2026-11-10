@@ -295,6 +295,14 @@ The following automated backend unit-test suites were executed against the teste
 
 These are backend unit-test results, not execution results for TC-01 through TC-09. The functional test cases above remain Not Run until separately executed and evidenced.
 
+### Recorded Frontend Production Build — November 10, 2026
+
+The frontend production build command `npm run build` executed `tsc -b && vite build` and completed with exit code `0`. TypeScript compilation completed, Vite 8.3.0 transformed 16 modules, and the production bundle was generated. Original output: [frontend production build log](evidence/frontend-build/w10-frontend-production-build.txt).
+
+The log includes a Vite configuration compatibility warning: ESM syntax in `vite.config.ts` is loaded as CommonJS under the current configuration loader. The warning did not prevent the build. The exact source commit SHA was not captured in the terminal log; the evidence artifact was committed as `d35dc49`.
+
+This build result confirms compilation and bundle generation only. It does not execute TC-01 through TC-09, verify deployed behavior, or establish independent acceptance. All functional test cases above remain Not Run until separately executed and evidenced.
+
 ## 7. Independent Verification
 
 Independent verification should be performed by a person who did not author the specific changes being tested.
@@ -335,6 +343,7 @@ evidence/
 ├── screenshots/
 ├── logs/
 ├── test-results/
+├── frontend-build/
 └── independent-review/
 ```
 
