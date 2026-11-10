@@ -26,7 +26,7 @@
 
 | ID | Task / Document | Evidence Expected | Evidence Link | Status |
 |---|---|---|---|---|
-| E10-01 | Week 10 work plan | Approved plan in repository | [plan.md](plan.md) | Linked |
+| E10-01 | Week 10 work plan | Approved plan in repository | [Expanded work plan](work-plan-expanded.md) | Linked |
 | E10-02 | Work checklist | Task/status checklist | [work-checklist.md](work-checklist.md) | Linked |
 | E10-03 | MVP requirement review | Requirement checks and results | [mvp-requirement-review.md](mvp-requirement-review.md) | Linked |
 | E10-04 | Bug review | Reproduction records and issue links | [bug-review.md](bug-review.md) | Linked |
@@ -57,7 +57,7 @@
 | CI10-03 | Browser/API verification | Pending | Pending | Not Run | Pending |
 | CI10-04 | CI workflow | Pending | Pending | Not Run | Pending |
 
-Do not copy historical Week 9 results into these rows as Week 10 results. Add a dated row for each actual run.
+The four linked CI10-01 artifacts are the original repository evidence for this run. Do not copy historical Week 9 results into these rows as Week 10 results. Add a dated row for each actual run.
 
 ## 6. Bug and Independent Review Evidence
 
