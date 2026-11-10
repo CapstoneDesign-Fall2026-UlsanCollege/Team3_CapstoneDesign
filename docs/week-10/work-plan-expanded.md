@@ -174,6 +174,14 @@ On November 10, 2026, the three backend unit-test suites ran against application
 
 These are automated backend unit tests only. They do not mark the separate end-to-end workflow checks or independent review as complete.
 
+## 4A. Recorded Frontend Production Build
+
+On November 10, 2026, the frontend production build completed successfully using `npm run build` (`tsc -b && vite build`). TypeScript compilation completed, Vite 8.3.0 transformed 16 modules, and the production bundle was generated. The command returned exit code `0`.
+
+**Evidence:** [Original frontend build log](evidence/frontend-build/w10-frontend-production-build.txt). The log records a Vite configuration compatibility warning about ESM syntax in `vite.config.ts` being loaded as CommonJS; the warning did not prevent the build. The exact source commit SHA was not captured in the terminal output; the evidence file was committed in `d35dc49`.
+
+This verifies build/compilation only, not browser workflows, API integration, deployment, or end-to-end MVP acceptance.
+
 ## 5. Week 10 Task and Evidence Tracking
 
 | Task | Required evidence | Status |
@@ -184,7 +192,8 @@ These are automated backend unit tests only. They do not mark the separate end-t
 | Prepare end-to-end test | Verification procedure | Planned |
 | Arrange independent reviewer | Reviewer confirmation | Planned |
 | Perform verification | Actual reviewer results and screenshots | Planned |
-| Organize evidence | Evidence index and linked artifacts | Planned |
+| Run frontend production build | TypeScript/Vite build output and exit code | Completed — PASS; [build log](evidence/frontend-build/w10-frontend-production-build.txt) |
+| Organize evidence | Evidence index and linked artifacts | In Progress — backend and frontend build artifacts linked; functional and independent-review evidence remains outstanding |
 | Prepare Week 11 handoff | Gap summary and next actions | Planned |
 
 Statuses must be updated based on actual work. Do not change a status to Completed without evidence.
