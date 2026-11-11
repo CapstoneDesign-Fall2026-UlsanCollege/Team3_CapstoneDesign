@@ -143,3 +143,5 @@ On November 11, the Week 10 payment and inventory slice added a [two-latte regre
 | Submit payment again | HTTP 409; stock stays at 4,500 ml and 1,164 g; one payment and two movements remain |
 
 The [independent Render check](issue-22-render-check.md) is pending a named non-author tester's result.
+
+- [Code evidence at the tested revision](evidence-index.md#11-payment-and-inventory-code-evidence)

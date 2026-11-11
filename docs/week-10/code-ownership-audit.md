@@ -23,3 +23,5 @@ The insufficient-stock case sets milk to 100 ml for a latte that requires 250 ml
 Added [an exact-quantity regression](../../smartserve-pos/backend/test_issue3.py) for order creation, failed card payment, cash retry, and duplicate payment. The [recorded run](evidence/test-results/daydevil80-two-latte.txt) passed 25/25 tests on isolated SQLite. To repeat the targeted case from the backend directory:
 
     python -m unittest -v test_issue3.InventoryPaymentTests.test_two_latte_order_deducts_recipe_once_after_cash_retry
+
+- [Pinned implementation, fixtures, and regression assertions](evidence-index.md#11-payment-and-inventory-code-evidence)
