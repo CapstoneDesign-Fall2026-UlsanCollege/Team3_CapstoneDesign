@@ -1,0 +1,21 @@
+Recorded: 2026-11-11 (KST)
+Tested revision: 654a71bb9cda0b7db723ba8b71d9fb2698613ad8
+Environment: Windows, Python 3.11.15, isolated in-memory SQLite
+Pydantic 2.10.6 (the initially resolved 2.14.3 binary was blocked by Windows Application Control before tests could run)
+Command: python -m unittest -v test_issue3
+
+test_cancelled_order_cannot_be_paid_or_counted_as_sale (test_issue3.InventoryPaymentTests.test_cancelled_order_cannot_be_paid_or_counted_as_sale) ... ok
+test_failed_payment_then_retry (test_issue3.InventoryPaymentTests.test_failed_payment_then_retry) ... ok
+test_insufficient_stock (test_issue3.InventoryPaymentTests.test_insufficient_stock) ... ok
+test_latte_and_duplicate_after_new_session (test_issue3.InventoryPaymentTests.test_latte_and_duplicate_after_new_session) ... ok
+test_ledger_guard_even_if_status_is_inconsistent (test_issue3.InventoryPaymentTests.test_ledger_guard_even_if_status_is_inconsistent) ... ok
+test_order_keeps_original_unit_price_after_menu_price_change (test_issue3.InventoryPaymentTests.test_order_keeps_original_unit_price_after_menu_price_change) ... ok
+test_paid_order_cannot_be_cancelled (test_issue3.InventoryPaymentTests.test_paid_order_cannot_be_cancelled) ... ok
+test_sales_date_uses_korea_midnight_and_filters_rows (test_issue3.InventoryPaymentTests.test_sales_date_uses_korea_midnight_and_filters_rows) ... ok
+test_unique_order_ids (test_issue3.InventoryPaymentTests.test_unique_order_ids) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.110s
+
+OK
+Exit code: 0

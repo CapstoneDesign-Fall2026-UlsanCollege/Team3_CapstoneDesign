@@ -126,3 +126,7 @@ Complete this section at the end of the week using actual results:
 **Next actions:** Execute end-to-end checks, verify database integration, review the Vite configuration warning, and arrange independent review.
 
 **Reporting rule:** Report only work actually performed, and link evidence for every completion claim.
+
+## 11. Code Ownership and Independent Verification
+
+See the [shared code ownership audit](code-ownership-audit.md) for each member's slice and repeatable check. @daydevil80's scope is simulated payment and recipe-based inventory deduction. The [backend regression log](evidence/test-results/daydevil80-issue3.txt) covers isolated SQLite. The [Issue #22 Render result form](issue-22-render-check.md) is awaiting a non-author tester's observations.
