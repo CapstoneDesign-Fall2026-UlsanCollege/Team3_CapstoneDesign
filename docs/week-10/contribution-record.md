@@ -20,6 +20,7 @@
 | 2026-11-10 | Sammygit15 | Ran the frontend production build (`npm run build`) and captured the terminal output as Week 10 evidence | PASS; exit code 0; TypeScript + Vite 8.3.0; 16 modules transformed; Vite config warning retained | [Build log](evidence/frontend-build/w10-frontend-production-build.txt); [evidence commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/d35dc492dca6743c54056f24181d2813970453a2) |
 | Sammygit15 | Frontend production build evidence | `smartserve-pos/frontend` build script (`tsc -b && vite build`) | PASS; exit code 0; 16 modules transformed; Vite compatibility warning recorded | [Build log](evidence/frontend-build/w10-frontend-production-build.txt) | Pending |
 | Sammygit15 | `d35dc492dca6743c54056f24181d2813970453a2` | Add Week 10 frontend production build evidence | 2026-11-10 | [Commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/d35dc492dca6743c54056f24181d2813970453a2) | Pending |
+| 2026-11-11 | Ualson Tamang (`ualsom`) | Added two-latte duplicate-payment regression test in `test_week10_ualsom.py` | PASS: 1/1 tests in 0.030s; HTTP 409 on retry; inventory deducted only once | [Test code](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/ualsom/week10-qa/smartserve-pos/backend/test_week10_ualsom.py) |
 
 Add one row for each meaningful contribution. Use separate rows when multiple people contribute to the same task.
 
@@ -34,7 +35,7 @@ Add one row for each meaningful contribution. Use separate rows when multiple pe
 | verification-plan.md | Pending confirmation | Repeatable verification procedure | [Verification plan](verification-plan.md) |
 | evidence-index.md | Pending confirmation | Evidence indexing structure | [Evidence index](evidence-index.md) |
 | weekly-report.md | Pending confirmation | Weekly progress reporting | [Weekly report](weekly-report.md) |
-| 2026-11-11 | Ualson Tamang (`ualsom`) | Added two-latte duplicate-payment regression test in `test_week10_ualsom.py` | PASS: 1/1 tests in 0.030s; HTTP 409 on retry; inventory deducted only once | [Test code](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/ualsom/week10-qa/smartserve-pos/backend/test_week10_ualsom.py) |
+
 
 Update contributor names only after confirming who authored or materially updated each file.
 
