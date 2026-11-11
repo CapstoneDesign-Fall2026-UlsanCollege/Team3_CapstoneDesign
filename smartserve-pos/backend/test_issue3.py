@@ -92,6 +92,48 @@ class InventoryPaymentTests(unittest.TestCase):
         self.assertFalse(get_order(self.order['id'], self.db)['inventory_deducted'])
         self.assertEqual(simulate_payment(self.order['id'], PaymentCreate(method='card'), self.db)['order']['status'], 'paid')
 
+    def test_two_latte_order_deducts_recipe_once_after_cash_retry(self):
+        before = self.stock()
+        self.payload.items[0].quantity = 2
+        order = create_order(self.payload, self.db)
+        order_id = order['id']
+        self.assertEqual(self.stock(), before)
+        self.assertEqual((before['Milk'], before['Coffee beans']), (5000, 1200))
+        saved = get_order(order_id, self.db)
+        self.assertEqual(saved['status'], 'open')
+        self.assertEqual(saved['total'], 9000)
+        self.assertEqual(saved['items'][0]['quantity'], 2)
+        self.assertEqual(saved['items'][0]['unit_price'], 4500)
+
+        with self.assertRaises(HTTPException) as error:
+            simulate_payment(order_id, PaymentCreate(method='card', result='failed'), self.db)
+        self.assertEqual(error.exception.status_code, 402)
+        self.db.rollback()
+        self.assertEqual(get_order(order_id, self.db)['status'], 'open')
+        self.assertEqual(self.stock(), before)
+        self.assertEqual(self.count(models.Payment), 0)
+        self.assertEqual(self.count(models.InventoryMovement), 0)
+
+        paid = simulate_payment(order_id, PaymentCreate(method='cash'), self.db)['order']
+        self.assertEqual(paid['id'], order_id)
+        self.assertEqual(paid['status'], 'paid')
+        self.assertEqual(paid['total'], 9000)
+        self.assertEqual(paid['items'][0]['quantity'], 2)
+        after = self.stock()
+        self.assertEqual((after['Milk'], after['Coffee beans']), (4500, 1164))
+        movements = self.db.scalars(select(models.InventoryMovement)).all()
+        self.assertEqual(sorted(m.quantity_change for m in movements), [-500, -36])
+        self.assertTrue(all(m.order_id == order_id for m in movements))
+
+        with self.assertRaises(HTTPException) as error:
+            simulate_payment(order_id, PaymentCreate(method='cash'), self.db)
+        self.assertEqual(error.exception.status_code, 409)
+        self.db.rollback()
+        self.assertEqual(self.stock(), after)
+        self.assertEqual(self.count(models.Payment), 1)
+        self.assertEqual(self.count(models.InventoryMovement), 2)
+
+
     def test_insufficient_stock(self):
         milk = self.db.scalar(select(models.Ingredient).where(models.Ingredient.name == 'Milk'))
         milk.stock_quantity = 100
