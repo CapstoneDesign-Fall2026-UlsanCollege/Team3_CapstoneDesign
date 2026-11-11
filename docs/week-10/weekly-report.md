@@ -130,3 +130,16 @@ Complete this section at the end of the week using actual results:
 ## 11. Code Ownership and Independent Verification
 
 See the [shared code ownership audit](code-ownership-audit.md) for each member's slice and repeatable check. @daydevil80's scope is simulated payment and recipe-based inventory deduction. The [backend regression log](evidence/test-results/daydevil80-issue3.txt) covers isolated SQLite. The [Issue #22 Render result form](issue-22-render-check.md) is awaiting a non-author tester's observations.
+
+## 12. Two-Latte Backend Regression
+
+On November 11, the Week 10 payment and inventory slice added a [two-latte regression](../../smartserve-pos/backend/test_issue3.py). The run passed **25/25 tests** across Issue 3, owner management and trash. The [execution log](evidence/test-results/daydevil80-two-latte.txt) records the exact tested commit and isolated SQLite environment.
+
+| Step | Expected and verified by the automated test |
+|---|---|
+| Create and reload | Two lattes at ₩4,500 each; open order total ₩9,000; milk 5,000 ml and beans 1,200 g |
+| Simulate failed card payment | HTTP 402; same order remains open; stock unchanged; zero payments and inventory movements |
+| Retry with cash | Same order paid for ₩9,000; milk 4,500 ml and beans 1,164 g; two inventory movements tied to the order |
+| Submit payment again | HTTP 409; stock stays at 4,500 ml and 1,164 g; one payment and two movements remain |
+
+The [independent Render check](issue-22-render-check.md) is pending a named non-author tester's result.

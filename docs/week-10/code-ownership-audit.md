@@ -17,3 +17,9 @@ From the repository root, enter smartserve-pos/backend, install requirements.txt
     python -m unittest -v test_issue3
 
 The insufficient-stock case sets milk to 100 ml for a latte that requires 250 ml. It expects HTTP 409 and checks that stock is unchanged with zero payments and zero inventory movements. The suite also checks a failed payment followed by retry, repeat payment after a fresh session, and preservation of the original order price.
+
+### Two-latte regression contribution
+
+Added [an exact-quantity regression](../../smartserve-pos/backend/test_issue3.py) for order creation, failed card payment, cash retry, and duplicate payment. The [recorded run](evidence/test-results/daydevil80-two-latte.txt) passed 25/25 tests on isolated SQLite. To repeat the targeted case from the backend directory:
+
+    python -m unittest -v test_issue3.InventoryPaymentTests.test_two_latte_order_deducts_recipe_once_after_cash_retry
