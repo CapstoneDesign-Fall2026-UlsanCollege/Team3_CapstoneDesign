@@ -34,6 +34,7 @@ Add one row for each meaningful contribution. Use separate rows when multiple pe
 | verification-plan.md | Pending confirmation | Repeatable verification procedure | [Verification plan](verification-plan.md) |
 | evidence-index.md | Pending confirmation | Evidence indexing structure | [Evidence index](evidence-index.md) |
 | weekly-report.md | Pending confirmation | Weekly progress reporting | [Weekly report](weekly-report.md) |
+| 2026-11-11 | Ualson Tamang (`ualsom`) | Added two-latte duplicate-payment regression test in `test_week10_ualsom.py` | PASS: 1/1 tests in 0.030s; HTTP 409 on retry; inventory deducted only once | [Test code](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/ualsom/week10-qa/smartserve-pos/backend/test_week10_ualsom.py) |
 
 Update contributor names only after confirming who authored or materially updated each file.
 
