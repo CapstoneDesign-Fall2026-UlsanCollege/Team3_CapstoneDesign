@@ -77,6 +77,11 @@ def main():
         bootstrap(activation_file)
         link = next(line for line in activation_file.read_text().splitlines() if "/activate#" in line)
         admin, codes = activate(link, "admin@example.test")
+        os.environ["SMARTSERVE_PLATFORM_ADMIN_EMAIL"] = "different@example.test"
+        try:
+            check("admin role requires the configured email", 401, admin.get("/platform/businesses").status_code)
+        finally:
+            os.environ["SMARTSERVE_PLATFORM_ADMIN_EMAIL"] = "admin@example.test"
         check("privileged recovery codes generated once", 10, len(codes))
         check("invitation cannot be replayed", 400, public.post("/auth/activate", json={"token": link.split("#")[1], "name": "Other", "password": PASSWORD}).status_code)
         try:
@@ -101,7 +106,11 @@ def main():
         for store, email in zip(stores, ("ownera@example.test", "ownerb@example.test")):
             response = post(admin, "/platform/invitations", {"email": email, "name": "Business owner", "store_id": store["id"], "role": "owner"})
             check("platform invites store owner", 200, response.status_code)
-            owner_links.append(response.json()["activation_url"])
+            check("owner activation link stays out of API response", None, response.json()["activation_url"])
+            messages = [json.loads(path.read_text()) for path in OUTBOX.glob("*.json")]
+            owner_links.append(next(item["activation_url"] for item in messages if item["to"] == email))
+        check("same email cannot be invited to another workspace", 409, post(admin, "/platform/invitations",
+              {"email": "ownera@example.test", "name": "Owner", "store_id": stores[1]["id"], "role": "owner"}).status_code)
         owner_a, recovery_a = activate(owner_links[0], "ownera@example.test")
         owner_b, _ = activate(owner_links[1], "ownerb@example.test")
         check("owner has owner role", "owner", owner_a.get("/auth/session").json()["user"]["role"])

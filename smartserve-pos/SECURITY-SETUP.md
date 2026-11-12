@@ -16,6 +16,8 @@ PostgreSQL uses separate `store_<id>` schemas for each business. Local SQLite us
 
 ## Two-factor authentication and sessions
 
+Everyone signs in at the app's home page. The configured platform administrator can create and switch businesses. From the platform console, select a business and use **Email owner invitation**. The owner receives a one-use activation link, sets a passphrase, and verifies their email. New business invitations require a separate email for each workspace. To resend a pending owner invitation, submit the same email and business again.
+
 Admins and owners must enter a passphrase plus a code delivered to their registered email. Owners can require email codes for cashiers (enabled by default in the staff invitation UI). Codes expire after five minutes, are bound to a session and purpose, accept at most five guesses, and work once. Resending is limited and invalidates the prior code. Ten random recovery codes are displayed once after first verification; each is usable once with the correct passphrase.
 
 Passwords use Argon2id. Cookies are opaque, HttpOnly, SameSite=Strict, host-only, and Secure in production. Session tokens and invitations are stored as hashes. Server-side expiry, idle limits, revocation, CSRF checks, origin checks, role checks, and audit events are enforced. Switching businesses rotates the token without refreshing the original MFA time or absolute expiry. Invitations/access changes require verification in the last ten minutes. Password changes revoke earlier sessions.

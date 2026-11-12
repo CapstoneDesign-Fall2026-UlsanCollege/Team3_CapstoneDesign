@@ -60,3 +60,11 @@ def send_login_code(recipient, code):
 
 def send_activation_link(recipient, url):
     deliver(recipient, "Activate your private SmartServe platform-admin account", f"Your private platform-admin account is ready.\n\nOpen this one-use link to choose your own passphrase:\n{url}\n\nThis link expires after 24 hours. You must also verify an email code before accessing the platform. Do not share this link or your codes.\n", {"activation_url": url})
+
+
+def send_owner_activation(recipient, url):
+    deliver(recipient, "Activate your SmartServe business owner account",
+            f"You have been invited to a SmartServe business workspace.\n\n"
+            f"Open this one-use link to choose your passphrase:\n{url}\n\n"
+            "The link expires after 24 hours. Verify your email to enter the workspace.\n",
+            {"activation_url": url})

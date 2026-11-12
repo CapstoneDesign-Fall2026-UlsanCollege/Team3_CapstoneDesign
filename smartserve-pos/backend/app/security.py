@@ -70,6 +70,8 @@ def resolve_session(request):
         user = db.get(User, session.user_id)
         if not user or not user.active:
             return None
+        if user.platform_admin and user.email != config("SMARTSERVE_PLATFORM_ADMIN_EMAIL").strip().lower():
+            return None
         idle = 900 if user.platform_admin else 1800
         if time.time() - session.last_seen > idle:
             session.revoked = True

@@ -14,7 +14,8 @@ from . import models
 from .database import get_db
 from .identity_models import Audit, Invitation, LoginSession, Membership, Store, User
 from .security import audit, identity_db, memberships, principal, recent_mfa
-from .security_primitives import email_address, token_hash
+from .mailer import send_owner_activation
+from .security_primitives import config, email_address, token_hash
 from .tenancy import provision_store
 
 router = APIRouter()
@@ -53,7 +54,7 @@ def invite_member(db, payload, actor, origin):
     if not store or not store.active:
         raise HTTPException(404, "Business not found")
     user = db.scalar(select(User).where(User.email == payload.email).with_for_update())
-    if user and user.platform_admin:
+    if payload.email == config("SMARTSERVE_PLATFORM_ADMIN_EMAIL").strip().lower() or (user and user.platform_admin):
         raise HTTPException(409, "The platform administrator is managed outside business memberships")
     if user is None:
         user = User(id=uuid4().hex, email=payload.email, name=payload.name.strip() or payload.email,
@@ -61,9 +62,16 @@ def invite_member(db, payload, actor, origin):
         db.add(user)
         db.flush()
     member = db.scalar(select(Membership).where(Membership.user_id == user.id, Membership.store_id == store.id))
-    if member:
-        raise HTTPException(409, "This person already has a membership in this business")
-    db.add(Membership(user_id=user.id, store_id=store.id, role=payload.role, active=True))
+    if member is not None:
+        if not (member.active and member.role == payload.role == "owner" and user.password_hash is None):
+            raise HTTPException(409, "This person already has a membership in this business")
+    else:
+        other_membership = db.scalar(select(Membership.id).where(
+            Membership.user_id == user.id, Membership.active.is_(True),
+        ).limit(1))
+        if other_membership is not None:
+            raise HTTPException(409, "This email is already assigned to another business")
+        db.add(Membership(user_id=user.id, store_id=store.id, role=payload.role, active=True))
     if payload.require_mfa:
         user.mfa_required = True
     activation = None
@@ -73,10 +81,24 @@ def invite_member(db, payload, actor, origin):
         raw = secrets.token_urlsafe(48)
         db.add(Invitation(token_hash=token_hash(raw), user_id=user.id, expires_at=time.time() + 86400, consumed=False))
         activation = origin.rstrip("/") + "/activate#" + raw
+    email_sent = bool(activation and payload.role == "owner")
+    if email_sent:
+        try:
+            send_owner_activation(user.email, activation)
+        except Exception:
+            db.rollback()
+            raise HTTPException(503, "Could not send the owner invitation. Try again shortly.") from None
+        activation = None
     audit(db, "member_invited", actor.user_id, store.id, f"role={payload.role}; member={user.id}")
     db.commit()
+    message = "Membership added. They can use their existing account."
+    if email_sent:
+        message = "Owner activation email sent."
+    elif activation:
+        message = "Share this one-use link privately. No email has been sent."
     return {"activation_url": activation, "existing_account": user.password_hash is not None,
-            "expires_in_hours": 24 if activation else None, "message": "Share this one-use link privately. No email has been sent." if activation else "Membership added. They can use their existing account; owners must complete MFA."}
+            "expires_in_hours": 24 if activation or email_sent else None, "message": message}
+
 
 
 @router.get("/platform/businesses")
