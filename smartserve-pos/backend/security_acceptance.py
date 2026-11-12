@@ -240,6 +240,11 @@ def main():
         with identity_db() as db:
             check("expired workspace is deleted", None, db.get(Store, stores[0]["id"]))
             check("other workspace survives purge", True, db.get(Store, stores[1]["id"]) is not None)
+        second_path = "/platform/businesses/" + stores[1]["id"]
+        check("active business cannot be permanently deleted", 409, post(admin, second_path + "/permanent", method="DELETE").status_code)
+        check("platform can archive second business", 200, post(admin, second_path, method="DELETE").status_code)
+        check("platform can permanently delete an archived business before expiry", 200,
+              post(admin, second_path + "/permanent", method="DELETE").status_code)
     Path(os.environ["SMARTSERVE_SECURITY_RESULTS"]).write_text(json.dumps(RESULTS, indent=2), encoding="utf-8")
     print(f"PASS: {len(RESULTS)} isolated security assertions")
 

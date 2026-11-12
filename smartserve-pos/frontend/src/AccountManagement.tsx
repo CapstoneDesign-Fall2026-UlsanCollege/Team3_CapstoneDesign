@@ -25,13 +25,17 @@ export function PlatformConsole({ session }: { session: AccountSession }) {
   const openBusiness = async (business: Business, setup: boolean) => {
     setBusy(true); try { await apiRequest("/auth/switch-business", jsonBody({ store_id: business.id })); window.location.assign(setup ? "/setup" : "/"); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not open business."); setBusy(false); }
   };
-  const changeAccess = async (business: Business, action: "stop" | "resume" | "archive") => {
+  const changeAccess = async (business: Business, action: "stop" | "resume" | "archive" | "permanent") => {
     if (action === "archive" && !window.confirm(`Archive ${business.name}? POS access stops now. The workspace and its sales history will be permanently deleted after 30 days unless restored.`)) return;
+    if (action === "permanent" && !window.confirm(`Permanently delete ${business.name} and its sales history? This cannot be undone.`)) return;
     setBusy(true);
     setMessage("");
     try {
       const path = "/platform/businesses/" + business.id;
-      if (action === "archive") {
+      if (action === "permanent") {
+        await apiRequest(path + "/permanent", { method: "DELETE" });
+        setMessage("Business permanently deleted.");
+      } else if (action === "archive") {
         await apiRequest(path, { method: "DELETE" });
         setMessage("Business archived. You can restore it within 30 days.");
       } else {
@@ -67,10 +71,21 @@ export function PlatformConsole({ session }: { session: AccountSession }) {
           </>}
           {!item.active && <button disabled={busy || Boolean(item.delete_at && item.delete_at * 1000 <= Date.now())}
             onClick={() => void changeAccess(item, "resume")}>{item.delete_at ? "Restore business" : "Resume POS access"}</button>}
+          {item.delete_at && <button className="danger" disabled={busy}
+            onClick={() => void changeAccess(item, "permanent")}>Permanently delete</button>}
           {item.id !== "legacy" && !item.delete_at && <button className="danger" disabled={busy}
             onClick={() => void changeAccess(item, "archive")}>Delete business</button>}
         </div>
       </article>)}
+    </section>
+    <section className="panel">
+      <h2>Business users</h2>
+      <table><thead><tr><th>Email</th><th>Workspace</th><th>Account</th></tr></thead>
+        <tbody>{businesses.flatMap(business => business.owners.map(owner => <tr key={business.id + owner.email}>
+          <td>{owner.email}</td><td>{business.name}</td>
+          <td>{business.active ? owner.activated ? "Active" : "Awaiting activation" : "Access stopped"}</td>
+        </tr>))}</tbody>
+      </table>
     </section><Reauthentication/><AccountSecurity/>
   </main>;
 }

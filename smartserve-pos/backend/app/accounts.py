@@ -16,7 +16,7 @@ from .identity_models import ArchivedStore, Audit, Invitation, LoginSession, Mem
 from .security import audit, identity_db, memberships, principal, recent_mfa
 from .mailer import send_owner_activation
 from .security_primitives import config, email_address, token_hash
-from .tenancy import provision_store
+from .tenancy import provision_store, purge_archived_stores
 
 router = APIRouter()
 
@@ -167,6 +167,15 @@ def archive_store(store_id: str, request: Request):
             audit(db, "business_archived", actor.user_id, store_id)
             db.commit()
         return {"id": store_id, "delete_at": archive.delete_at}
+
+
+@router.delete("/platform/businesses/{store_id}/permanent")
+def permanently_delete_store(store_id: str, request: Request):
+    actor = principal(request, "platform_admin")
+    recent_mfa(actor)
+    if not purge_archived_stores(store_id):
+        raise HTTPException(409, "Only an archived business can be permanently deleted")
+    return {"deleted": True}
 
 
 @router.post("/platform/businesses", status_code=201)

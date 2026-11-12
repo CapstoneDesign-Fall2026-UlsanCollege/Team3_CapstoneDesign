@@ -49,13 +49,16 @@ def provision_store(store: Store):
             db.add(BusinessProfile(id=1, name=store.name, business_type="custom"))
             db.commit()
 
-def purge_archived_stores():
+def purge_archived_stores(store_id=None):
     with Session(engine) as db:
-        due = db.scalars(select(ArchivedStore.store_id).where(ArchivedStore.delete_at <= time.time())).all()
+        archives = select(ArchivedStore.store_id)
+        due = db.scalars(archives.where(ArchivedStore.store_id == store_id) if store_id else archives.where(ArchivedStore.delete_at <= time.time())).all()
+        purged = []
+        requested_id = store_id
         for store_id in due:
             store = db.scalar(select(Store).where(Store.id == store_id).with_for_update())
             archive = db.get(ArchivedStore, store_id)
-            if not store or not archive or archive.delete_at > time.time() or store.active:
+            if not store or not archive or (requested_id is None and archive.delete_at > time.time()) or store.active:
                 db.rollback()
                 continue
             if not re.fullmatch(r"store_[a-f0-9]{32}", store.namespace):
@@ -74,3 +77,5 @@ def purge_archived_stores():
             db.delete(store)
             db.add(Audit(action="business_permanently_deleted", store_id=store_id, created_at=time.time()))
             db.commit()
+            purged.append(store_id)
+        return purged
