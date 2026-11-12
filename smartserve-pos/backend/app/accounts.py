@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from . import models
 from .database import get_db
-from .identity_models import Audit, Invitation, LoginSession, Membership, Store, User
+from .identity_models import ArchivedStore, Audit, Invitation, LoginSession, Membership, Store, User
 from .security import audit, identity_db, memberships, principal, recent_mfa
 from .mailer import send_owner_activation
 from .security_primitives import config, email_address, token_hash
@@ -105,7 +105,68 @@ def invite_member(db, payload, actor, origin):
 def stores(request: Request):
     principal(request, "platform_admin")
     with identity_db() as db:
-        return [{"id": store.id, "name": store.name, "active": store.active} for store in db.scalars(select(Store).order_by(Store.created_at.desc()))]
+        archives = dict(db.execute(select(ArchivedStore.store_id, ArchivedStore.delete_at)).all())
+        owners = {}
+        rows = db.execute(select(Membership.store_id, User.email, User.password_hash.is_not(None)).join(
+            User, User.id == Membership.user_id,
+        ).where(Membership.role == "owner", Membership.active.is_(True)).order_by(User.email))
+        for store_id, email, activated in rows:
+            owners.setdefault(store_id, []).append({"email": email, "activated": activated})
+        return [{"id": store.id, "name": store.name, "active": store.active,
+                 "owners": owners.get(store.id, []), "delete_at": archives.get(store.id)}
+                for store in db.scalars(select(Store).order_by(Store.created_at.desc()))]
+
+
+@router.patch("/platform/businesses/{store_id}/access")
+def update_store_access(store_id: str, payload: ActiveInput, request: Request):
+    actor = principal(request, "platform_admin")
+    recent_mfa(actor)
+    with identity_db() as db:
+        store = db.scalar(select(Store).where(Store.id == store_id).with_for_update())
+        if not store:
+            raise HTTPException(404, "Business not found")
+        archive = db.get(ArchivedStore, store_id)
+        if archive and archive.delete_at <= time.time():
+            raise HTTPException(409, "The restoration period has ended")
+        if payload.active and archive:
+            db.delete(archive)
+        if store.active != payload.active:
+            set_store_access(db, store, payload.active, actor)
+        db.commit()
+        return {"id": store.id, "active": store.active}
+
+
+def set_store_access(db, store, active, actor):
+    store.active = active
+    if not active:
+        db.execute(update(LoginSession).where(
+            LoginSession.store_id == store.id, LoginSession.user_id != actor.user_id,
+        ).values(revoked=True))
+        db.execute(update(LoginSession).where(
+            LoginSession.store_id == store.id, LoginSession.user_id == actor.user_id,
+        ).values(store_id=None))
+    audit(db, "business_resumed" if active else "business_suspended", actor.user_id, store.id)
+
+
+@router.delete("/platform/businesses/{store_id}")
+def archive_store(store_id: str, request: Request):
+    actor = principal(request, "platform_admin")
+    recent_mfa(actor)
+    if store_id == "legacy":
+        raise HTTPException(409, "The original shared store can be stopped, but cannot be archived")
+    with identity_db() as db:
+        store = db.scalar(select(Store).where(Store.id == store_id).with_for_update())
+        if not store:
+            raise HTTPException(404, "Business not found")
+        archive = db.get(ArchivedStore, store_id)
+        if archive is None:
+            archive = ArchivedStore(store_id=store_id, delete_at=time.time() + 30 * 86400)
+            db.add(archive)
+            if store.active:
+                set_store_access(db, store, False, actor)
+            audit(db, "business_archived", actor.user_id, store_id)
+            db.commit()
+        return {"id": store_id, "delete_at": archive.delete_at}
 
 
 @router.post("/platform/businesses", status_code=201)

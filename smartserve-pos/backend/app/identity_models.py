@@ -16,6 +16,12 @@ class Store(IdentityBase):
     created_at: Mapped[float] = mapped_column(Float)
 
 
+class ArchivedStore(IdentityBase):
+    __tablename__ = "security_archived_stores"
+    store_id: Mapped[str] = mapped_column(ForeignKey("security_stores.id"), primary_key=True)
+    delete_at: Mapped[float] = mapped_column(Float, index=True)
+
+
 class User(IdentityBase):
     __tablename__ = "security_users"
     id: Mapped[str] = mapped_column(String(32), primary_key=True)

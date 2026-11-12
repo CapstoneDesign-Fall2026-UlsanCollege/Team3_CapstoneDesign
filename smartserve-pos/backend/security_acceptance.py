@@ -12,7 +12,8 @@ if os.getenv("SMARTSERVE_ENV") != "test":
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from app.main import app
-from app.identity_models import EmailChallenge, LoginSession, User
+from app.identity_models import ArchivedStore, EmailChallenge, LoginSession, Store, User
+from app.tenancy import purge_archived_stores
 from app.security import identity_db
 from app.security_primitives import COOKIE, password_valid, token_hash
 from manage_security import bootstrap
@@ -210,6 +211,35 @@ def main():
             check("business switch does not refresh MFA age", True, row.mfa_at < time.time() - 600)
             check("business switch preserves absolute session expiry", before_expiry, row.expires_at)
         check("stale MFA cannot perform platform changes", 403, post(admin, "/platform/businesses", {"name": "Must reauthenticate"}).status_code)
+        with identity_db() as db:
+            db.get(LoginSession, token_hash(admin.cookies.get(COOKIE))).mfa_at = time.time()
+            db.commit()
+        owner_a = login('ownera@example.test')
+        business_path = "/platform/businesses/" + stores[0]["id"]
+        owner_details = next(item for item in admin.get("/platform/businesses").json() if item["id"] == stores[0]["id"])
+        check("platform sees owner email and passphrase status", [{"email": "ownera@example.test", "activated": True}], owner_details["owners"])
+        check("owner cannot stop POS", 403, post(owner_a, business_path + "/access", {"active": False}, method="PATCH").status_code)
+        check("platform can stop POS", 200, post(admin, business_path + "/access", {"active": False}, method="PATCH").status_code)
+        check("stopping POS revokes owner session", 401, owner_a.get("/menu").status_code)
+        check("stopped workspace cannot be selected", 403, post(admin, "/auth/switch-business", {"store_id": stores[0]["id"]}).status_code)
+        check("platform can resume POS", 200, post(admin, business_path + "/access", {"active": True}, method="PATCH").status_code)
+        check("resuming does not revive old owner sessions", 401, owner_a.get("/menu").status_code)
+        archived = post(admin, business_path, method="DELETE")
+        check("platform can archive workspace", 200, archived.status_code)
+        check("archive has 30-day retention", True, 29 * 86400 < archived.json()["delete_at"] - time.time() <= 30 * 86400)
+        purge_archived_stores()
+        check("archive can be restored before expiry", 200, post(admin, business_path + "/access", {"active": True}, method="PATCH").status_code)
+        check("restored workspace can open", 200, post(admin, "/auth/switch-business", {"store_id": stores[0]["id"]}).status_code)
+        check("restored workspace retains sales", 1, admin.get("/dashboard/sales").json()["paid_orders"])
+        check("restored workspace can be archived again", 200, post(admin, business_path, method="DELETE").status_code)
+        with identity_db() as db:
+            db.get(ArchivedStore, stores[0]["id"]).delete_at = time.time() - 1
+            db.commit()
+        check("expired workspace cannot be restored", 409, post(admin, business_path + "/access", {"active": True}, method="PATCH").status_code)
+        purge_archived_stores()
+        with identity_db() as db:
+            check("expired workspace is deleted", None, db.get(Store, stores[0]["id"]))
+            check("other workspace survives purge", True, db.get(Store, stores[1]["id"]) is not None)
     Path(os.environ["SMARTSERVE_SECURITY_RESULTS"]).write_text(json.dumps(RESULTS, indent=2), encoding="utf-8")
     print(f"PASS: {len(RESULTS)} isolated security assertions")
 

@@ -9,7 +9,13 @@ export function Reauthentication() {
   return <details className="panel reauthentication"><summary>Verify sensitive actions</summary><p className="muted">Invitations and access changes require verification within the last ten minutes.</p><button disabled={busy} onClick={async () => { setBusy(true); try { await apiRequest("/auth/mfa/resend", { method: "POST" }); setMessage("Verification code sent to your registered email."); } catch (failure) { setMessage(String(failure instanceof Error ? failure.message : failure)); } finally { setBusy(false); } }}>Send verification email</button><form onSubmit={async event => { event.preventDefault(); setBusy(true); try { await apiRequest("/auth/reauth", jsonBody({ password, code })); setPassword(""); setCode(""); setMessage("Verified. Retry the sensitive action now."); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not verify."); } finally { setBusy(false); } }}><label>Current passphrase<input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required/></label><label>Email verification code<input autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value)} required/></label><button className="primary" disabled={busy}>Verify sensitive actions</button></form>{message && <p role="status">{message}</p>}</details>;
 }
 
-type Business = { id: string; name: string; active: boolean };
+type Business = {
+  id: string;
+  name: string;
+  active: boolean;
+  owners: { email: string; activated: boolean }[];
+  delete_at: number | null;
+};
 export function PlatformConsole({ session }: { session: AccountSession }) {
   const [businesses, setBusinesses] = useState<Business[]>([]); const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState(""); const [ownerName, setOwnerName] = useState(""); const [store, setStore] = useState("");
@@ -19,10 +25,53 @@ export function PlatformConsole({ session }: { session: AccountSession }) {
   const openBusiness = async (business: Business, setup: boolean) => {
     setBusy(true); try { await apiRequest("/auth/switch-business", jsonBody({ store_id: business.id })); window.location.assign(setup ? "/setup" : "/"); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not open business."); setBusy(false); }
   };
+  const changeAccess = async (business: Business, action: "stop" | "resume" | "archive") => {
+    if (action === "archive" && !window.confirm(`Archive ${business.name}? POS access stops now. The workspace and its sales history will be permanently deleted after 30 days unless restored.`)) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const path = "/platform/businesses/" + business.id;
+      if (action === "archive") {
+        await apiRequest(path, { method: "DELETE" });
+        setMessage("Business archived. You can restore it within 30 days.");
+      } else {
+        await apiRequest(path + "/access", { ...jsonBody({ active: action === "resume" }), method: "PATCH" });
+        setMessage(action === "resume" ? "Business access restored." : "Business POS access stopped.");
+      }
+      await load();
+    } catch (failure) {
+      setMessage(failure instanceof Error ? failure.message : "Could not update business access.");
+    } finally {
+      setBusy(false);
+    }
+  };
   return <main className="app-shell platform-console"><header><div><p className="eyebrow">SMARTSERVE PLATFORM · ADMINISTRATOR ONLY</p><h1>Your business platform</h1><p className="muted">Signed in as {session.user?.email}</p></div><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></header><p className="notice">Only your platform-admin account can create businesses or change presets and workflows. Each business has isolated POS data.</p>{message && <p role="status" className="notice">{message}</p>}
     <div className="management-grid"><form className="panel management-form" onSubmit={async event => { event.preventDefault(); setBusy(true); try { const created = await apiRequest<Business>("/platform/businesses", jsonBody({ name: businessName })); setBusinessName(""); setStore(created.id); await load(); setMessage("Business created. Configure its profile, then invite the owner."); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not create business."); } finally { setBusy(false); } }}><h2>Create a business</h2><label>Business account name<input required maxLength={120} value={businessName} onChange={event => setBusinessName(event.target.value)} /></label><button disabled={busy} className="primary">Create business</button></form>
-    <form className="panel management-form" onSubmit={async event => { event.preventDefault(); setBusy(true); try { const result = await apiRequest<{ message: string }>("/platform/invitations", jsonBody({ email, name: ownerName, store_id: store, role: "owner", require_mfa: true })); setEmail(""); setOwnerName(""); setMessage(result.message); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not invite owner."); } finally { setBusy(false); } }}><h2>Invite a business owner</h2><label>Business<select aria-label="Business" required value={store} onChange={event => setStore(event.target.value)}><option value="">Choose a business</option>{businesses.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Owner name<input required maxLength={120} value={ownerName} onChange={event => setOwnerName(event.target.value)}/></label><label>Owner email<input required type="email" value={email} onChange={event => setEmail(event.target.value)}/></label><p className="muted">The owner receives an activation email for the selected business.</p><button disabled={busy} className="primary">Email owner invitation</button></form></div>
-    <section className="business-account-list"><h2>Your businesses</h2>{businesses.map(item => <article className="panel business-account" key={item.id}><div><h3>{item.name}</h3><small>{item.id === "legacy" ? "Preserved store and sales history" : "Isolated business workspace"}</small></div><div className="row-actions"><button disabled={busy} onClick={() => void openBusiness(item, false)}>Open workspace</button><button className="primary" disabled={busy} onClick={() => void openBusiness(item, true)}>Configure setup</button></div></article>)}</section><AccountSecurity/>
+    <form className="panel management-form" onSubmit={async event => { event.preventDefault(); setBusy(true); try { const result = await apiRequest<{ message: string }>("/platform/invitations", jsonBody({ email, name: ownerName, store_id: store, role: "owner", require_mfa: true })); setEmail(""); setOwnerName(""); setMessage(result.message); await load(); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not invite owner."); } finally { setBusy(false); } }}><h2>Invite a business owner</h2><label>Business<select aria-label="Business" required value={store} onChange={event => setStore(event.target.value)}><option value="">Choose a business</option>{businesses.filter(item => item.active).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Owner name<input required maxLength={120} value={ownerName} onChange={event => setOwnerName(event.target.value)}/></label><label>Owner email<input required type="email" value={email} onChange={event => setEmail(event.target.value)}/></label><p className="muted">The owner receives an activation email for the selected business.</p><button disabled={busy} className="primary">Email owner invitation</button></form></div>
+    <section className="business-account-list">
+      <h2>Your businesses</h2>
+      {businesses.map(item => <article className="panel business-account" key={item.id}>
+        <div>
+          <h3>{item.name}</h3>
+          <p>{item.delete_at ? "Archived" : item.active ? "Active" : "Stopped"}</p>
+          {item.delete_at && <p>Permanent deletion after {new Date(item.delete_at * 1000).toLocaleString()}.</p>}
+          {item.owners.length ? <ul>{item.owners.map(owner => <li key={owner.email}>
+            {owner.email} · {owner.activated ? "Passphrase set" : "Awaiting activation"}
+          </li>)}</ul> : <p>No owner assigned</p>}
+        </div>
+        <div className="row-actions">
+          {item.active && <>
+            <button disabled={busy} onClick={() => void openBusiness(item, false)}>Open workspace</button>
+            <button className="primary" disabled={busy} onClick={() => void openBusiness(item, true)}>Configure setup</button>
+            <button disabled={busy} onClick={() => void changeAccess(item, "stop")}>Stop POS access</button>
+          </>}
+          {!item.active && <button disabled={busy || Boolean(item.delete_at && item.delete_at * 1000 <= Date.now())}
+            onClick={() => void changeAccess(item, "resume")}>{item.delete_at ? "Restore business" : "Resume POS access"}</button>}
+          {item.id !== "legacy" && !item.delete_at && <button className="danger" disabled={busy}
+            onClick={() => void changeAccess(item, "archive")}>Delete business</button>}
+        </div>
+      </article>)}
+    </section><Reauthentication/><AccountSecurity/>
   </main>;
 }
 

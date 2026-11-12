@@ -99,12 +99,15 @@ def run_trash_cleanup() -> None:
 
 
 async def trash_cleanup_loop() -> None:
+    import logging
+    from .tenancy import purge_archived_stores
+
     while True:
-        try:
-            await asyncio.to_thread(run_trash_cleanup)
-        except Exception:
-            import logging
-            logging.exception("Order trash cleanup failed; retrying in one minute")
+        for cleanup in (run_trash_cleanup, purge_archived_stores):
+            try:
+                await asyncio.to_thread(cleanup)
+            except Exception:
+                logging.exception("Cleanup failed in %s; retrying in one minute", cleanup.__name__)
         await asyncio.sleep(60)
 
 

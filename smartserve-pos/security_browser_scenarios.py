@@ -21,7 +21,7 @@ def run_security_scenarios(browser, page, context, check, output, password, orig
         return ctx.request.post(origin + path, data=data, headers={"X-CSRF-Token": csrf})
 
     page.goto(origin)
-    expect(page.get_by_role("heading", name="Welcome back.")).to_be_visible()
+    expect(page.get_by_role("heading", name="Sign in to SmartServe")).to_be_visible()
     check("no public admin registration link", 0, page.get_by_role("link", name="Register", exact=False).count())
     page.screenshot(path=str(output / "security-01-sign-in.png"), full_page=True)
     page.get_by_label("Email address", exact=True).fill("browser-admin@example.test")
