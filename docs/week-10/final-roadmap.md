@@ -93,4 +93,5 @@ Team 3 · Weeks 11–16
 5. **Smart low-stock list.** Show items below reorder level and how many servings a recipe can still make. Verify it after a sale.
 6. **Invitation retry.** Resend a failed owner invitation from the saved workspace without creating another business or membership.
 7. **Extra workflow demo.** Show a table bill, walk-in queue, or repair job that the main demo does not already cover.
+8. **Extra added language.** Use different languages according to the user preferance.
 
