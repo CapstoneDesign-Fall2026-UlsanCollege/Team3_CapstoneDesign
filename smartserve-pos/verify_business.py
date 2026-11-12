@@ -78,7 +78,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix="smartserve-business-", ignore_cleanup_errors=True) as temp:
         password = secrets.token_urlsafe(24)
         env = dict(os.environ, DATABASE_URL="sqlite:///" + str(Path(temp) / "business.db").replace("\\", "/"),
-                   SMARTSERVE_ENV="test", SMARTSERVE_BOOTSTRAP_ADMIN="false", SMARTSERVE_TEST_PASSWORD=password,
+                   SMARTSERVE_ENV="test", SMARTSERVE_BOOTSTRAP_ADMIN="false",
+                   SMARTSERVE_PLATFORM_ADMIN_EMAIL="browser-admin@example.test", SMARTSERVE_TEST_PASSWORD=password,
                    SMARTSERVE_AUTH_SECRET=secrets.token_urlsafe(48), SMARTSERVE_PUBLIC_ORIGIN=ORIGIN,
                    SMARTSERVE_LOCAL_DATA=str(Path(temp) / "private"), SMARTSERVE_TEST_MAIL_OUTBOX=str(Path(temp) / "outbox"), PYTHONDONTWRITEBYTECODE="1")
         def pg(command, *arguments):

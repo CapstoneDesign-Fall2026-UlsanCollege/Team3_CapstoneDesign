@@ -26,9 +26,7 @@ def run_scenarios(page, context, check, output, password, origin):
         page.get_by_label("Business address", exact=True).fill("24 Market Street, Ulsan")
         if screenshots:
             shot("03-business-profile.png")
-        continue_setup()
         page.get_by_role("button", name="Start with editable sample items" if catalog == "samples" else "Start with an empty catalog" if catalog == "empty" else "Keep my current catalog", exact=False).click()
-        continue_setup()
         if screenshots:
             shot("04-review-profile.png")
         page.get_by_role("button", name="Create my workspace", exact=False).click()

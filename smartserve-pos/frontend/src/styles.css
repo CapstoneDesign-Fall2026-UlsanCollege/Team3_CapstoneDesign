@@ -63,6 +63,18 @@
 .setup-primary:hover { background: #143b25; }
 .setup-primary:disabled { opacity: .65; }
 .profile-fields { display: grid; gap: 7px; max-width: 680px; }
+.setup-final-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.setup-final-options { display: grid; gap: 22px; min-width: 0; }
+.setup-catalog h3 { margin: 0 0 16px; font-size: 1rem; }
+.setup-catalog .workflow-choices { gap: 10px; }
+.setup-catalog .workflow-choice { padding: 16px; gap: 12px; font-size: .8rem; }
+.setup-catalog .workflow-choice.selected { padding: 15px; }
+.setup-catalog > p, .setup-review > small { font-size: .73rem; line-height: 1.6; color: #718068; }
+.setup-final-options .setup-review { padding: 20px; }
+.setup-final-options .setup-review h3 { font-size: 1.3rem; overflow-wrap: anywhere; }
+.setup-final-options .setup-review > p:not(.setup-kicker) { font-size: .8rem; line-height: 1.6; }
+.setup-final-options .review-tools { margin: 14px 0; }
+@media (max-width: 1100px) { .setup-final-layout { grid-template-columns: minmax(0, 1fr); } }
 .profile-fields label, .setup-table-count { font-size: .85rem; color: #3a4f3c; gap: 9px; }
 .profile-fields input, .setup-table-count input { border: 1px solid #d4dfce; background: white; padding: 13px; border-radius: 8px; color: #243c2a; font: inherit; min-width: 0; }
 .profile-fields small { color: #788674; }

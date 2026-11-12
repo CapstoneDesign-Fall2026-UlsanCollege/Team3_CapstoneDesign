@@ -1,7 +1,7 @@
 import { AccountSecurity } from "./AccountSecurity";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiRequest, jsonBody, type AccountSession } from "./api";
-import type { BusinessProfile } from "./Onboarding";
+import { BusinessSetup, defaultBusiness, type BusinessProfile, type BusinessSetupInput } from "./Onboarding";
 
 export function Reauthentication() {
   const [password, setPassword] = useState(""); const [code, setCode] = useState("");
@@ -17,7 +17,8 @@ type Business = {
   delete_at: number | null;
 };
 export function PlatformConsole({ session }: { session: AccountSession }) {
-  const [businesses, setBusinesses] = useState<Business[]>([]); const [businessName, setBusinessName] = useState("");
+  const [businesses, setBusinesses] = useState<Business[]>([]); const [creating, setCreating] = useState(false);
+  const draft = useRef<{ id: string; profile?: BusinessProfile } | null>(null);
   const [email, setEmail] = useState(""); const [ownerName, setOwnerName] = useState(""); const [store, setStore] = useState("");
   const [message, setMessage] = useState(""); const [busy, setBusy] = useState(false);
   const load = () => apiRequest<Business[]>("/platform/businesses").then(setBusinesses).catch(failure => setMessage(failure.message));
@@ -49,8 +50,49 @@ export function PlatformConsole({ session }: { session: AccountSession }) {
       setBusy(false);
     }
   };
+  const createBusiness = async (setup: BusinessSetupInput) => {
+    if (!ownerName.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      throw new Error("Enter the owner's name and a valid email address.");
+    }
+    if (!draft.current) {
+      const business = await apiRequest<Business>("/platform/businesses", jsonBody({ name: setup.name }));
+      draft.current = { id: business.id };
+    }
+    const workspace = draft.current;
+    if (!workspace.profile) {
+      await apiRequest("/auth/switch-business", jsonBody({ store_id: workspace.id }));
+      const result = await apiRequest<{ profile: BusinessProfile }>("/owner/business/setup", jsonBody(setup));
+      workspace.profile = result.profile;
+    }
+    await apiRequest("/platform/invitations", jsonBody({
+      email: email.trim(), name: ownerName.trim(), store_id: workspace.id, role: "owner", require_mfa: true,
+    }));
+    return workspace.profile;
+  };
+  if (creating) return <BusinessSetup profile={{ ...defaultBusiness, features: ["checkout"] }}
+    onSave={createBusiness} onChanged={async () => {
+      setCreating(false); setEmail(""); setOwnerName("");
+      setMessage("Workspace created and owner activation email sent.");
+      await load();
+    }} onClose={() => {
+      setCreating(false);
+      if (draft.current) {
+        setStore(draft.current.id);
+        setMessage("The workspace was saved. Finish setup or resend the owner invitation below.");
+      }
+      void load();
+    }} reauthentication={<Reauthentication/>} ownerFields={<>
+      <label>Owner name<input required maxLength={120} value={ownerName} onChange={event => setOwnerName(event.target.value)}/></label>
+      <label>Owner email<input required type="email" value={email} onChange={event => setEmail(event.target.value)}/></label>
+      <p>The owner receives an activation email to set a passphrase and verify their email.</p>
+    </>}/>;
   return <main className="app-shell platform-console"><header><div><p className="eyebrow">SMARTSERVE PLATFORM · ADMINISTRATOR ONLY</p><h1>Your business platform</h1><p className="muted">Signed in as {session.user?.email}</p></div><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></header><p className="notice">Only your platform-admin account can create businesses or change presets and workflows. Each business has isolated POS data.</p>{message && <p role="status" className="notice">{message}</p>}
-    <div className="management-grid"><form className="panel management-form" onSubmit={async event => { event.preventDefault(); setBusy(true); try { const created = await apiRequest<Business>("/platform/businesses", jsonBody({ name: businessName })); setBusinessName(""); setStore(created.id); await load(); setMessage("Business created. Configure its profile, then invite the owner."); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not create business."); } finally { setBusy(false); } }}><h2>Create a business</h2><label>Business account name<input required maxLength={120} value={businessName} onChange={event => setBusinessName(event.target.value)} /></label><button disabled={busy} className="primary">Create business</button></form>
+    <div className="management-grid"><section className="panel">
+      <h2>Create a business</h2>
+      <button className="primary" disabled={busy} onClick={() => {
+        draft.current = null; setEmail(""); setOwnerName(""); setMessage(""); setCreating(true);
+      }}>Add business</button>
+    </section>
     <form className="panel management-form" onSubmit={async event => { event.preventDefault(); setBusy(true); try { const result = await apiRequest<{ message: string }>("/platform/invitations", jsonBody({ email, name: ownerName, store_id: store, role: "owner", require_mfa: true })); setEmail(""); setOwnerName(""); setMessage(result.message); await load(); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not invite owner."); } finally { setBusy(false); } }}><h2>Invite a business owner</h2><label>Business<select aria-label="Business" required value={store} onChange={event => setStore(event.target.value)}><option value="">Choose a business</option>{businesses.filter(item => item.active).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Owner name<input required maxLength={120} value={ownerName} onChange={event => setOwnerName(event.target.value)}/></label><label>Owner email<input required type="email" value={email} onChange={event => setEmail(event.target.value)}/></label><p className="muted">The owner receives an activation email for the selected business.</p><button disabled={busy} className="primary">Email owner invitation</button></form></div>
     <section className="business-account-list">
       <h2>Your businesses</h2>
