@@ -7,40 +7,40 @@
 
 ## 1. Contribution Summary
 
-This receipt tracks individual Week 11 work and its supporting evidence. It is updated as tasks are completed. Planned work must not be represented as completed work.
+This receipt tracks individual Week 11 work and its supporting evidence. Planned work is distinguished from completed and verified work.
 
 ## 2. Documentation Contributions
 
 | Date | Contribution | Evidence |
 |---|---|---|
-| November 13, 2026 | Created Week 11 work plan | `docs/week-11/plan.md` |
-| November 13, 2026 | Created automated testing plan | `docs/week-11/automated-testing-plan.md` |
-| November 13, 2026 | Created automated test matrix | `docs/week-11/test-matrix.md` |
-| November 13, 2026 | Created CI validation, bug review, evidence index, and weekly report templates | See files in `docs/week-11/` |
+| November 13, 2026 | Created Week 11 work plan | [plan.md](../plan.md) |
+| November 13, 2026 | Created automated testing plan | [automated-testing-plan.md](../automated-testing-plan.md) |
+| November 13, 2026 | Created automated test matrix | [test-matrix.md](../test-matrix.md) |
+| November 13, 2026 | Created CI validation, bug review, evidence index, and weekly report documents | [Week 11 docs folder](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/tree/main/docs/week-11) |
 
 ## 3. Testing Contributions
 
 | Date | Task | Actual result | Evidence |
 |---|---|---|---|
-| Not recorded yet | Backend test review and execution | Pending | Pending |
-| Not recorded yet | Frontend test setup and execution | Pending | Pending |
-| Not recorded yet | GitHub Actions verification | Pending | Pending |
-| Not recorded yet | Bug investigation and retesting | Pending | Pending |
+| November 13, 2026 | Reviewed and executed existing backend automated tests | 25 tests passed, 0 failed, 0 skipped; exit code 0; runtime 0.539 seconds | [Backend test output](../evidence/test-results/w11-backend-tests.txt) |
+| Pending | Frontend test setup and execution | Not yet completed | Pending |
+| Pending | GitHub Actions verification | Not yet completed | Pending |
+| Pending | Bug investigation and retesting | Not yet completed | Pending |
 
 ## 4. Commit Record
-
-Add commit hashes and links for relevant Week 11 changes as work progresses.
 
 | Commit | Description | Link |
 |---|---|---|
 | `87cc833` | Add Week 11 work plan | [View commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/87cc83336311adcf0b73962662cac87b3844d772) |
 | `63e6a4c` | Add Week 11 automated testing plan | [View commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/63e6a4cbaba9361091ca08f0a928886c38734e35) |
 | `c7dbf9e` | Add Week 11 automated test matrix | [View commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c7dbf9e655f2e47fdb699e1abd8e9cab94f4ff91) |
+| `c827f21` | Add Week 11 backend test evidence | [View commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c827f21) |
 
 ## 5. Evidence Links
 
-The evidence index is maintained at `docs/week-11/evidence-index.md`. Add links to actual test outputs, CI runs, and screenshots there after they have been generated and verified.
+- [Week 11 evidence index](../evidence-index.md)
+- [Backend test output — 25 passed](../evidence/test-results/w11-backend-tests.txt)
 
 ## 6. Integrity Note
 
-This receipt distinguishes documentation preparation from testing implementation and execution. No Week 11 test pass or successful CI run is claimed until supported by actual evidence.
+The backend result above is a local test run against commit `6a539122899e0d67edc15405786ccb5f42dc0d5f`. The evidence file was committed separately afterward. It is not a claim that GitHub Actions passed. Frontend testing and CI verification remain pending.
