@@ -2,34 +2,27 @@
 
 **Week:** 11  
 **Branch:** `main`  
-**Status:** Planned test coverage; execution results must be recorded after tests run.
+**Status:** Backend suite executed successfully; frontend and CI checks remain pending.
 
 ## 1. Purpose
 
-This matrix lists candidate behaviours to verify during Week 11. It is a planning and tracking document, not proof that any test has already been implemented or passed.
-
-Before adding a test, inspect the current application code and existing tests. Keep only scenarios that match implemented features and avoid duplicating existing coverage without a reason.
+This matrix tracks behaviours verified during Week 11. Results below reflect actual test execution, not planned coverage.
 
 ## 2. Backend Test Matrix
 
-| ID | Feature / area | Scenario to verify | Expected result | Status |
-|---|---|---|---|---|
-| BE-01 | Owner management | Valid owner-management operation | Operation completes and persisted state is correct | To inspect |
-| BE-02 | Owner management | Invalid or incomplete input | Request is rejected safely; no unintended state change | To inspect |
-| BE-03 | Orders | Create an order with valid items and quantities | Order is created with correct item and total values | To inspect |
-| BE-04 | Orders | Submit invalid item or quantity data | Invalid order is rejected; no unintended order or stock change | To inspect |
-| BE-05 | Payment | Successful payment flow, if implemented | Order/payment state is updated consistently | To inspect |
-| BE-06 | Payment | Failed payment flow, if implemented | Failure is handled and order/payment state remains consistent | To inspect |
-| BE-07 | Payment | Repeat the same payment operation, if supported | Duplicate processing is prevented or handled according to the implementation | To inspect |
-| BE-08 | Inventory | Complete a valid sale | Inventory changes by the expected amount | To inspect |
-| BE-09 | Inventory | Attempt a sale with insufficient stock, if enforced | Operation is rejected or handled according to the defined business rule | To inspect |
-| BE-10 | Recipe conversion | Convert recipe ingredient quantities between supported units | Calculated ingredient usage is correct | To inspect |
-| BE-11 | Historical records | Update or remove related current data | Historical order/receipt information remains available as designed | To inspect |
-| BE-12 | Trash / deletion | Delete and restore an eligible record | Record state changes correctly and restoration behaves as expected | To inspect |
+| ID | Feature / area | Scenario coverage | Status |
+|---|---|---|---|
+| BE-01 | Payment and orders | Payment success/failure and retry, duplicate-payment protection, cancellation guards, unique order IDs, original order pricing, Korea-local sales date | Passed |
+| BE-02 | Inventory and recipes | Insufficient-stock guard, recipe deduction exactly once, unit conversions, ledger consistency | Passed |
+| BE-03 | Owner management | Add/edit/archive menu and ingredients, duplicate-name validation, active/open-order guards, historical receipt preservation | Passed |
+| BE-04 | Trash and deletion | Auto-expiry/payment guard, open/paid order protection, trash/restore/permanent deletion | Passed |
+| BE-05 | Receipt migration | Legacy schema upgrade and one-time backfill | Passed |
+
+**Execution:** 25 tests passed, 0 failed, 0 skipped. Command: `python -B -m unittest -v test_issue3 test_owner_management test_trash`. Run date: November 13, 2026. Tested commit: `6a539122899e0d67edc15405786ccb5f42dc0d5f`. Evidence: [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt).
 
 ## 3. Frontend Test Matrix
 
-The frontend currently has no configured test runner in the inspected `package.json`. These are candidate tests to implement after selecting a compatible framework.
+The frontend currently has no configured test runner in the inspected `package.json`. These remain candidate tests to implement after selecting a compatible framework.
 
 | ID | Feature / area | Scenario to verify | Expected result | Status |
 |---|---|---|---|---|
@@ -51,11 +44,9 @@ The frontend currently has no configured test runner in the inspected `package.j
 
 ## 5. Test Execution Record
 
-Add one record for each actual test run. Do not fill in results from memory or copy Week 10 results into this table.
-
-| Date | Tester | Commit SHA | Command / workflow run | Result | Evidence file or URL |
+| Date | Tester | Tested commit SHA | Command | Result | Evidence |
 |---|---|---|---|---|---|
-| Not run yet | — | — | — | — | — |
+| November 13, 2026 | Lama Muskan (Sammygit15) | `6a539122899e0d67edc15405786ccb5f42dc0d5f` | `python -B -m unittest -v test_issue3 test_owner_management test_trash` | 25 passed; 0 failed; exit code 0 | [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt) |
 
 ## 6. Result Status Definitions
 
@@ -69,6 +60,5 @@ Add one record for each actual test run. Do not fill in results from memory or c
 
 - A production build is not a substitute for frontend unit/component tests.
 - A workflow configuration is not proof of a successful workflow run.
-- Use isolated test data and databases where possible; do not run destructive tests against production data.
-- Record known limitations, simulated integrations, skipped scenarios, and unresolved failures.
+- Backend tests were run locally; this result does not establish a successful GitHub Actions run.
 - Keep Week 10 evidence separate from all Week 11 execution records.
