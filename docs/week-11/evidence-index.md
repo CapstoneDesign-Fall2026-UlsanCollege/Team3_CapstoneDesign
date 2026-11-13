@@ -12,8 +12,9 @@ Location: `evidence/test-results/`
 | Evidence | Description | Status |
 |---|---|---|
 | [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt) | Local backend unittest output from November 13, 2026; 25 tests passed, 0 failed; tested commit `6a539122899e0d67edc15405786ccb5f42dc0d5f` | Verified |
-| Frontend test output | Exact output after frontend tests are implemented | Pending |
-| Test summary | Backend run details are recorded in the test matrix and weekly report | Verified for backend |
+| [w11-frontend-initial-run.md](evidence/test-results/w11-frontend-initial-run.md) | Initial Vitest run on November 13, 2026: 4 tests discovered, 4 failed during React rendering before assertions; import/export issue pending investigation | Recorded diagnostic |
+| Frontend retest output | Output after fixing the component import/export issue and rerunning tests | Pending |
+| Test summary | Backend and initial frontend run details are recorded in the test matrix and weekly report | Verified for recorded runs |
 
 ## 2. GitHub Actions
 
@@ -30,7 +31,7 @@ Location: `evidence/screenshots/`
 
 | Evidence | Description | Status |
 |---|---|---|
-| Test execution screenshot | Screenshot of an actual local test run, if useful | Pending |
+| Initial frontend test screenshot | Screenshot supplied on November 13, 2026 showing Vitest 4.1.12, 4 discovered tests, 4 failures, and React invalid-element-type error; screenshot retained in the conversation; repository image-file upload remains outstanding | Captured; image upload pending |
 | Actions screenshot | Screenshot of the actual Week 11 workflow result | Pending |
 
 ## 4. Related Documentation
@@ -45,4 +46,4 @@ Location: `evidence/screenshots/`
 
 ## 5. Evidence Integrity
 
-Week 10 and earlier evidence remains in its original location. Week 11 backend results were executed locally and must not be described as a GitHub Actions pass. Every result should identify its date, command or workflow run, and tested commit whenever available.
+Week 10 and earlier evidence remains in its original location. Week 11 backend results were executed locally and must not be described as a GitHub Actions pass. The initial frontend test result is diagnostic evidence only: all four tests failed before reaching their assertions. Every result should identify its date, command or workflow run, and tested commit whenever available.
