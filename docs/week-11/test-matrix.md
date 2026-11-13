@@ -2,7 +2,7 @@
 
 **Week:** 11  
 **Branch:** `main`  
-**Status:** Backend and local frontend tests passed; local frontend production build passed; GitHub Actions checks remain pending verification.
+**Status:** Local backend and frontend tests passed; local frontend production build passed; GitHub Actions run #8 verified successful on commit `6db97df`.
 
 ## 1. Purpose
 
@@ -18,46 +18,54 @@ This matrix tracks behaviours verified during Week 11. Results below reflect act
 | BE-04 | Trash and deletion | Auto-expiry/payment guard, open/paid order protection, trash/restore/permanent deletion | Passed |
 | BE-05 | Receipt migration | Legacy schema upgrade and one-time backfill | Passed |
 
-**Execution:** 25 tests passed, 0 failed, 0 skipped. Command: `python -B -m unittest -v test_issue3 test_owner_management test_trash`. Run date: November 13, 2026. Tested commit: `6a539122899e0d67edc15405786ccb5f42dc0d5f`. Evidence: [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt).
+**Local execution:** 25 tests passed, 0 failed, 0 skipped. Command: `python -B -m unittest -v test_issue3 test_owner_management test_trash`. Run date: November 13, 2026. Tested commit: `6a539122899e0d67edc15405786ccb5f42dc0d5f`. Evidence: [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt).
 
 ## 3. Frontend Test Matrix
 
 Vitest 4.1.12 is configured and four component tests are implemented in `src/OwnerManagement.test.tsx`.
 
-| ID | Feature / area | Scenario verified | Result |
+| ID | Feature / area | Scenario verified | Local result |
 |---|---|---|---|
 | FE-01 | Initial data rendering | Load inventory and menu from mocked API; verify entries appear | Passed |
 | FE-02 | Ingredient creation | Submit ingredient form and inspect POST payload and callback | Passed |
 | FE-03 | Menu item creation | Submit menu item and recipe form; inspect numeric price and recipe payload | Passed |
 | FE-04 | Removal cancellation | Cancel menu removal confirmation and verify no DELETE request | Passed |
 
-**Successful frontend run:** November 13, 2026, 20:05:48 local machine time. Command: `npm.cmd test`. Result: 1 test file passed; 4 passed; 0 failed. Duration: 1.14 seconds. Evidence: [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md).
+**Successful local frontend run:** November 13, 2026, 20:05:48 local machine time. Command: `npm.cmd test`. Result: 1 test file passed; 4 passed; 0 failed. Duration: 1.14 seconds. Evidence: [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md).
 
 The initial run remains recorded separately: 4 tests were discovered but failed before assertions due to an invalid component import/render setup. After correcting the named import, test isolation, accessible label queries, and menu-card scoping, the four tests passed. See [w11-frontend-initial-run.md](evidence/test-results/w11-frontend-initial-run.md).
 
+**CI confirmation:** The frontend component-test step also completed successfully in GitHub Actions run #8 on commit `6db97df1cfa60b31940379d97827e4676c42ab8f`.
+
 ## 4. Frontend Production Build
 
-**Command:** `npm.cmd run build` (`tsc -b && vite build`). Result: passed. Vite 8.3.0 transformed 6 modules and completed the build in 424 ms. Output: HTML 0.16 kB, CSS 12.48 kB, JavaScript 252.63 kB. Evidence: [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md).
+**Local command:** `npm.cmd run build` (`tsc -b && vite build`). Result: passed. Vite 8.3.0 transformed 16 modules in the latest local run and completed in 137 ms. Output: HTML 0.16 kB, CSS 12.48 kB, JavaScript 252.63 kB. Evidence: [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md).
 
 **Warning retained:** Vite printed a config-loader warning about ESM syntax in `vite.config.ts` being loaded as CommonJS. It did not stop the tests or build and remains a cleanup item.
 
 ## 5. CI Validation Matrix
 
-| ID | Check | Evidence required | Status |
+| ID | Check | Verified evidence | Status |
 |---|---|---|---|
-| CI-01 | Backend test job | Actual GitHub Actions run, commit SHA, job result, and test output | To verify |
-| CI-02 | Frontend production build | Actual build job result and uploaded output, if configured | To verify |
-| CI-03 | Frontend automated test job | Actual job result after frontend tests are added to CI | Pending implementation |
-| CI-04 | Browser/API regression job | Actual workflow result and generated artifacts, if the existing workflow runs this check | To verify |
-| CI-05 | Workflow failure visibility | A controlled local test failure or safe test-branch check shows a failing result; restore changes afterward | To verify |
+| CI-01 | Backend test job | Actions run #8; backend unit-test job completed successfully | Passed |
+| CI-02 | Frontend production build | Actions run #8; frontend build step and artifact upload completed successfully | Passed |
+| CI-03 | Frontend component tests | Actions run #8; `Run frontend component tests` step completed successfully before build | Passed |
+| CI-04 | Browser/API regression job | Actions run #8; isolated browser/API regression and evidence upload completed successfully | Passed |
+| CI-05 | Workflow failure visibility | No controlled failing CI run was performed | Not tested |
+
+**CI run:** [Week 9 MVP validation — run #8](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43446960598)  
+**Branch:** `main`  
+**Commit:** `6db97df1cfa60b31940379d97827e4676c42ab8f`  
+**Overall result:** Success; all 3 jobs completed successfully. Detailed record: [w11-run-8-success.md](evidence/github-actions/w11-run-8-success.md).
 
 ## 6. Test Execution Record
 
-| Date | Tester | Tested commit SHA | Command | Result | Evidence |
+| Date | Tester | Tested commit SHA | Command / workflow | Result | Evidence |
 |---|---|---|---|---|---|
 | November 13, 2026 | Lama Muskan (Sammygit15) | `6a539122899e0d67edc15405786ccb5f42dc0d5f` | `python -B -m unittest -v test_issue3 test_owner_management test_trash` | 25 passed; 0 failed; exit code 0 | [Backend output](evidence/test-results/w11-backend-tests.txt) |
 | November 13, 2026 | Lama Muskan (Sammygit15) | Local frontend working tree; SHA not captured | `npm.cmd test` | 4 passed; 0 failed | [Frontend test and build evidence](evidence/test-results/w11-frontend-success-and-build.md) |
-| November 13, 2026 | Lama Muskan (Sammygit15) | Local frontend working tree; SHA not captured | `npm.cmd run build` | TypeScript + Vite build passed in 424 ms | [Frontend test and build evidence](evidence/test-results/w11-frontend-success-and-build.md) |
+| November 13, 2026 | Lama Muskan (Sammygit15) | Local frontend working tree; SHA not captured | `npm.cmd run build` | TypeScript + Vite build passed; latest run 137 ms | [Frontend test and build evidence](evidence/test-results/w11-frontend-success-and-build.md) |
+| November 13, 2026 | Lama Muskan (Sammygit15) | `6db97df1cfa60b31940379d97827e4676c42ab8f` | GitHub Actions run #8 | 3/3 jobs passed; frontend test step passed | [CI run evidence](evidence/github-actions/w11-run-8-success.md) |
 
 ## 7. Result Status Definitions
 
@@ -67,11 +75,12 @@ The initial run remains recorded separately: 4 tests were discovered but failed 
 - **Failed:** Test was executed and did not meet the expected result.
 - **Blocked:** Test execution could not reach its assertions because of a test setup, import, or environment error.
 - **Not applicable:** The feature or behaviour is not implemented; record the reason.
+- **Not tested:** No execution was performed for the check.
 
 ## 8. Notes
 
 - A production build is not a substitute for frontend unit/component tests.
-- A workflow configuration is not proof of a successful workflow run.
-- Backend and frontend results above are local executions; they do not establish a successful GitHub Actions run.
+- A workflow configuration alone is not proof of a successful workflow run; run #8 has now been checked directly.
+- Local test runs and CI results are recorded separately because they were executed in different environments and commits.
 - Keep the initial frontend diagnostic run as part of the testing history.
 - Keep Week 10 evidence separate from all Week 11 execution records.
