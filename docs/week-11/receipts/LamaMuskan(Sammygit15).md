@@ -17,13 +17,15 @@ This receipt tracks individual Week 11 work and its supporting evidence. Planned
 | November 13, 2026 | Created automated testing plan | [automated-testing-plan.md](../automated-testing-plan.md) |
 | November 13, 2026 | Created automated test matrix | [test-matrix.md](../test-matrix.md) |
 | November 13, 2026 | Created CI validation, bug review, evidence index, and weekly report documents | [Week 11 docs folder](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/tree/main/docs/week-11) |
+| November 13, 2026 | Updated Week 11 matrix, evidence index, weekly report, and this receipt with the initial frontend test result | [Initial frontend run record](../evidence/test-results/w11-frontend-initial-run.md) |
 
 ## 3. Testing Contributions
 
 | Date | Task | Actual result | Evidence |
 |---|---|---|---|
 | November 13, 2026 | Reviewed and executed existing backend automated tests | 25 tests passed, 0 failed, 0 skipped; exit code 0; runtime 0.539 seconds | [Backend test output](../evidence/test-results/w11-backend-tests.txt) |
-| Pending | Frontend test setup and execution | Not yet completed | Pending |
+| November 13, 2026 | Installed/configured Vitest and wrote four OwnerManagement component tests | Vitest discovered 4 tests; initial run had 4 failures during component rendering before assertions because the imported component was undefined | [Initial frontend run record](../evidence/test-results/w11-frontend-initial-run.md) |
+| Pending | Frontend retest after correcting the component import | Not yet completed | Pending |
 | Pending | GitHub Actions verification | Not yet completed | Pending |
 | Pending | Bug investigation and retesting | Not yet completed | Pending |
 
@@ -40,7 +42,8 @@ This receipt tracks individual Week 11 work and its supporting evidence. Planned
 
 - [Week 11 evidence index](../evidence-index.md)
 - [Backend test output — 25 passed](../evidence/test-results/w11-backend-tests.txt)
+- [Initial frontend test run — 4 failed before assertions](../evidence/test-results/w11-frontend-initial-run.md)
 
 ## 6. Integrity Note
 
-The backend result above is a local test run against commit `6a539122899e0d67edc15405786ccb5f42dc0d5f`. The evidence file was committed separately afterward. It is not a claim that GitHub Actions passed. Frontend testing and CI verification remain pending.
+The backend result above is a local test run against commit `6a539122899e0d67edc15405786ccb5f42dc0d5f`. The initial frontend result is a separate local run on November 13, 2026; the tested frontend commit SHA was not captured. The frontend failures occurred before assertions because of a component import/render issue, so they are diagnostic evidence rather than proof that the tested application features are defective. Neither result is a claim that GitHub Actions passed. Frontend retesting and CI verification remain pending.
