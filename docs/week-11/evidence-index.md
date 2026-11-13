@@ -12,9 +12,9 @@ Location: `evidence/test-results/`
 | Evidence | Description | Status |
 |---|---|---|
 | [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt) | Local backend unittest output from November 13, 2026; 25 tests passed, 0 failed; tested commit `6a539122899e0d67edc15405786ccb5f42dc0d5f` | Verified |
-| [w11-frontend-initial-run.md](evidence/test-results/w11-frontend-initial-run.md) | Initial Vitest run on November 13, 2026: 4 tests discovered, 4 failed during React rendering before assertions; import/export issue pending investigation | Recorded diagnostic |
-| Frontend retest output | Output after fixing the component import/export issue and rerunning tests | Pending |
-| Test summary | Backend and initial frontend run details are recorded in the test matrix and weekly report | Verified for recorded runs |
+| [w11-frontend-initial-run.md](evidence/test-results/w11-frontend-initial-run.md) | Initial Vitest run: 4 tests discovered, 4 failed during React rendering before assertions; retained as diagnostic history | Recorded diagnostic |
+| [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md) | Successful local Vitest run: 4/4 tests passed; TypeScript + Vite production build passed in 424 ms; Vite config warning retained | Verified |
+| Combined local test summary | Backend and frontend results are detailed in the test matrix and weekly report | Verified for recorded runs |
 
 ## 2. GitHub Actions
 
@@ -31,7 +31,9 @@ Location: `evidence/screenshots/`
 
 | Evidence | Description | Status |
 |---|---|---|
-| Initial frontend test screenshot | Screenshot supplied on November 13, 2026 showing Vitest 4.1.12, 4 discovered tests, 4 failures, and React invalid-element-type error; screenshot retained in the conversation; repository image-file upload remains outstanding | Captured; image upload pending |
+| Initial frontend test screenshot | Screenshot supplied November 13, 2026 showing Vitest 4.1.12, 4 discovered tests, 4 failures, and React invalid-element-type error; screenshot retained in conversation, binary upload outstanding | Captured; image upload pending |
+| Successful frontend test screenshot | Screenshot supplied November 13, 2026 showing Vitest 4.1.12 and 4/4 passing tests; screenshot retained in conversation, binary upload outstanding | Captured; image upload pending |
+| Production build screenshot | Screenshot supplied November 13, 2026 showing `tsc -b && vite build`, Vite 8.3.0, 6 modules transformed, and build completed in 424 ms; screenshot retained in conversation, binary upload outstanding | Captured; image upload pending |
 | Actions screenshot | Screenshot of the actual Week 11 workflow result | Pending |
 
 ## 4. Related Documentation
@@ -46,4 +48,4 @@ Location: `evidence/screenshots/`
 
 ## 5. Evidence Integrity
 
-Week 10 and earlier evidence remains in its original location. Week 11 backend results were executed locally and must not be described as a GitHub Actions pass. The initial frontend test result is diagnostic evidence only: all four tests failed before reaching their assertions. Every result should identify its date, command or workflow run, and tested commit whenever available.
+Week 10 and earlier evidence remains in its original location. Week 11 backend and frontend results were executed locally and must not be described as GitHub Actions passes. The initial frontend test failure remains diagnostic history; the later run passed all four tests. The production build passed with a non-blocking Vite configuration-loader warning. Every result should identify its date, command or workflow run, and tested commit whenever available.
