@@ -20,6 +20,12 @@ Improve confidence in SmartServe POS by reviewing existing automated tests, conf
 | November 13, 2026 | Added frontend component tests to the existing GitHub Actions workflow | Added `npm test` before the frontend production build; committed and pushed as `6db97df` | [Workflow run #8](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43446960598) |
 | November 13, 2026 | Verified GitHub Actions run #8 | Overall success; backend tests, frontend component tests + production build, and browser/API regression jobs all passed; 3 artifacts uploaded | [Detailed CI evidence](evidence/github-actions/w11-run-8-success.md) |
 
+## 2A. Individual Contribution Evidence
+
+| Date | Contributor / activity | Expected vs actual result | Direct evidence |
+|---|---|---|---|
+| November 17, 2026 | `ualsom` — added a bounded two-latte payment-retry regression (assistant-assisted; independent execution pending) | Expected: ₩9,000 order, milk −500 ml and coffee beans −36 g after first payment, then HTTP 409 on retry in a new DB session with no additional deduction; actual: test added and CI configured, execution result pending | [Week 11 test](../../smartserve-pos/backend/test_week11_ualsom.py); [Individual receipt](receipts/UalsonTamang(ualsom).md) |
+
 ## 3. Test Results
 
 | Test area | Tests / checks | Passed | Failed | Skipped | Evidence |
