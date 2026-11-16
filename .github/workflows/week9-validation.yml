@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -m unittest -v test_issue3 test_owner_management test_trash 2>&1 | tee backend-test-results.txt
+          python -m unittest -v test_issue3 test_owner_management test_trash test_week11_ualsom 2>&1 | tee backend-test-results.txt
       - name: Upload backend test output
         if: always()
         uses: actions/upload-artifact@v4
