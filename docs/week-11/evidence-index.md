@@ -14,6 +14,7 @@ Location: `evidence/test-results/`
 | [w11-backend-tests.txt](evidence/test-results/w11-backend-tests.txt) | Local backend unittest output from November 13, 2026; 25 tests passed, 0 failed; tested commit `6a539122899e0d67edc15405786ccb5f42dc0d5f` | Verified |
 | [w11-frontend-initial-run.md](evidence/test-results/w11-frontend-initial-run.md) | Initial Vitest run: 4 tests discovered, 4 failed during React rendering before assertions; retained as diagnostic history | Recorded diagnostic |
 | [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md) | Successful local Vitest run: 4/4 tests passed; TypeScript + Vite production build passed; Vite config warning retained | Verified |
+| [ualsom local test output](evidence/test-results/w11-ualsom-local-check.md) | Student's November 17 Windows PowerShell rerun: one two-latte duplicate-payment regression passed in 0.047s, after fixing initial copied-file issue; [screenshot](evidence/screenshots/w11-ualsom-local-test-pass.png) | Verified from student-supplied terminal output; not an independent teammate rerun |
 | Combined local test summary | Backend and frontend results are detailed in the test matrix and weekly report | Verified for recorded local runs |
 
 ## 2. GitHub Actions
