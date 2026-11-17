@@ -36,7 +36,7 @@ The original work was submitted in [PR #23](https://github.com/CapstoneDesign-Fa
 
 **Test source:** [Week 10 backend regression](../../../smartserve-pos/backend/test_week10_ualsom.py)  
 **Historical original:** [PR #23](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/pull/23)  
-**Test execution evidence:** [Week 10 QA evidence note](../evidence/test-results/w10-ualsom-qa-record.md)
+**Test execution evidence:** [Original Week 10 QA record](../evidence/test-results/w10-ualsom-qa-record.md); [verified later CI rerun](../evidence/test-results/w10-ualsom-ci-rerun.md) — 2026-11-18, the Week 10 test passed in a 27/27 passing backend suite.
 
 ## Scope and limits
 
