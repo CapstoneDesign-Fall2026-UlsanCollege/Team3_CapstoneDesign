@@ -7,7 +7,7 @@ Add or confirm your own row. Link the code or artifact you reviewed and record t
 | @daydevil80 | [Simulated payment and recipe-based inventory deduction](../../smartserve-pos/backend/app/main.py) | [9/9 backend tests passed on isolated SQLite](evidence/test-results/daydevil80-issue3.txt). [Independent Render handoff](issue-22-render-check.md) awaits a tester result. |
 | @Sammygit15 | Frontend production build | Existing [individual record](individual-contributions/LamaMuskan%28Sammygit15%29.md) and [build log](evidence/frontend-build/w10-frontend-production-build.txt). Member to confirm the ownership row. |
 | @Shuzita | Suggested: cashier item quantity and total | Pending member entry and result. |
-| @ualsom | Suggested: paid receipt and saved prices | Pending member entry and result. |
+| @ualsom | **Backend QA — two-latte duplicate-payment and inventory integrity**; [Week 10 test](../../smartserve-pos/backend/test_week10_ualsom.py) | From `smartserve-pos/backend`, run `python -B -m unittest -v test_week10_ualsom` with dependencies installed. Expect 500 ml milk and 36 g beans deducted once, retry HTTP 409, exactly one payment and two inventory movements. [Original Nov 11 reported PASS (1/1, 0.030s)](individual-contributions/UalsonTamang%28ualsom%29.md); [evidence note](evidence/test-results/w10-ualsom-qa-record.md). [Later CI rerun](evidence/test-results/w10-ualsom-ci-rerun.md) passed on November 18 KST (27/27 in combined backend suite, including the original Week 10 test). Independent teammate rerun not yet recorded. |
 | @shrey776 | Suggested: owner sales and order visibility | Pending member entry and result. |
 
 ## @daydevil80 repeatable backend check
