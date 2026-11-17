@@ -23,6 +23,6 @@ Ran 1 test in 0.047s
 OK
 ```
 
-**Result:** 1 test passed, 0 failures in the final local rerun. Screenshot capture/upload is separate and pending. The terminal output did not include an exact execution timestamp or commit SHA of the student's local working tree.
+**Result:** 1 test passed, 0 failures in the final local rerun. Screenshot uploaded: [cropped screenshot from the student's original attachment](../screenshots/w11-ualsom-local-test-pass.png). The image visibly shows `... ok` and `Ran 1 test in 0.047s`, but its bottom edge cuts off the final standalone `OK`; the complete output was supplied separately in the conversation and is reproduced above. The terminal output did not include an exact execution timestamp or commit SHA of the student's local working tree.
 
 **Limitations:** SQLite unit test and simulated payments only, not real payment-provider or deployed-database verification.
