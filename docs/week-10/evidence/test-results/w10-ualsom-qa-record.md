@@ -29,6 +29,6 @@ python -B -m unittest -v test_week10_ualsom
 
 Expected terminal result: `test_two_lattes_duplicate_payment_same_session ... ok`, `Ran 1 test`, `OK`.
 
-**Later CI verification:** Pending from the main-based review branch at the time this note was created; once a run completes, record its exact URL and outcome separately. Do not backdate later CI results to November 11.
+**Later CI verification:** **PASS** in [PR #25 run 44116391737](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/44116391737), November 18 KST. The backend job log explicitly shows `test_two_lattes_duplicate_payment_same_session ... ok` and `Ran 27 tests ... OK`. [Recorded log excerpt and environment](w10-ualsom-ci-rerun.md). This is separate from, and must not be backdated to, the November 11 self-reported local result.
 
 **Limitations:** Isolated SQLite and simulated payments. The separate student Week 11 regression is not evidence for the original Week 10 run. Independent non-author repetition remains unrecorded.
