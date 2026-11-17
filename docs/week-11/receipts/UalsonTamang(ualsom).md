@@ -25,4 +25,6 @@
 
 **Execution status:** **PASS in GitHub Actions pull-request run #9** (https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014). On the tested branch, the backend unit-test job ran the updated suite including `test_week11_ualsom` and its test-suite step finished successfully. Frontend build and browser/API regression jobs also passed. The student subsequently ran the test locally using Windows PowerShell and supplied passing output: **Ran 1 test in 0.047s; OK**. [Local test evidence](../evidence/test-results/w11-ualsom-local-check.md). The initial local failure due to a mismatched copied test file was corrected by restoring the GitHub version. The screenshot remains pending; this is a student-run local test, not independent teammate reproduction.
 
+**Student screenshot:** [Local passing test screenshot](../evidence/screenshots/w11-ualsom-local-test-pass.png). The cropped original visibly shows the test name ending in `... ok` and `Ran 1 test in 0.047s`; the final `OK` line is below the supplied screenshot boundary and is preserved in the text execution record.
+
 **Limits:** Uses isolated SQLite and a simulated payment path, not the live Render database or a real payment provider. Previous Week 10 results are not counted as Week 11 evidence.
