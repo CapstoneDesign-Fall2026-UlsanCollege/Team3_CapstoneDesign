@@ -66,6 +66,8 @@ The initial run remains recorded separately: 4 tests were discovered but failed 
 | November 13, 2026 | Lama Muskan (Sammygit15) | Local frontend working tree; SHA not captured | `npm.cmd test` | 4 passed; 0 failed | [Frontend test and build evidence](evidence/test-results/w11-frontend-success-and-build.md) |
 | November 13, 2026 | Lama Muskan (Sammygit15) | Local frontend working tree; SHA not captured | `npm.cmd run build` | TypeScript + Vite build passed; latest run 137 ms | [Frontend test and build evidence](evidence/test-results/w11-frontend-success-and-build.md) |
 | November 13, 2026 | Lama Muskan (Sammygit15) | `6db97df1cfa60b31940379d97827e4676c42ab8f` | GitHub Actions run #8 | 3/3 jobs passed; frontend test step passed | [CI run evidence](evidence/github-actions/w11-run-8-success.md) |
+| November 17, 2026 | Ualson Tamang (`ualsom`) | Local working tree SHA not captured | `python -B -m unittest -v test_week11_ualsom` | **PASS**, 1 test, 0 failures, 0.047s; two-latte simulated payment and duplicate retry guard; initial copied-file failure corrected | [Student local execution log](evidence/test-results/w11-ualsom-local-check.md); [screenshot](evidence/screenshots/w11-ualsom-local-test-pass.png) |
+| November 17, 2026 | `ualsom` test added to existing CI | PR #24 head SHA `534b7f84f2f16989322eaa1e375614947098ddaa` | GitHub Actions run #9 | Backend test-suite step and all 3 workflow jobs passed | [Actions run #9](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014) |
 
 ## 7. Result Status Definitions
 
