@@ -36,7 +36,7 @@ The original work was submitted in [PR #23](https://github.com/CapstoneDesign-Fa
 
 **Test source:** [Week 10 backend regression](../../../smartserve-pos/backend/test_week10_ualsom.py)  
 **Historical original:** [PR #23](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/pull/23)  
-**Test execution evidence:** [Original Week 10 QA record](../evidence/test-results/w10-ualsom-qa-record.md); [verified later CI rerun](../evidence/test-results/w10-ualsom-ci-rerun.md) — 2026-11-18, the Week 10 test passed in a 27/27 passing backend suite.
+**Test execution evidence:** [Original Week 10 QA record](../evidence/test-results/w10-ualsom-qa-record.md); [verified later CI rerun](../evidence/test-results/w10-ualsom-ci-rerun.md) — November 18 KST, Week 10 test passed in a 27/27 backend suite. **Student's new local verification:** [terminal screenshot](../evidence/screenshots/w10-ualsom-local-test-pass.png), showing `test_two_lattes_duplicate_payment_same_session ... ok`, `Ran 1 test in 0.086s`, and final `OK`. The screenshot is an unaltered-content crop (with reduced colors) from the student's supplied image; it is **not** the original November 11 log, and its local source SHA was not recorded.
 
 ## Scope and limits
 
