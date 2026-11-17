@@ -35,6 +35,7 @@ Location: `evidence/screenshots/`
 | Successful frontend test screenshot | Screenshot supplied November 13, 2026 showing Vitest 4.1.12 and 4/4 passing tests; binary not uploaded to repository | Captured in conversation; image upload pending |
 | Production build screenshot | Screenshot supplied November 13, 2026 showing TypeScript + Vite production build completed; binary not uploaded to repository | Captured in conversation; image upload pending |
 | GitHub Actions success screenshot | Screenshot supplied November 13, 2026 showing run #8 Success, 46 seconds, and all three job checkmarks; binary not uploaded to repository | Captured in conversation; live run is primary evidence |
+| [ualsom local test screenshot](evidence/screenshots/w11-ualsom-local-test-pass.png) | Student-supplied cropped terminal screenshot of the Week 11 two-latte payment-retry regression; shows `... ok` and `Ran 1 test in 0.047s`. Final standalone `OK` line is below image boundary; [complete terminal output](evidence/test-results/w11-ualsom-local-check.md) is preserved separately | Uploaded to repository |
 
 ## 4. Workflow Artifacts
 
