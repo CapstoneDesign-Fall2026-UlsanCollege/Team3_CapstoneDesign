@@ -24,7 +24,7 @@ Improve confidence in SmartServe POS by reviewing existing automated tests, conf
 
 | Date | Contributor / activity | Expected vs actual result | Direct evidence |
 |---|---|---|---|
-| November 17, 2026 | `ualsom` — added a bounded two-latte payment-retry regression (assistant-assisted; independent execution pending) | Expected: ₩9,000 order, milk −500 ml and coffee beans −36 g after first payment, then HTTP 409 on retry in a new DB session with no additional deduction; actual: test added and CI configured, execution result pending | [Week 11 test](../../smartserve-pos/backend/test_week11_ualsom.py); [Individual receipt](receipts/UalsonTamang(ualsom).md) |
+| November 17, 2026 | `ualsom` — added a bounded two-latte payment-retry regression (AI-assisted test and CI update; independent manual reproduction not claimed) | Expected: ₩9,000 order; first payment uses 500 ml milk and 36 g beans; retry from a fresh session returns HTTP 409 with no duplicate deduction. Actual: **PASS in PR GitHub Actions run #9** — backend test suite step succeeded, including the new test; all 3 CI jobs succeeded. Local manual retest not recorded. | [Week 11 test](../../smartserve-pos/backend/test_week11_ualsom.py); [Individual receipt](receipts/UalsonTamang(ualsom).md); [PR CI run #9](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014) |
 
 ## 3. Test Results
 
