@@ -24,6 +24,12 @@ This report is a living record. Documentation preparation and backend unit-test 
 | Frontend production build | **Passed** on November 10, 2026 (`tsc -b` + Vite 8.3.0; exit code 0; 16 modules transformed). Vite config compatibility warning retained in log; exact source SHA not captured. | [Frontend build log](evidence/frontend-build/w10-frontend-production-build.txt); [Evidence index](evidence-index.md#5-build-test-and-ci-evidence) |
 | Independent verification | Not yet recorded | Pending reviewer evidence |
 
+## 2A. Individual Week 10 Contribution — `ualsom`
+
+| Contributor / area | Work completed | One repeatable check | Expected / recorded actual | Evidence |
+|---|---|---|---|---|
+| Ualson Tamang (`ualsom`) — **Backend QA: payment retry and inventory integrity** | Added a bounded two-latte same-session duplicate-payment regression on November 11, 2026; original work submitted on PR #23 | From `smartserve-pos/backend` with dependencies installed: `python -B -m unittest -v test_week10_ualsom` | **Expected:** two lattes paid, milk −500 ml, beans −36 g; a second simulated payment gives HTTP 409 without another deduction, leaving one payment and two inventory movements. **Actual (original self-report):** PASS, 1/1 in 0.030 s, per PR #23; original raw log not archived. This is unit-test coverage, not the end-to-end functional checks in Section 4. | [Test code](../../smartserve-pos/backend/test_week10_ualsom.py); [individual receipt](individual-contributions/UalsonTamang%28ualsom%29.md); [historical evidence note](evidence/test-results/w10-ualsom-qa-record.md); [PR #23](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/pull/23) |
+
 ## 3. Backend Automated Test Summary
 
 On November 10, 2026, three backend unittest modules were executed using the project's Python 3.13 virtual environment. All 24 tests passed:
