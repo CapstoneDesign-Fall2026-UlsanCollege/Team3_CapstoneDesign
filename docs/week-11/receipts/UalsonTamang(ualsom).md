@@ -15,14 +15,14 @@
 
 | Check | Expected | Actual as of initial submission |
 |---|---|---|
-| Two-latte order | ₩9,000, inventory unchanged before payment | Assertions written; not yet executed for this branch |
-| First simulated payment | Paid; milk −500 ml; beans −36 g | Assertions written; not yet executed for this branch |
-| Retry after reopening session | HTTP 409; no second payment or inventory deduction | Assertions written; not yet executed for this branch |
+| Two-latte order | ₩9,000, inventory unchanged before payment | Passed as part of PR GitHub Actions run #9; individual test output not separately attached |
+| First simulated payment | Paid; milk −500 ml; beans −36 g | Passed as part of PR GitHub Actions run #9; individual test output not separately attached |
+| Retry after reopening session | HTTP 409; no second payment or inventory deduction | Passed as part of PR GitHub Actions run #9; individual test output not separately attached |
 
 **Command:** From `smartserve-pos/backend`, run `python -B -m unittest -v test_week11_ualsom`.
 
 **Evidence:** [Bounded regression test](../../../smartserve-pos/backend/test_week11_ualsom.py); [CI workflow change](../../../.github/workflows/week9-validation.yml).
 
-**Execution status:** Pending. A passing test result must come from a recorded local execution or the GitHub Actions pull-request run and be linked here before claiming PASS.
+**Execution status:** **PASS in GitHub Actions pull-request run #9** (https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014). On the tested branch, the backend unit-test job ran the updated suite including `test_week11_ualsom` and its test-suite step finished successfully. Frontend build and browser/API regression jobs also passed. This is CI evidence, **not** a claim of personal local execution or independent teammate reproduction. A separately attributable manual execution remains outstanding.
 
 **Limits:** Uses isolated SQLite and a simulated payment path, not the live Render database or a real payment provider. Previous Week 10 results are not counted as Week 11 evidence.
