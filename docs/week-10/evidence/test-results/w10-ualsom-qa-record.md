@@ -31,4 +31,6 @@ Expected terminal result: `test_two_lattes_duplicate_payment_same_session ... ok
 
 **Later CI verification:** **PASS** in [PR #25 run 44116391737](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/44116391737), November 18 KST. The backend job log explicitly shows `test_two_lattes_duplicate_payment_same_session ... ok` and `Ran 27 tests ... OK`. [Recorded log excerpt and environment](w10-ualsom-ci-rerun.md). This is separate from, and must not be backdated to, the November 11 self-reported local result.
 
+**Later student-run local verification:** A subsequent Windows PowerShell execution of `python -B -m unittest -v test_week10_ualsom` passed with `test_two_lattes_duplicate_payment_same_session ... ok`, `Ran 1 test in 0.086s`, and `OK`. [Uploaded terminal screenshot](../screenshots/w10-ualsom-local-test-pass.png) is a cropped and palette-optimized excerpt of the student's actual attachment; the original unedited screenshot remains in the conversation. This rerun was not performed during the original Week 10 reporting period and the local tested commit was not captured.
+
 **Limitations:** Isolated SQLite and simulated payments. The separate student Week 11 regression is not evidence for the original Week 10 run. Independent non-author repetition remains unrecorded.
