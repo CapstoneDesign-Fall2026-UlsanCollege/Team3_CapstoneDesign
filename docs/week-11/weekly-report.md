@@ -34,6 +34,8 @@ Improve confidence in SmartServe POS by reviewing existing automated tests, conf
 | Local frontend successful run | 4 | 4 | 0 | 0 | [w11-frontend-success-and-build.md](evidence/test-results/w11-frontend-success-and-build.md) |
 | Frontend initial diagnostic run | 4 | 0 | 4 | 0 | [w11-frontend-initial-run.md](evidence/test-results/w11-frontend-initial-run.md) |
 | GitHub Actions jobs | 3 | 3 | 0 | 0 | [CI run evidence](evidence/github-actions/w11-run-8-success.md) |
+| `ualsom` separate local backend regression (November 17) | 1 | 1 | 0 | 0 | [Actual terminal output](evidence/test-results/w11-ualsom-local-check.md); [screenshot](evidence/screenshots/w11-ualsom-local-test-pass.png) |
+| `ualsom` PR GitHub Actions run #9 jobs | 3 | 3 | 0 | 0 | [Run #9](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014) |
 
 **Backend command:** `python -B -m unittest -v test_issue3 test_owner_management test_trash`  
 **Backend run date/time:** November 13, 2026, 19:47:39 (local machine time)  
