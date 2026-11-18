@@ -32,7 +32,7 @@ Team 3 · Weeks 11–16
 
 ### Week 11 — Prepare three demo workspaces
 
-**November 18 checkpoint:** The [live verification handoff](../week-11/live-two-latte-verification.md) records the Render preflight. The two-latte transaction was not run. Issue #22 remains open pending a non-author result on a confirmed deployment. Keep the promised scope fixed and hold build sign-off.
+**November 18 checkpoint:** The [live verification handoff](../week-11/live-two-latte-verification.md) records the Render preflight. Render confirmed `eb2c88e` is live. The two-latte transaction is blocked pending an authenticated demo café session. Issue #22 remains open for the non-author run. Keep the promised scope fixed and hold build sign-off.
 
 - **P1:** Record the Render URL and deployed commit. Prepare one café, one retail shop, and one service business.
 - **P1:** Ask a teammate who did not write the change to run the two-latte test.

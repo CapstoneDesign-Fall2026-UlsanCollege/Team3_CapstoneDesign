@@ -6,7 +6,8 @@ Coordinator: `daydevil80`. Non-author tester: awaiting confirmation in [Issue #2
 
 - **Target:** [SmartServe POS on Render](https://smartserve-pos-ycbj.onrender.com/), from the existing [demo handoff](../week-09/verification-handoff.md).
 - **Environment:** Codex-assisted Windows command-line requests to the public Render URL. A GET to `/api/health` timed out at 25 seconds and a GET to `/` timed out at 15 seconds. Both returned zero HTTP response bytes. A subsequent GET to the homepage with a 60-second limit returned HTTP 200 in 1.353 seconds. Homepage reachability passed on retry.
-- **Live sale:** Not run. No sign-in, order, payment, receipt, or stock change was attempted. Deployed commit unconfirmed. The roadmap's previously recorded `eb2c88e` is historical until confirmed against Render.
+- **Deployment confirmed:** Render lists [deploy `dep-dbqmcnijnfac73bnhv5g`](https://dashboard.render.com/web/srv-dbc8jbifngtc739d85q0/deploys/dep-dbqmcnijnfac73bnhv5g) as live on `eb2c88ebab8d98ed68932c4dee800c1605616269`. GET `/health` returned HTTP 200 with `{"status":"ok"}`.
+- **Live sale:** Blocked before order creation. GET `/menu` returned HTTP 401 with “Sign in and complete two-factor verification.” An authenticated session for the approved demo café is needed. No live order, payment, receipt, or stock change was observed. The independent check is still pending.
 - **Freeze:** Keep the promised demo scope fixed. Hold build sign-off pending independent live verification and team approval. The [isolated retry regression](../../smartserve-pos/backend/test_week11_ualsom.py) and [PR CI run #9](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014) document separate environments.
 
 ## Non-author run
