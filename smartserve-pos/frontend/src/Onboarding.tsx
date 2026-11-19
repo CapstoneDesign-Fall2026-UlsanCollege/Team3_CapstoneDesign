@@ -1,4 +1,4 @@
-import { PhoneFields } from "./PhoneFields";
+import { PhoneFields, usePhoneValidation } from "./PhoneFields";
 import { apiFetch } from "./api";
 import { Reauthentication } from "./AccountManagement";
 import { useEffect, useRef, useState } from "react";
@@ -76,6 +76,7 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
     };
     try { localStorage.setItem(draftKey, JSON.stringify(current)); } catch { /* Setup stays usable without storage. */ }
   }, [draftKey, done, path, step, furthestStep, type, mode, name, address, phone, phoneCountry, logo, footer, tables, customFeatures, catalog]);
+  const phoneError = usePhoneValidation(phone, phoneCountry);
   const features = type === "custom" ? customFeatures : featuresFor(type, mode);
   const titles = ["Your business", "Your workflow", "Details & review"];
   const next = () => {
@@ -86,7 +87,7 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
   };
   const save = async () => {
     if (!name.trim()) { setError("Enter your business name."); return; }
-    if (phone.trim() && !phoneCountry) { setError("Choose the country or territory for this phone number."); return; }
+    if (phoneError) return;
     setBusy(true); setError("");
     try {
       const payload: BusinessSetupInput = { name: name.trim(), business_type: type, operation_mode: mode, features, address, phone, phone_country: phoneCountry, logo_url: logo, receipt_footer: footer, table_count: tables, catalog_action: catalog };
@@ -112,7 +113,7 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
         <div className="profile-fields">
           <label>Business name<input required maxLength={120} value={name} onChange={event => setName(event.target.value)} placeholder="e.g. Sunday Coffee or The Local Barber" autoComplete="organization" /></label>
           <label>Business address<input maxLength={300} value={address} onChange={event => setAddress(event.target.value)} placeholder="Street, city" autoComplete="street-address" /></label>
-          <PhoneFields country={phoneCountry} phone={phone} onCountryChange={setPhoneCountry} onPhoneChange={setPhone}/><label>Currency<input value="KRW · South Korean won" readOnly/><small>Current checkout currency</small></label>
+          <PhoneFields validationError={phoneError} country={phoneCountry} phone={phone} onCountryChange={setPhoneCountry} onPhoneChange={setPhone}/><label>Currency<input value="KRW · South Korean won" readOnly/><small>Current checkout currency</small></label>
           <label>Logo image URL (optional)<input type="url" maxLength={2048} value={logo} onChange={event => setLogo(event.target.value)} placeholder="https://example.com/logo.png" /></label>
           <label>Receipt message<input maxLength={300} value={footer} onChange={event => setFooter(event.target.value)} /></label>
         </div>
@@ -141,7 +142,7 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
         const previous = step === 1 ? path : path + "?step=" + step;
         if (window.history.state?.setupPrevious === previous) window.history.back();
         else navigate(previous, true);
-      }}>← Back</button><span>{step + 1} of 3</span>{step < 2 ? <button className="setup-primary" onClick={next}>Continue →</button> : <button className="setup-primary" disabled={busy} onClick={() => void save()}>{busy ? "Saving your workspace…" : profile.onboarding_complete ? "Save business profile →" : "Create my workspace →"}</button>}</footer>
+      }}>← Back</button><span>{step + 1} of 3</span>{step < 2 ? <button className="setup-primary" onClick={next}>Continue →</button> : <button className="setup-primary" disabled={busy || Boolean(phoneError)} onClick={() => void save()}>{busy ? "Saving your workspace…" : profile.onboarding_complete ? "Save business profile →" : "Create my workspace →"}</button>}</footer>
       </>}
     </section>
   </main>;

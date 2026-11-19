@@ -526,3 +526,9 @@ th, td { padding: 10px 12px; }
 .setup-shell .phone-fields select { min-height: 48px; background: #fff; color: #17243a; border-color: #a7b8d1; }
 .phone-fields > button { grid-column: 1 / -1; justify-self: start; }
 @media (max-width: 600px) { .phone-fields { grid-template-columns: minmax(0, 1fr); } }
+
+.phone-fields input[aria-invalid="true"] { border-color: var(--danger); }
+.setup-shell .phone-fields input[aria-invalid="true"] { border-color: #b42318; }
+.phone-fields label .phone-error { color: var(--danger); font-weight: 650; }
+.setup-shell .phone-fields label .phone-error { color: #9b2019; }
+.save-success { background: var(--success-bg); color: var(--success); padding: .75rem; border-radius: 6px; }
