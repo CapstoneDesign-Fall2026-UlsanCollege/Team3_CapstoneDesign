@@ -1,13 +1,14 @@
+import { PhoneFields } from "./PhoneFields";
 import { apiFetch } from "./api";
 import { Reauthentication } from "./AccountManagement";
 import { useEffect, useRef, useState } from "react";
 import { navigate, useLocation } from "./navigation";
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
-export type BusinessProfile = { name: string; business_type: string; currency: string; operation_mode: string; features: string[]; order_types: string[]; address: string; phone: string; logo_url: string; receipt_footer: string; table_count: number; onboarding_complete: boolean };
-type BusinessSetupInput = Pick<BusinessProfile, "name" | "business_type" | "operation_mode" | "features" | "address" | "phone" | "logo_url" | "receipt_footer" | "table_count"> & { catalog_action: string };
+export type BusinessProfile = { name: string; business_type: string; currency: string; operation_mode: string; features: string[]; order_types: string[]; address: string; phone: string; phone_country: string; logo_url: string; receipt_footer: string; table_count: number; onboarding_complete: boolean };
+type BusinessSetupInput = Pick<BusinessProfile, "name" | "business_type" | "operation_mode" | "features" | "address" | "phone" | "phone_country" | "logo_url" | "receipt_footer" | "table_count"> & { catalog_action: string };
 export const businessLabels: Record<string, string> = { cafe: "Café", restaurant: "Restaurant", bakery: "Bakery & desserts", retail: "Retail shop", grocery: "Grocery & convenience", barbershop: "Barbershop", beauty: "Salon & beauty", repair: "Repair & workshop", services: "Professional services", custom: "Custom setup" };
 export const orderLabels: Record<string, string> = { dine_in: "Table service", takeaway: "Takeaway", in_store: "In store", pickup: "Pickup", service: "Service" };
-export const defaultBusiness: BusinessProfile = { name: "SmartServe POS", business_type: "cafe", currency: "KRW", operation_mode: "both", features: ["checkout", "inventory", "tables"], order_types: ["dine_in", "takeaway"], address: "", phone: "", logo_url: "", receipt_footer: "Thank you for your visit!", table_count: 8, onboarding_complete: false };
+export const defaultBusiness: BusinessProfile = { name: "SmartServe POS", business_type: "cafe", currency: "KRW", operation_mode: "both", features: ["checkout", "inventory", "tables"], order_types: ["dine_in", "takeaway"], address: "", phone: "", phone_country: "", logo_url: "", receipt_footer: "Thank you for your visit!", table_count: 8, onboarding_complete: false };
 const descriptions: Record<string, string> = { cafe: "Coffee, quick orders & a place to stay", restaurant: "Meals, open tables & takeaway orders", bakery: "Fresh bakes, sweet treats & counter sales", retail: "Products, stock & a fast checkout", grocery: "Daily essentials & pickup orders", barbershop: "Walk-ins, appointments & grooming", beauty: "Appointments, treatments & beauty products", repair: "Drop-offs, repair jobs & collection", services: "Consultations, bookings & service sales", custom: "Start with a blank canvas. Make it your own." };
 const icons: Record<string, string> = { cafe: "☕", restaurant: "🍽", bakery: "◒", retail: "▣", grocery: "◈", barbershop: "✂", beauty: "✧", repair: "⚙", services: "◇", custom: "+" };
 const featureLabels: Record<string, string> = { checkout: "Checkout", inventory: "Stock & inventory", tables: "Tables & open bills", appointments: "Appointments", walk_ins: "Walk-in queue", jobs: "Repair jobs" };
@@ -58,6 +59,7 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
   const [name, setName] = useState(draft.name ?? (profile.name === "SmartServe POS" ? "" : profile.name));
   const [address, setAddress] = useState(draft.address ?? profile.address);
   const [phone, setPhone] = useState(draft.phone ?? profile.phone);
+  const [phoneCountry, setPhoneCountry] = useState(draft.phone_country ?? profile.phone_country ?? "");
   const [logo, setLogo] = useState(draft.logo_url ?? profile.logo_url);
   const [footer, setFooter] = useState(draft.receipt_footer ?? profile.receipt_footer);
   const [tables, setTables] = useState(draft.table_count ?? profile.table_count);
@@ -69,11 +71,11 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
   useEffect(() => {
     if (!draftKey || done || path !== "/setup") return;
     const current: SetupDraft = {
-      step, furthestStep, business_type: type, operation_mode: mode, name, address, phone,
+      step, furthestStep, business_type: type, operation_mode: mode, name, address, phone, phone_country: phoneCountry,
       logo_url: logo, receipt_footer: footer, table_count: tables, features: customFeatures, catalog_action: catalog,
     };
     try { localStorage.setItem(draftKey, JSON.stringify(current)); } catch { /* Setup stays usable without storage. */ }
-  }, [draftKey, done, path, step, furthestStep, type, mode, name, address, phone, logo, footer, tables, customFeatures, catalog]);
+  }, [draftKey, done, path, step, furthestStep, type, mode, name, address, phone, phoneCountry, logo, footer, tables, customFeatures, catalog]);
   const features = type === "custom" ? customFeatures : featuresFor(type, mode);
   const titles = ["Your business", "Your workflow", "Details & review"];
   const next = () => {
@@ -84,9 +86,10 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
   };
   const save = async () => {
     if (!name.trim()) { setError("Enter your business name."); return; }
+    if (phone.trim() && !phoneCountry) { setError("Choose the country or territory for this phone number."); return; }
     setBusy(true); setError("");
     try {
-      const payload: BusinessSetupInput = { name: name.trim(), business_type: type, operation_mode: mode, features, address, phone, logo_url: logo, receipt_footer: footer, table_count: tables, catalog_action: catalog };
+      const payload: BusinessSetupInput = { name: name.trim(), business_type: type, operation_mode: mode, features, address, phone, phone_country: phoneCountry, logo_url: logo, receipt_footer: footer, table_count: tables, catalog_action: catalog };
       const response = await apiFetch(`${API}/owner/business/setup`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const result = await response.json();
       if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : "Check your profile details and logo URL, then try again.");
@@ -109,7 +112,7 @@ export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
         <div className="profile-fields">
           <label>Business name<input required maxLength={120} value={name} onChange={event => setName(event.target.value)} placeholder="e.g. Sunday Coffee or The Local Barber" autoComplete="organization" /></label>
           <label>Business address<input maxLength={300} value={address} onChange={event => setAddress(event.target.value)} placeholder="Street, city" autoComplete="street-address" /></label>
-          <div className="form-pair"><label>Phone (optional)<input type="tel" maxLength={40} value={phone} onChange={event => setPhone(event.target.value)} autoComplete="tel" /></label><label>Currency<input value="KRW · South Korean won" readOnly/><small>Current checkout currency</small></label></div>
+          <PhoneFields country={phoneCountry} phone={phone} onCountryChange={setPhoneCountry} onPhoneChange={setPhone}/><label>Currency<input value="KRW · South Korean won" readOnly/><small>Current checkout currency</small></label>
           <label>Logo image URL (optional)<input type="url" maxLength={2048} value={logo} onChange={event => setLogo(event.target.value)} placeholder="https://example.com/logo.png" /></label>
           <label>Receipt message<input maxLength={300} value={footer} onChange={event => setFooter(event.target.value)} /></label>
         </div>

@@ -128,6 +128,25 @@ def main():
             response = post(owner, f"/owner/menu/{item['id']}", {"name": name + " exclusive", "price": item["price"], "category": item["category"], "item_type": item["item_type"], "sku": item["sku"], "recipe": item["recipe"]}, method="PUT")
             check("business-specific catalog saved", 200, response.status_code)
         (owner_a, recovery_a), (owner_b, _) = owners
+        for value in ("12345", "010123456789876", "+1 202-555-0123", "010-CALL-NOW"):
+            invalid = {"phone": value, "phone_country": "KR"}
+            check("business setup rejects invalid phone", 422, post(owner_a, "/owner/business/setup", {
+                "name": "Business A", "business_type": "retail", "operation_mode": "both", **invalid,
+            }).status_code)
+            check("business settings reject invalid phone", 422, post(owner_a, "/owner/settings", {
+                "name": "Business A", **invalid,
+            }, method="PUT").status_code)
+        check("phone requires selected country", 422, post(owner_a, "/owner/settings", {
+            "name": "Business A", "phone": "010-1234-5678",
+        }, method="PUT").status_code)
+        phone_profile = post(owner_a, "/owner/settings", {
+            "name": "Business A", "phone": "010-1234-5678", "phone_country": "KR",
+        }, method="PUT")
+        check("valid local phone is saved in international format", "+821012345678", phone_profile.json()["phone"])
+        check("saved phone restores its country", "KR", owner_a.get("/business").json()["phone_country"])
+        check("a Canadian number fails for US despite the shared country code", 422, post(owner_a, "/owner/settings", {
+            "name": "Business A", "phone": "+1 416-555-0123", "phone_country": "US",
+        }, method="PUT").status_code)
         check("owner has owner role", "owner", owner_a.get("/auth/session").json()["user"]["role"])
         check("owner cannot open platform console API", 403, owner_a.get("/platform/businesses").status_code)
         setup = {"name": "Business A", "business_type": "retail", "operation_mode": "both",

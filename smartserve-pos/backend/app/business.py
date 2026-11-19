@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from . import models
 from .database import get_db
+from .phone import PHONE_COUNTRIES, normalize_phone, phone_country
 from .security import principal
 
 BusinessType = Literal["cafe", "restaurant", "bakery", "retail", "grocery", "barbershop", "beauty", "repair", "services", "custom"]
@@ -95,6 +96,7 @@ class SetupInput(BaseModel):
     features: list[Literal["checkout", "inventory", "tables", "appointments", "walk_ins", "jobs"]] = Field(default_factory=list)
     address: str = Field(default="", max_length=300)
     phone: str = Field(default="", max_length=40)
+    phone_country: str = Field(default="", max_length=2)
     logo_url: str = Field(default="", max_length=2048)
     receipt_footer: str = Field(default="Thank you for your visit!", max_length=300)
     table_count: int = Field(default=8, ge=1, le=50)
@@ -163,6 +165,7 @@ def get_profile(db):
             "currency": "KRW", "operation_mode": config.operation_mode if config else "both",
             "features": features, "order_types": order_types,
             "address": config.address if config else "", "phone": config.phone if config else "",
+            "phone_country": phone_country(config.phone) if config else "",
             "logo_url": config.logo_url if config else "", "receipt_footer": config.receipt_footer if config else "Thank you for your visit!",
             "table_count": config.table_count if config else 8,
             "onboarding_complete": config.onboarding_complete if config else False}
@@ -171,6 +174,11 @@ def get_profile(db):
 @router.get("/business")
 def business_profile(db: Session = Depends(get_db)):
     return get_profile(db)
+
+
+@router.get("/business/phone-countries")
+def business_phone_countries():
+    return PHONE_COUNTRIES
 
 
 @router.get("/business/presets")
@@ -245,6 +253,7 @@ def complete_setup(payload: SetupInput, request: Request, db: Session = Depends(
     config = db.get(models.BusinessConfiguration, 1)
     if actor.role == "platform_admin" and (config is None or not config.onboarding_complete):
         raise HTTPException(403, "The business owner must complete initial setup")
+    phone = normalize_phone(payload.phone, payload.phone_country)
     if profile is None:
         profile = models.BusinessProfile(id=1)
         db.add(profile)
@@ -271,7 +280,7 @@ def complete_setup(payload: SetupInput, request: Request, db: Session = Depends(
         added, skipped = add_starter_items(payload.business_type, db)
     profile.name, profile.business_type = payload.name, payload.business_type
     config.operation_mode, config.features = payload.operation_mode, ",".join(features)
-    config.address, config.phone = payload.address.strip(), payload.phone.strip()
+    config.address, config.phone = payload.address.strip(), phone
     config.logo_url, config.receipt_footer = payload.logo_url, payload.receipt_footer.strip()
     config.table_count, config.onboarding_complete = payload.table_count, True
     db.commit()

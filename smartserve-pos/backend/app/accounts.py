@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from . import models
 from .database import get_db
+from .phone import normalize_phone
 from .identity_models import ArchivedStore, Audit, Invitation, LoginSession, Membership, Store, User
 from .security import audit, identity_db, memberships, principal, recent_mfa
 from .mailer import send_owner_activation
@@ -42,6 +43,7 @@ class SettingsInput(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     address: str = Field(default="", max_length=300)
     phone: str = Field(default="", max_length=40)
+    phone_country: str = Field(default="", max_length=2)
     receipt_footer: str = Field(default="", max_length=300)
 
 
@@ -225,8 +227,9 @@ def owner_settings(payload: SettingsInput, request: Request, db: Session = Depen
     config = db.get(models.BusinessConfiguration, 1)
     if not profile or not config or not config.onboarding_complete:
         raise HTTPException(409, "The business owner must finish setup first")
+    phone = normalize_phone(payload.phone, payload.phone_country)
     profile.name = payload.name.strip()
-    config.address, config.phone, config.receipt_footer = payload.address.strip(), payload.phone.strip(), payload.receipt_footer.strip()
+    config.address, config.phone, config.receipt_footer = payload.address.strip(), phone, payload.receipt_footer.strip()
     db.commit()
     from .business import get_profile
     return get_profile(db)

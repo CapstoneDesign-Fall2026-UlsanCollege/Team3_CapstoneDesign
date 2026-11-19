@@ -520,3 +520,9 @@ th, td { padding: 10px 12px; }
   .mobile-checkout-bar button { min-height: 44px; padding-inline: .625rem; font-size: .875rem; }
   .payments { scroll-margin-block-end: 100px; }
 }
+
+.phone-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: var(--space-sm); }
+.phone-fields label, .phone-fields input, .phone-fields select { min-width: 0; width: 100%; }
+.setup-shell .phone-fields select { min-height: 48px; background: #fff; color: #17243a; border-color: #a7b8d1; }
+.phone-fields > button { grid-column: 1 / -1; justify-self: start; }
+@media (max-width: 600px) { .phone-fields { grid-template-columns: minmax(0, 1fr); } }
