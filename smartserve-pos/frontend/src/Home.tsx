@@ -41,7 +41,7 @@ export function Home() {
     <main id="home-main">
       <section className="home-hero home-width" id="product">
         <div className="home-intro">
-          <p className="home-kicker">POINT OF SALE FOR SMALL BUSINESSES</p>
+          <p className="home-kicker">Point of sale for small businesses</p>
           <h1>Your business.<br/>Your own POS.</h1>
           <p>Set up SmartServe for the way you work. Take orders, manage stock, and see your daily sales in one workspace.</p>
           <a className="home-cta" href="/register">Create your business</a>
