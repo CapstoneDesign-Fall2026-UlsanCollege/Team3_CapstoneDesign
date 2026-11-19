@@ -102,6 +102,7 @@ def main():
         environment = os.environ.copy()
         environment.update({"PYTHONDONTWRITEBYTECODE": "1", "SMARTSERVE_ENV": "test", "SMARTSERVE_BOOTSTRAP_ADMIN": "false", "SMARTSERVE_TEST_PASSWORD": password,
                             "SMARTSERVE_AUTH_SECRET": secrets.token_urlsafe(48), "SMARTSERVE_PUBLIC_ORIGIN": ORIGIN,
+                            "SMARTSERVE_PLATFORM_ADMIN_EMAIL": "browser-admin@example.test",
                             "SMARTSERVE_LOCAL_DATA": str(temp / "private"), "SMARTSERVE_TEST_MAIL_OUTBOX": str(temp / "outbox")})
         try:
             if args.postgres_bin:
