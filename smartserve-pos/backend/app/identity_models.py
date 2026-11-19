@@ -69,6 +69,14 @@ class Invitation(IdentityBase):
     consumed: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
+class OwnerSignup(IdentityBase):
+    __tablename__ = "security_owner_signups"
+    email: Mapped[str] = mapped_column(String(254), primary_key=True)
+    business_name: Mapped[str] = mapped_column(String(120))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[float] = mapped_column(Float)
+
+
 class EmailChallenge(IdentityBase):
     __tablename__ = "security_email_challenges"
     session_hash: Mapped[str] = mapped_column(ForeignKey("security_sessions.token_hash"), primary_key=True)

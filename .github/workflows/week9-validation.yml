@@ -70,6 +70,9 @@ jobs:
       - name: Install frontend dependencies
         working-directory: smartserve-pos/frontend
         run: npm install
+      - name: Run frontend component tests
+        working-directory: smartserve-pos/frontend
+        run: npm test
       - name: Build frontend
         working-directory: smartserve-pos/frontend
         shell: bash

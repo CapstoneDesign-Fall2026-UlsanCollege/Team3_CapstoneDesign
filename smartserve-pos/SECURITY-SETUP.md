@@ -1,16 +1,16 @@
 # Secure accounts and Gmail authorization
 
-This branch replaces the shared demo login with individual, invitation-only accounts. The Render site is not protected by these changes until this branch is deployed with the required secrets. Never deploy with test mode enabled.
+SmartServe uses individual accounts. New owners can create a business at `/register` by following a one-use email link, choosing a passphrase, and completing email verification. Staff accounts are created by invitation. Deploy with production authentication and Gmail configured.
 
 ## Roles
 
 | Role | Access |
 |---|---|
-| Platform administrator | Creates businesses, runs setup/presets, selects business workspaces, assigns owners, and reads platform audit events |
-| Owner | Own business sales, catalog, stock, everyday details, staff invitations/access, and operational tools |
-| Cashier | Own business checkout, orders, stock availability, tables, appointments/queue/jobs enabled by the administrator |
+| Platform administrator | Manages existing workspaces, assigns owners, and reads platform audit events |
+| Owner | Own business setup, sales, catalog, stock, staff invitations/access, and operational tools |
+| Cashier | Own business checkout, orders, stock availability, and enabled workflow tools |
 
-Setup APIs are restricted to the platform administrator. No API or public signup can create another platform administrator. A database constraint permits one platform administrator. Owner and cashier identities cannot select a business without a membership. Sessions are bound to a server-selected business namespace, not a browser-supplied business header or query parameter.
+New workspaces are created through owner signup. The owner completes initial setup from their authenticated session. Platform administration requires the designated platform administrator account, and a database constraint permits one platform administrator. Owners and cashiers can select businesses where they hold active memberships.
 
 PostgreSQL uses separate `store_<id>` schemas for each business. Local SQLite uses separate database files. The original store remains in the existing database as the `legacy` business; it is not assigned to an arbitrary account. The platform administrator can select it and invite its owner. Back up the database before migrating production.
 

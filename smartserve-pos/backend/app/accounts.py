@@ -1,4 +1,4 @@
-"""Platform-only provisioning and owner-only staff/settings operations."""
+"""Platform workspace administration and owner staff/settings operations."""
 import os
 import secrets
 import time
@@ -16,13 +16,9 @@ from .identity_models import ArchivedStore, Audit, Invitation, LoginSession, Mem
 from .security import audit, identity_db, memberships, principal, recent_mfa
 from .mailer import send_owner_activation
 from .security_primitives import config, email_address, token_hash
-from .tenancy import provision_store, purge_archived_stores
+from .tenancy import purge_archived_stores
 
 router = APIRouter()
-
-
-class StoreInput(BaseModel):
-    name: str = Field(min_length=1, max_length=120)
 
 
 class InviteInput(BaseModel):
@@ -178,23 +174,6 @@ def permanently_delete_store(store_id: str, request: Request):
     return {"deleted": True}
 
 
-@router.post("/platform/businesses", status_code=201)
-def create_store(payload: StoreInput, request: Request):
-    actor = principal(request, "platform_admin")
-    recent_mfa(actor)
-    if not payload.name.strip():
-        raise HTTPException(422, "Business name is required")
-    store_id = uuid4().hex
-    with identity_db() as db:
-        store = Store(id=store_id, name=payload.name.strip(), namespace="store_" + store_id, active=True, created_at=time.time())
-        db.add(store)
-        db.flush()
-        provision_store(store)
-        audit(db, "business_created", actor.user_id, store.id)
-        db.commit()
-        return {"id": store.id, "name": store.name, "active": store.active}
-
-
 @router.post("/platform/invitations")
 def platform_invite(payload: InviteInput, request: Request):
     actor = principal(request, "platform_admin")
@@ -245,7 +224,7 @@ def owner_settings(payload: SettingsInput, request: Request, db: Session = Depen
     profile = db.get(models.BusinessProfile, 1)
     config = db.get(models.BusinessConfiguration, 1)
     if not profile or not config or not config.onboarding_complete:
-        raise HTTPException(409, "The platform administrator must finish setup first")
+        raise HTTPException(409, "The business owner must finish setup first")
     profile.name = payload.name.strip()
     config.address, config.phone, config.receipt_footer = payload.address.strip(), payload.phone.strip(), payload.receipt_footer.strip()
     db.commit()

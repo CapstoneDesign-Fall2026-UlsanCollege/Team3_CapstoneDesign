@@ -7,11 +7,11 @@ import { createRoot } from "react-dom/client";
 import { OwnerManagement } from "./OwnerManagement";
 import { BusinessSetup, businessLabels, defaultBusiness, orderLabels, type BusinessProfile } from "./Onboarding";
 import { TableBoard, WorkflowDesk, type WorkTicket } from "./WorkflowDesk";
+import { navigate, useLocation } from "./navigation";
 import "./styles.css";
+import { Home } from "./Home";
 
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
-const isSetupPage = window.location.pathname.replace(/\/+$/, "") === "/setup";
-const isOwnerPage = isSetupPage || window.location.pathname.replace(/\/+$/, "") === "/etalogin";
 type MenuItem = { id: number; name: string; price: number; category: string; item_type: string; sku: string };
 type MenuRecipe = { id: number; recipe: { ingredient_id: number; quantity: number }[] };
 type CartLine = MenuItem & { quantity: number };
@@ -19,6 +19,10 @@ type InventoryItem = { id: number; name: string; unit: string; stock_quantity: n
 type Order = { table_number?: number | null; ticket_id?: number | null; id: number; order_type: string; status: string; total: number; created_at: string; paid_at?: string | null; trashed_at?: string | null; delete_after?: string | null; items: { menu_item_id: number; name: string; quantity: number; unit_price: number }[]; payment_method?: string; simulated_reference?: string };
 type Dashboard = { date: string; paid_orders: number; sales_total: number; recent_sales: Order[] };
 type Tab = "cashier" | "orders" | "inventory" | "owner" | "tables" | "work";
+const tabPaths: Record<Tab, string> = {
+  owner: "/pos/dashboard", cashier: "/pos/checkout", orders: "/pos/orders",
+  inventory: "/pos/inventory", tables: "/pos/tables", work: "/pos/appointments-jobs",
+};
 type Theme = "white" | "dark" | "code";
 
 const won = (value: number) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW", maximumFractionDigits: 0 }).format(value);
@@ -34,13 +38,31 @@ function App({ account }: { account: AccountSession }) {
   const canConfigure = account.user?.role === "platform_admin";
   const canManage = canConfigure || account.user?.role === "owner";
   const pendingStorageKey = `smartserve.pendingOrder.${account.store_id}.${account.user?.id}`;
-  const [deferSetup, setDeferSetup] = useState(false);
-  const [showSetup, setShowSetup] = useState(isSetupPage);
+  const path = useLocation().split("?")[0].replace(/\/+$/, "") || "/";
+  const isSetupPage = path === "/setup";
+  const ordersTrash = path === "/pos/orders/trash";
+  const defaultTab = account.user?.role === "owner" || (canConfigure && path === "/etalogin") ? "owner" : "cashier";
   const [tableNumber, setTableNumber] = useState<number | null>(null);
   const [workTicket, setWorkTicket] = useState<WorkTicket | null>(null);
   const [business, setBusiness] = useState<BusinessProfile>(defaultBusiness);
   const [businessError, setBusinessError] = useState("");
   const [businessReady, setBusinessReady] = useState(false);
+  const tabs: Tab[] = [
+    ...(canManage ? ["owner" as const] : []), "cashier", "orders",
+    ...(business.features.includes("inventory") ? ["inventory" as const] : []),
+    ...(business.features.includes("tables") ? ["tables" as const] : []),
+    ...(business.features.some(feature => ["appointments", "walk_ins", "jobs"].includes(feature)) ? ["work" as const] : []),
+  ];
+  const tab = tabs.find(item => (ordersTrash ? tabPaths.orders : path) === tabPaths[item]) ?? defaultTab;
+  const setTab = (next: Tab) => navigate(tabPaths[next]);
+  useEffect(() => {
+    if (!businessReady) return;
+    if (account.user?.role === "owner" && !business.onboarding_complete) {
+      if (!isSetupPage) navigate("/setup", true);
+    } else if (!isSetupPage || !canManage) {
+      navigate(ordersTrash ? "/pos/orders/trash" : tabPaths[tab], true);
+    }
+  }, [path, businessReady, business.onboarding_complete, account.user?.role, canManage, isSetupPage, ordersTrash, tab]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All items");
   const [catalogVersion, setCatalogVersion] = useState(0);
@@ -64,7 +86,7 @@ function App({ account }: { account: AccountSession }) {
     document.addEventListener("pointerdown", closeOutside);
     return () => document.removeEventListener("pointerdown", closeOutside);
   }, [themeMenuOpen]);
-  const [tab, setTab] = useState<Tab>(account.user?.role === "owner" || (isOwnerPage && !isSetupPage) ? "owner" : "cashier");
+
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [recipes, setRecipes] = useState<MenuRecipe[]>([]);
   const [stockReady, setStockReady] = useState(false);
@@ -81,7 +103,7 @@ function App({ account }: { account: AccountSession }) {
   const salesRequest = useRef(0);
   const [orderDate, setOrderDate] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersTrash, setOrdersTrash] = useState(false);
+
   const [monthOpen, setMonthOpen] = useState<Record<string, boolean>>({});
   const [orderFilter, setOrderFilter] = useState("all");
   const [savedOrder, setSavedOrder] = useState<Order | null>(null);
@@ -205,7 +227,19 @@ function App({ account }: { account: AccountSession }) {
     } catch (error) { setMessage(error instanceof Error ? error.message : "Payment failed"); }
     finally { paying.current = false; setBusy(false); }
   };
-  const openTab = (next: Tab) => { setTab(next); setMessage(""); if (next === "orders") void readData<Order[]>(`/orders?trash=${ordersTrash}`).then(setOrders).catch(() => setMessage("Could not load orders.")); if (next === "inventory") void loadInventory().catch(() => setMessage("Could not load inventory.")); };
+  const openTab = (next: Tab) => { setMessage(""); setTab(next); };
+  useEffect(() => {
+    if (tab !== "orders" || !businessReady || isSetupPage) return;
+    let active = true;
+    setOrders([]); setOrderFilter("all"); setOrderDate("");
+    void readData<Order[]>(`/orders?trash=${ordersTrash}`).then(result => {
+      if (active) setOrders(result);
+    }).catch(() => { if (active) setMessage("Could not load orders. Please refresh."); });
+    return () => { active = false; };
+  }, [tab, ordersTrash, businessReady, isSetupPage]);
+  useEffect(() => {
+    if (tab === "inventory") void loadInventory().catch(() => setMessage("Could not load inventory."));
+  }, [tab]);
   const resumeOrder = (order: Order) => {
     setTableNumber(order.table_number ?? null); setWorkTicket(null);
     setCart([]); setReceipt(null); setSavedOrder(order); setPendingOrder(order.id);
@@ -230,10 +264,9 @@ function App({ account }: { account: AccountSession }) {
     finally { setBusy(false); }
   };
 
-  const showOrderFolder = async (trash: boolean) => {
-    setOrdersTrash(trash); setOrderFilter("all"); setOrderDate(""); setMessage("");
-    try { setOrders(await readData<Order[]>("/orders?trash=" + trash)); }
-    catch { setMessage("Could not load orders. Please refresh."); }
+  const showOrderFolder = (trash: boolean) => {
+    setMessage("");
+    navigate(trash ? "/pos/orders/trash" : tabPaths.orders);
   };
   const manageTrash = async (order: Order, action: "trash" | "restore" | "delete") => {
     if (action === "delete" && !window.confirm("Permanently delete order #" + order.id + "? This cannot be undone.")) return;
@@ -258,15 +291,15 @@ function App({ account }: { account: AccountSession }) {
   const orderMonths = Object.keys(ordersByMonth).sort().reverse();
   const monthLabel = (month: string) => new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Asia/Seoul" }).format(new Date(month + "-01T00:00:00+09:00"));
 
-  if (businessReady && canConfigure && (showSetup || (!business.onboarding_complete && !deferSetup))) return <BusinessSetup profile={business} onClose={() => { setShowSetup(false); setDeferSetup(true); }} onChanged={async profile => { setShowSetup(true); setBusiness(profile); setCategory("All items"); await loadMenu(); setCatalogVersion(value => value + 1); }} />;
-  if (isSetupPage && !canConfigure) return <main className="auth-page"><section className="auth-card"><h1>Setup is managed by your platform administrator.</h1><p>Your account cannot create businesses or change their preset/workflows.</p><a href="/">Return to your workspace</a></section></main>;
-  if (businessReady && !business.onboarding_complete && !canConfigure) return <main className="auth-page"><section className="auth-card"><h1>Your business is being set up.</h1><p>The platform administrator needs to finish your business profile before the workspace opens.</p><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></section></main>;
+  if (!businessReady) return <main className="auth-page"><p role="status">{businessError || "Loading your workspace…"}</p></main>;
+  if (canManage && (business.onboarding_complete ? isSetupPage : account.user?.role === "owner")) return <BusinessSetup profile={business} onClose={business.onboarding_complete ? () => navigate(tabPaths[defaultTab]) : undefined} onChanged={async profile => { setBusiness(profile); setCategory("All items"); await loadMenu(); setCatalogVersion(value => value + 1); }} />;
+  if (!business.onboarding_complete) return <main className="auth-page"><section className="auth-card"><h1>Your business is being set up.</h1><p>Your business owner needs to finish the business profile before the workspace opens.</p><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/login"); }}>Sign out</button></section></main>;
   return <main className="app-shell">
     <aside className="theme-control" ref={themePanel} onKeyDown={event => { if (event.key === "Escape") { setThemeMenuOpen(false); themePanel.current?.querySelector<HTMLButtonElement>(".theme-toggle")?.focus(); } }}>
       <button className="theme-toggle" aria-label="Change theme" title="Change theme" aria-expanded={themeMenuOpen} aria-controls="theme-options" onClick={() => setThemeMenuOpen(open => !open)}><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.7-3.1 1.5 1.5 0 0 1 1.3-2.3h2a3 3 0 0 0 3-3A9.6 9.6 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="11" cy="6.8" r="1"/><circle cx="15.5" cy="8" r="1"/></svg></button>
       {themeMenuOpen && <fieldset id="theme-options" className="theme-options"><legend>Appearance</legend>{([{ value: "white", label: "White", detail: "Bright & clean" }, { value: "dark", label: "Dark", detail: "Soft contrast" }, { value: "code", label: "Code", detail: "Syntax highlights" }] as const).map(option => <label className={"theme-option " + (theme === option.value ? "selected" : "")} key={option.value}><input type="radio" name="theme" value={option.value} checked={theme === option.value} onChange={() => setTheme(option.value)} /><span className={"theme-swatch swatch-" + option.value} aria-hidden="true"/><span><strong>{option.label}</strong><small>{option.detail}</small></span></label>)}</fieldset>}
     </aside>
-    <header><div><p className="eyebrow">SMARTSERVE · {businessLabels[business.business_type] ?? "POINT OF SALE"}</p><h1>{business.logo_url && <img className="business-logo" src={business.logo_url} alt="" onError={event => { event.currentTarget.hidden = true; }}/>} {business.name}</h1></div><nav aria-label="Main navigation">{([...(canManage ? ["owner" as const] : []), "cashier", "orders", ...(business.features.includes("inventory") ? ["inventory" as const] : []), ...(business.features.includes("tables") ? ["tables" as const] : []), ...(business.features.some(feature => ["appointments", "walk_ins", "jobs"].includes(feature)) ? ["work" as const] : [])]).map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item as Tab)} key={item}>{item === "owner" ? "Owner dashboard" : item === "work" ? "Appointments & jobs" : item[0].toUpperCase() + item.slice(1)}</button>)}{canConfigure && <a className="primary-link" href="/platform">Platform admin</a>}{(account.businesses?.length || 0) > 1 && <select aria-label="Switch business" value={account.store_id || ""} onChange={async event => { await apiRequest("/auth/switch-business", jsonBody({ store_id: event.target.value })); window.location.assign("/"); }}>{account.businesses?.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>}<button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></nav></header>
+    <header><div><p className="eyebrow">SMARTSERVE · {businessLabels[business.business_type] ?? "POINT OF SALE"}</p><h1>{business.logo_url && <img className="business-logo" src={business.logo_url} alt="" onError={event => { event.currentTarget.hidden = true; }}/>} {business.name}</h1></div><nav aria-label="Main navigation">{tabs.map(item => <button aria-label={item === "cashier" || item === "inventory" ? item : undefined} aria-current={tab === item ? "page" : undefined} className={tab === item ? "active" : ""} onClick={() => openTab(item as Tab)} key={item}>{item === "owner" ? "Owner dashboard" : item === "work" ? "Appointments & jobs" : item[0].toUpperCase() + item.slice(1)}</button>)}{canConfigure && <a className="primary-link" href="/platform">Platform admin</a>}{(account.businesses?.length || 0) > 1 && <select aria-label="Switch business" value={account.store_id || ""} onChange={async event => { await apiRequest("/auth/switch-business", jsonBody({ store_id: event.target.value })); window.location.assign("/login"); }}>{account.businesses?.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>}<button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></nav></header>
     <AccountSecurity/>
     {businessError && <p role="alert" className="notice">{businessError}</p>}
     {message && <p className="notice" role="status">{message}</p>}
@@ -312,17 +345,24 @@ function App({ account }: { account: AccountSession }) {
       <div className="toolbar"><label>Sales date<input type="date" value={salesDate} onChange={event => { if (event.target.value) setSalesDate(event.target.value); }} /></label><button disabled={salesLoading} onClick={() => setSalesRefresh(value => value + 1)}>Refresh sales</button><span className="muted">Korea time (KST)</span></div>
       {salesLoading && <p role="status">Loading sales…</p>}{salesError && <p role="alert" className="notice">{salesError}</p>}
       {dashboard && <><div className="stats"><article><span>{"Sales on " + dashboard.date}</span><strong>{won(dashboard.sales_total)}</strong></article><article><span>Paid orders on {dashboard.date}</span><strong>{dashboard.paid_orders}</strong></article></div><h3>Paid sales on {dashboard.date}</h3><div className="table-wrap"><table><thead><tr><th>Order</th><th>Paid (KST)</th><th>Items</th><th>Type</th><th>Total</th><th>Payment</th></tr></thead><tbody>{dashboard.recent_sales.map(order => <tr key={order.id}><td>#{order.id}</td><td>{dateTime(order.paid_at)}</td><td>{order.items.map(item => item.name + " × " + item.quantity).join(", ")}</td><td>{(order.table_number ? `Table ${order.table_number}` : orderLabels[order.order_type] || order.order_type.replace("_", " "))}</td><td>{won(order.total)}</td><td>{order.payment_method?.toUpperCase()}</td></tr>)}</tbody></table>{dashboard.paid_orders === 0 && <p className="empty-state">No paid sales on this date.</p>}</div></>}
-      <section className="panel profile-summary"><div><p className="eyebrow">BUSINESS PROFILE</p><h3>{business.name}</h3><p className="muted">{businessLabels[business.business_type]} · {business.operation_mode.replace(/_/g, " ")} · {business.features.join(" / ")}</p></div>{canConfigure ? <button className="primary" onClick={() => setShowSetup(true)}>Edit business profile</button> : <span className="badge">Owner workspace</span>}</section>
+      <section className="panel profile-summary"><div><p className="eyebrow">BUSINESS PROFILE</p><h3>{business.name}</h3><p className="muted">{businessLabels[business.business_type]} · {business.operation_mode.replace(/_/g, " ")} · {business.features.join(" / ")}</p></div><button className="primary" onClick={() => navigate("/setup")}>Edit business profile</button></section>
       <BusinessAccountSettings session={account} profile={business} onChanged={setBusiness} />
       <OwnerManagement key={catalogVersion} onMenuChanged={loadMenu} onInventoryChanged={loadInventory} />
     </section>}
   </main>;
 }
 
+function Workspace({ account }: { account: AccountSession }) {
+  const path = useLocation().split("?")[0].replace(/\/+$/, "");
+  const platformAdmin = account.user?.role === "platform_admin";
+  useEffect(() => {
+    if (platformAdmin && !account.store_id && path !== "/platform") navigate("/platform", true);
+  }, [account.store_id, path, platformAdmin]);
+  if (platformAdmin && (!account.store_id || path === "/platform")) return <PlatformConsole session={account} />;
+  if (path === "/platform") return <main className="auth-page"><section className="auth-card"><h1>Platform administrator access required.</h1><a href="/login">Return to your workspace</a></section></main>;
+  return <App key={`${account.user?.id}:${account.store_id}`} account={account}/>;
+}
+
 createRoot(document.getElementById("root")!).render(
-  <StrictMode><AccountAccess>{account => {
-    if (account.user?.role === "platform_admin" && (!account.store_id || window.location.pathname === "/platform")) return <PlatformConsole session={account} />;
-    if (window.location.pathname === "/platform" && account.user?.role !== "platform_admin") return <main className="auth-page"><section className="auth-card"><h1>Platform administrator access required.</h1><a href="/">Return to your workspace</a></section></main>;
-    return <App key={`${account.user?.id}:${account.store_id}`} account={account}/>;
-  }}</AccountAccess></StrictMode>,
+  <StrictMode>{window.location.pathname === "/" ? <Home/> : <AccountAccess>{account => <Workspace account={account}/>}</AccountAccess>}</StrictMode>,
 );

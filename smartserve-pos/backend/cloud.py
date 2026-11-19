@@ -26,6 +26,9 @@ dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 @app.get("/platform/", include_in_schema=False)
 @app.get("/activate", include_in_schema=False)
 @app.get("/login", include_in_schema=False)
+@app.get("/register", include_in_schema=False)
+@app.get("/pos/{page}", include_in_schema=False)
+@app.get("/pos/orders/trash", include_in_schema=False)
 def owner_page():
     return FileResponse(dist / "index.html")
 

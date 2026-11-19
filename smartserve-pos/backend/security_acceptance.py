@@ -36,9 +36,9 @@ def post(client, path, body=None, method="POST"):
     return client.request(method, path, json=body, headers=csrf(client))
 
 
-def latest_code(email):
+def latest_mail(email, field="code"):
     messages = [json.loads(path.read_text()) | {"mtime": path.stat().st_mtime_ns} for path in OUTBOX.glob("*.json")]
-    return max((item for item in messages if item["to"] == email), key=lambda item: item["mtime"])["code"]
+    return max((item for item in messages if item["to"] == email and field in item), key=lambda item: item["mtime"])[field]
 
 
 def activate(url, email, verify=True):
@@ -49,7 +49,7 @@ def activate(url, email, verify=True):
     if result.json().get("challenge"):
         check("password alone cannot access business", 401, client.get("/menu").status_code)
         if verify:
-            proof = post(client, "/auth/mfa/verify", {"code": latest_code(email)})
+            proof = post(client, "/auth/mfa/verify", {"code": latest_mail(email)})
             check("email code completes MFA", 200, proof.status_code)
             recovery = proof.json().get("recovery_codes", [])
     return client, recovery
@@ -61,7 +61,7 @@ def login(email, verify=True):
     check("password login starts valid challenge", 200, response.status_code)
     if response.json().get("challenge") and verify:
         check("email challenge is not a full session", False, client.get("/auth/session").json()["authenticated"])
-        response = post(client, "/auth/mfa/verify", {"code": latest_code(email)})
+        response = post(client, "/auth/mfa/verify", {"code": latest_mail(email)})
         check("login second factor accepted", 200, response.status_code)
     return client
 
@@ -90,33 +90,29 @@ def main():
             check("second platform admin bootstrap blocked", True, False)
         except RuntimeError:
             check("second platform admin bootstrap blocked", True, True)
-        stores = []
-        for name in ("Business A", "Business B"):
-            result = post(admin, "/platform/businesses", {"name": name})
-            check("platform creates isolated business", 201, result.status_code)
-            store = result.json()
+        check("platform cannot create a workspace", 405, post(admin, "/platform/businesses", {"name": "Blocked"}).status_code)
+        stores, owners = [], []
+        for name, email in zip(("Business A", "Business B"), ("ownera@example.test", "ownerb@example.test")):
+            result = post(public, "/auth/register", {"business_name": name, "email": email})
+            check("owner signup sends an activation link", 202, result.status_code)
+            owner, recovery = activate(latest_mail(email, "activation_url"), email)
+            store = owner.get("/auth/session").json()["businesses"][0]
             stores.append(store)
-            check("platform selects business", 200, post(admin, "/auth/switch-business", {"store_id": store["id"]}).status_code)
-            result = post(admin, "/owner/business/setup", {"name": name, "business_type": "retail", "operation_mode": "both", "catalog_action": "samples"})
-            check("platform alone configures business", 200, result.status_code)
-            menu = admin.get("/owner/menu").json()
-            item = menu[0]
-            response = post(admin, f"/owner/menu/{item['id']}", {"name": name + " exclusive", "price": item["price"], "category": item["category"], "item_type": item["item_type"], "sku": item["sku"], "recipe": item["recipe"]}, method="PUT")
+            owners.append((owner, recovery))
+            check("platform selects existing business", 200, post(admin, "/auth/switch-business", {"store_id": store["id"]}).status_code)
+            setup_payload = {"name": name, "business_type": "retail", "operation_mode": "both", "catalog_action": "samples"}
+            check("platform cannot complete initial setup", 403, post(admin, "/owner/business/setup", setup_payload).status_code)
+            check("owner completes their setup", 200, post(owner, "/owner/business/setup", setup_payload).status_code)
+            item = owner.get("/owner/menu").json()[0]
+            response = post(owner, f"/owner/menu/{item['id']}", {"name": name + " exclusive", "price": item["price"], "category": item["category"], "item_type": item["item_type"], "sku": item["sku"], "recipe": item["recipe"]}, method="PUT")
             check("business-specific catalog saved", 200, response.status_code)
-        owner_links = []
-        for store, email in zip(stores, ("ownera@example.test", "ownerb@example.test")):
-            response = post(admin, "/platform/invitations", {"email": email, "name": "Business owner", "store_id": store["id"], "role": "owner"})
-            check("platform invites store owner", 200, response.status_code)
-            check("owner activation link stays out of API response", None, response.json()["activation_url"])
-            messages = [json.loads(path.read_text()) for path in OUTBOX.glob("*.json")]
-            owner_links.append(next(item["activation_url"] for item in messages if item["to"] == email))
-        check("same email cannot be invited to another workspace", 409, post(admin, "/platform/invitations",
-              {"email": "ownera@example.test", "name": "Owner", "store_id": stores[1]["id"], "role": "owner"}).status_code)
-        owner_a, recovery_a = activate(owner_links[0], "ownera@example.test")
-        owner_b, _ = activate(owner_links[1], "ownerb@example.test")
+        (owner_a, recovery_a), (owner_b, _) = owners
         check("owner has owner role", "owner", owner_a.get("/auth/session").json()["user"]["role"])
         check("owner cannot open platform console API", 403, owner_a.get("/platform/businesses").status_code)
-        check("owner cannot run setup", 403, post(owner_a, "/owner/business/setup", {"name": "Attack", "business_type": "retail", "operation_mode": "both"}).status_code)
+        setup = {"name": "Business A", "business_type": "retail", "operation_mode": "both",
+                 "catalog_action": "keep", "receipt_footer": "Business A receipt"}
+        check("owner can update their own setup", 200, post(owner_a, "/owner/business/setup", setup).status_code)
+        check("owner setup preserves another business", "Business B", owner_b.get("/business").json()["name"])
         check("owner cannot choose another business", 403, post(owner_a, "/auth/switch-business", {"store_id": stores[1]["id"]}).status_code)
         check("owner cannot choose legacy business", 403, post(owner_a, "/auth/switch-business", {"store_id": "legacy"}).status_code)
         check("query parameter cannot switch tenant", True, all(item["name"] != "Business B exclusive" for item in owner_a.get("/menu?store_id=" + stores[1]["id"]).json()))
@@ -135,6 +131,7 @@ def main():
         for endpoint in ("/dashboard/sales", "/owner/inventory", "/owner/staff", "/platform/businesses"):
             check("cashier restricted " + endpoint, 403, cashier.get(endpoint).status_code)
         check("cashier cannot edit catalog", 403, post(cashier, "/owner/menu", {"name": "Bad", "price": 1, "item_type": "service"}).status_code)
+        check("cashier cannot change business setup", 403, post(cashier, "/owner/business/setup", setup).status_code)
         check("owner cannot grant admin role", 422, post(owner_a, "/owner/staff/invitations", {"email": "bad@example.test", "name": "Bad", "store_id": stores[0]["id"], "role": "platform_admin"}).status_code)
         check("owner cannot invite into another store", 403, post(owner_a, "/owner/staff/invitations", {"email": "bad@example.test", "name": "Bad", "store_id": stores[1]["id"], "role": "cashier"}).status_code)
         user_id = cashier.get("/auth/session").json()["user"]["id"]
@@ -150,9 +147,9 @@ def main():
             stored = db.get(EmailChallenge, token_hash(challenge.cookies.get(COOKIE)))
             stored.expires_at = time.time() - 1
             db.commit()
-        check("expired email code rejected", 401, post(challenge, "/auth/mfa/verify", {"code": latest_code("ownera@example.test")}).status_code)
+        check("expired email code rejected", 401, post(challenge, "/auth/mfa/verify", {"code": latest_mail("ownera@example.test")}).status_code)
         challenge = login("ownera@example.test", verify=False)
-        saved_code = latest_code("ownera@example.test")
+        saved_code = latest_mail("ownera@example.test")
         pending_cookie = challenge.cookies.get(COOKIE)
         pending_headers = csrf(challenge)
         def use_code(_):
@@ -166,7 +163,7 @@ def main():
         replay = login("ownera@example.test", verify=False)
         check("recovery code cannot be reused", 401, post(replay, "/auth/mfa/verify", {"code": recovery_a[0]}).status_code)
         limited = login("ownerb@example.test", verify=False)
-        original = latest_code("ownerb@example.test")
+        original = latest_mail("ownerb@example.test")
         wrong = "000000" if original != "000000" else "000001"
         for _ in range(5):
             check("wrong email code rejected", 401, post(limited, "/auth/mfa/verify", {"code": wrong}).status_code)
@@ -177,10 +174,10 @@ def main():
             db.commit()
         check("resend after cooldown succeeds", 200, post(limited, "/auth/mfa/resend").status_code)
         check("resend invalidates previous email code", 401, post(limited, "/auth/mfa/verify", {"code": original}).status_code)
-        check("new email code is accepted", 200, post(limited, "/auth/mfa/verify", {"code": latest_code("ownerb@example.test")}).status_code)
+        check("new email code is accepted", 200, post(limited, "/auth/mfa/verify", {"code": latest_mail("ownerb@example.test")}).status_code)
         original_owner_b_cookie = owner_b.cookies.get(COOKIE)
         check("sensitive action code sent", 200, post(owner_b, "/auth/mfa/resend").status_code)
-        changed = post(owner_b, "/auth/password", {"password": PASSWORD, "new_password": PASSWORD + "-changed", "code": latest_code("ownerb@example.test")})
+        changed = post(owner_b, "/auth/password", {"password": PASSWORD, "new_password": PASSWORD + "-changed", "code": latest_mail("ownerb@example.test")})
         check("passphrase change requires verified email and password", 200, changed.status_code)
         old_owner_b = TestClient(app)
         old_owner_b.cookies.set(COOKIE, original_owner_b_cookie)
@@ -210,7 +207,7 @@ def main():
             row = db.get(LoginSession, token_hash(admin.cookies.get(COOKIE)))
             check("business switch does not refresh MFA age", True, row.mfa_at < time.time() - 600)
             check("business switch preserves absolute session expiry", before_expiry, row.expires_at)
-        check("stale MFA cannot perform platform changes", 403, post(admin, "/platform/businesses", {"name": "Must reauthenticate"}).status_code)
+        check("stale MFA cannot perform platform changes", 403, post(admin, "/platform/invitations", {"name": "Must reauthenticate", "email": "reauth@example.test", "store_id": stores[0]["id"], "role": "owner"}).status_code)
         with identity_db() as db:
             db.get(LoginSession, token_hash(admin.cookies.get(COOKIE))).mfa_at = time.time()
             db.commit()

@@ -1,4 +1,5 @@
 """User-facing onboarding and workflow acceptance scenarios."""
+import re
 from datetime import datetime, timedelta
 from playwright.sync_api import expect
 
@@ -29,7 +30,7 @@ def run_scenarios(page, context, check, output, password, origin):
         page.get_by_role("button", name="Start with editable sample items" if catalog == "samples" else "Start with an empty catalog" if catalog == "empty" else "Keep my current catalog", exact=False).click()
         if screenshots:
             shot("04-review-profile.png")
-        page.get_by_role("button", name="Create my workspace", exact=False).click()
+        page.get_by_role("button", name=re.compile(r"Create my workspace|Save business profile")).click()
         expect(page.get_by_role("link", name="Open my POS", exact=False)).to_be_visible()
         page.get_by_role("link", name="Open my POS", exact=False).click()
         expect(page.get_by_role("heading", name=name, exact=True)).to_be_visible()
@@ -119,7 +120,7 @@ def run_scenarios(page, context, check, output, password, origin):
     page.get_by_label("Category", exact=True).fill("My services")
     page.get_by_role("button", name="Add item", exact=True).click()
     expect(page.get_by_role("status")).to_contain_text("My custom service")
-    page.goto(origin)
+    page.goto(origin + "/login")
     sell("My custom service")
     check("custom catalog checkout", 22000, context.request.get(origin + "/orders").json()[0]["total"])
     page.set_viewport_size({"width": 390, "height": 844})

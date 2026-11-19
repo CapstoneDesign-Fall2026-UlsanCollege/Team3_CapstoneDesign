@@ -1,0 +1,14 @@
+Week 10 backend test evidence
+Date: 2026-11-10
+Suite: test_trash
+Environment: Python 3.13 virtual environment; isolated SQLite
+Command: python -B -m unittest -v test_trash
+
+test_auto_expiry_and_payment_guard ... ok
+test_open_and_paid_orders_cannot_be_trashed ... ok
+test_trash_restore_and_permanent_delete ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.076s
+
+OK

@@ -1,13 +1,14 @@
 """Single-store business setup and non-destructive catalog starters."""
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from . import models
 from .database import get_db
+from .security import principal
 
 BusinessType = Literal["cafe", "restaurant", "bakery", "retail", "grocery", "barbershop", "beauty", "repair", "services", "custom"]
 router = APIRouter()
@@ -238,13 +239,16 @@ def add_starter_items(preset_id, db):
 
 
 @router.post("/owner/business/setup")
-def complete_setup(payload: SetupInput, db: Session = Depends(get_db)):
+def complete_setup(payload: SetupInput, request: Request, db: Session = Depends(get_db)):
+    actor = principal(request, "owner", "platform_admin")
     profile = db.scalar(select(models.BusinessProfile).where(models.BusinessProfile.id == 1).with_for_update())
+    config = db.get(models.BusinessConfiguration, 1)
+    if actor.role == "platform_admin" and (config is None or not config.onboarding_complete):
+        raise HTTPException(403, "The business owner must complete initial setup")
     if profile is None:
         profile = models.BusinessProfile(id=1)
         db.add(profile)
         db.flush()
-    config = db.get(models.BusinessConfiguration, 1)
     features = list(dict.fromkeys(["checkout", *(payload.features if payload.business_type == "custom" else features_for(payload.business_type, payload.operation_mode))]))
     # Reconfiguration never orphans an unpaid bill or an unfinished appointment/job.
     if db.scalar(select(models.Order.id).where(models.Order.status == "open").limit(1)):

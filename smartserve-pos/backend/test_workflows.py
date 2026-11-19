@@ -3,7 +3,8 @@ os.environ.setdefault("DATABASE_URL", "sqlite://")
 
 import unittest
 from datetime import datetime, timezone
-from fastapi import HTTPException
+from types import SimpleNamespace
+from fastapi import HTTPException, Request
 from pydantic import ValidationError
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
@@ -30,7 +31,8 @@ class WorkflowTests(unittest.TestCase):
         self.engine.dispose()
 
     def setup_store(self, kind="cafe", mode="both", **kwargs):
-        return complete_setup(SetupInput(name="Test business", business_type=kind, operation_mode=mode, **kwargs), self.db)
+        request = Request({"type": "http", "state": {"principal": SimpleNamespace(role="owner", purpose="full")}})
+        return complete_setup(SetupInput(name="Test business", business_type=kind, operation_mode=mode, **kwargs), request, self.db)
 
     def order(self, **kwargs):
         return create_order(OrderCreate(items=[{"menu_item_id": 1, "quantity": 1}], **kwargs), self.db)

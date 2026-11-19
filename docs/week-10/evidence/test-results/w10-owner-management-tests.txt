@@ -1,0 +1,23 @@
+Week 10 backend test evidence
+Date: 2026-11-10
+Suite: test_owner_management
+Environment: Python 3.13 virtual environment; isolated SQLite
+Command: python -B -m unittest -v test_owner_management
+
+test_add_menu_with_recipe_pay_and_archive_without_losing_history ... ok
+test_cannot_archive_ingredient_used_by_active_menu_or_open_order ... ok
+test_compatible_conversion_preserves_recipe_payment_and_ledger ... ok
+test_edit_alternate_unit_preserves_availability_and_payment ... ok
+test_edit_menu_and_ingredient_with_open_order_guards ... ok
+test_edit_rejects_incompatible_unit_without_changing_recipe ... ok
+test_readd_removed_ingredient_protects_historical_unit ... ok
+test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused ... ok
+test_recipe_input_converts_grams_and_millilitres_to_stored_units ... ok
+test_reject_duplicate_names_and_inactive_recipe_ingredient ... ok
+test_rename_keeps_old_receipt_name_and_price_but_new_order_uses_edit ... ok
+test_legacy_schema_is_upgraded_and_backfill_runs_only_once ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.263s
+
+OK

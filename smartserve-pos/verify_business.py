@@ -53,7 +53,8 @@ class Proxy(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith(("/platform/", "/business", "/auth/", "/owner/", "/menu", "/inventory", "/orders", "/dashboard/", "/tables")):
             return self.forward()
-        if self.path.split("?")[0] in ("/etalogin", "/setup", "/platform", "/activate", "/login"):
+        path = self.path.split("?")[0]
+        if path.startswith("/pos/") or path in ("/etalogin", "/setup", "/platform", "/activate", "/login", "/register"):
             self.path = "/index.html"
         super().do_GET()
 

@@ -1,18 +1,28 @@
 """Private, isolated browser-test seed; no HTTP endpoint and no real email."""
 import os
 import time
+import sys
 from uuid import uuid4
 
 if os.getenv("SMARTSERVE_ENV") != "test" or not os.getenv("SMARTSERVE_TEST_MAIL_OUTBOX"):
     raise RuntimeError("Browser fixtures require explicit test mode and a private test outbox")
 
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+from app.business import SetupInput, complete_setup
+from app.database import engine
+from fastapi import Request
+from types import SimpleNamespace
 from app.main import create_tables
 from app.identity_models import User
 from app.security import identity_db
 from app.security_primitives import password_hash
 
 create_tables()
+if "--legacy-cafe" in sys.argv:
+    request = Request({"type": "http", "state": {"principal": SimpleNamespace(role="owner", purpose="full")}})
+    with Session(engine) as db:
+        complete_setup(SetupInput(name="SmartServe POS", business_type="cafe", operation_mode="takeaway"), request, db)
 with identity_db() as db:
     if db.scalar(select(User.id).where(User.platform_admin.is_(True))):
         raise RuntimeError("Test fixture will not overwrite an existing platform administrator")

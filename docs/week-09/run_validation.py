@@ -117,7 +117,7 @@ def main():
             else:
                 environment["DATABASE_URL"] = "sqlite:///" + str(temp / "sample.db").replace("\\", "/")
                 database = "fresh temporary SQLite file"
-            subprocess.run([sys.executable, "-B", "security_fixture.py"], cwd=REPO / "smartserve-pos/backend", env=environment, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=HIDDEN)
+            subprocess.run([sys.executable, "-B", "security_fixture.py", "--legacy-cafe"], cwd=REPO / "smartserve-pos/backend", env=environment, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=HIDDEN)
             with open(temp / "api.log", "w", encoding="utf-8") as log:
                 process = subprocess.Popen([sys.executable, "-B", "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "18991"],
                                            cwd=REPO / "smartserve-pos/backend", env=environment, stdout=log, stderr=log, creationflags=HIDDEN)
@@ -155,9 +155,6 @@ def main():
                         raise AssertionError("Could not verify isolated email challenge")
                     if mutation("/auth/switch-business", {"store_id": "legacy"}).status != 200:
                         raise AssertionError("Could not select isolated legacy fixture")
-                    setup = mutation("/owner/business/setup", {"name": "SmartServe POS", "business_type": "cafe", "operation_mode": "takeaway", "catalog_action": "keep"})
-                    if setup.status != 200:
-                        raise AssertionError(("Could not prepare cafe regression setup", setup.status))
 
                     def shot(name):
                         page.screenshot(path=str(args.output / name), full_page=True)
@@ -173,7 +170,7 @@ def main():
                         check("PUT " + endpoint, 200, response.status)
                         return response.json()
 
-                    page.goto(ORIGIN)
+                    page.goto(ORIGIN + "/login")
                     expect(page.get_by_role("button", name="Caffè Latte", exact=False)).to_be_enabled()
                     check("authorized administrator sees owner dashboard", 1, page.get_by_role("button", name="Owner dashboard", exact=True).count())
                     check("anonymous sales requires owner session", 401, anonymous.get(ORIGIN + "/dashboard/sales").status)
@@ -189,7 +186,7 @@ def main():
                     check("fresh sales", [0, 0], [initial_sales["paid_orders"], initial_sales["sales_total"]])
                     shot("03-starting-sales.png")
                     initial_stock = get("/inventory")
-                    page.goto(ORIGIN)
+                    page.goto(ORIGIN + "/login")
                     page.get_by_role("button", name="inventory", exact=True).click()
                     expect(page.get_by_role("cell", name="5000 ml", exact=True)).to_be_visible()
                     shot("04-starting-inventory.png")
@@ -247,7 +244,7 @@ def main():
                     page.reload()
                     expect(page.get_by_text("Latte verification", exact=True)).to_be_visible()
                     shot("10-corrected-recipe-owner-view.png")
-                    page.goto(ORIGIN)
+                    page.goto(ORIGIN + "/login")
                     page.get_by_role("button", name="Orders", exact=True).click()
                     page.get_by_role("button", name="View receipt", exact=True).click()
                     expect(page.locator(".receipt")).to_contain_text("Caffè Latte")

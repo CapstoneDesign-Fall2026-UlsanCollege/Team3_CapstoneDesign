@@ -1,4 +1,4 @@
-"""Invite-only accounts, mandatory privileged MFA, opaque sessions and role gates."""
+"""Account activation, mandatory privileged MFA, opaque sessions and role gates."""
 from dataclasses import dataclass
 import hmac
 import json
@@ -6,6 +6,7 @@ import os
 import secrets
 import time
 from contextlib import contextmanager
+from uuid import uuid4
 
 from fastapi import HTTPException, Request, Response
 from fastapi.responses import JSONResponse
@@ -16,8 +17,9 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from .database import engine, tenant_scope
-from .identity_models import Audit, EmailChallenge, Invitation, LoginSession, Membership, Store, Throttle, User
+from .identity_models import Audit, EmailChallenge, Invitation, LoginSession, Membership, OwnerSignup, Store, Throttle, User
 from .security_primitives import COOKIE, PASSWORDS, PRODUCTION, config, email_code_mac, email_address, password_hash, password_valid, recovery_codes, token_hash
+from .tenancy import provision_store
 
 
 @dataclass
@@ -169,6 +171,49 @@ class ActivateInput(BaseModel):
     password: str = Field(min_length=14, max_length=128)
 
 
+class OwnerSignupInput(BaseModel):
+    email: str = Field(max_length=254)
+    business_name: str = Field(min_length=1, max_length=120)
+
+    @field_validator("email")
+    @classmethod
+    def valid_email(cls, value):
+        return email_address(value)
+
+    @field_validator("business_name")
+    @classmethod
+    def valid_business_name(cls, value):
+        if not value.strip():
+            raise ValueError("Enter your business name")
+        return value.strip()
+
+
+def reserved_admin_email(email):
+    return email == config("SMARTSERVE_PLATFORM_ADMIN_EMAIL", "").strip().lower()
+
+
+def create_signup_owner(db, signup, name, encoded_password):
+    if reserved_admin_email(signup.email) or db.scalar(select(User.id).where(User.email == signup.email)):
+        raise HTTPException(400, "This signup link is no longer available. Sign in or use your invitation.")
+    user = User(id=uuid4().hex, email=signup.email, name=name.strip() or signup.email, password_hash=encoded_password,
+                active=True, platform_admin=False, mfa_required=True, created_at=time.time())
+    store_id = signup.token_hash[:32]
+    store = Store(id=store_id, name=signup.business_name, namespace="store_" + store_id,
+                  active=True, created_at=time.time())
+    db.add_all([user, store])
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, "An account already exists. Sign in or use your invitation.")
+    provision_store(store)
+    db.add(Membership(user_id=user.id, store_id=store.id, role="owner", active=True))
+    db.flush()
+    db.delete(signup)
+    audit(db, "owner_workspace_created", user.id, store.id)
+    return user
+
+
 class FactorInput(BaseModel):
     code: str = Field(min_length=6, max_length=100)
 
@@ -254,7 +299,9 @@ def install_owner_auth(app):
         if domain:
             if not identity or identity.purpose != "full":
                 return JSONResponse({"detail": "Sign in and complete two-factor verification"}, status_code=401)
-            platform_only = path.startswith("/platform/") or path == "/owner/business" or path.startswith("/owner/business/")
+            platform_only = path.startswith("/platform/") or (
+                path != "/owner/business/setup" and (path == "/owner/business" or path.startswith("/owner/business/"))
+            )
             if platform_only and identity.role != "platform_admin":
                 return JSONResponse({"detail": "Platform administrator access required"}, status_code=403)
             if platform_only and unsafe and (not identity.mfa_at or time.time() - identity.mfa_at > 600):
@@ -324,22 +371,68 @@ def install_owner_auth(app):
             db.commit()
             return {"authenticated": purpose == "full", "challenge": purpose if purpose != "full" else None, "email_sent": sent}
 
+    @app.post("/auth/register", status_code=202)
+    def register_owner(payload: OwnerSignupInput, request: Request):
+        from .mailer import deliver
+
+        origin = config("SMARTSERVE_PUBLIC_ORIGIN")
+        if PRODUCTION and not origin.startswith("https://"):
+            raise HTTPException(503, "Signup is temporarily unavailable. Please try again later.")
+        origin = origin or request.headers.get("origin") or str(request.base_url)
+        message = {"message": "If this email is available, you’ll receive a link to create your owner account."}
+        with identity_db() as db:
+            throttle(db, request, "owner_signup", payload.email, limit=3)
+            if reserved_admin_email(payload.email) or db.scalar(select(User.id).where(User.email == payload.email)):
+                return message
+            signup = db.scalar(select(OwnerSignup).where(OwnerSignup.email == payload.email).with_for_update())
+            if signup and signup.expires_at > time.time():
+                return message
+            raw = secrets.token_urlsafe(48)
+            if not signup:
+                signup = OwnerSignup(email=payload.email)
+                db.add(signup)
+            signup.business_name = payload.business_name
+            signup.token_hash, signup.expires_at = token_hash(raw), time.time() + 1800
+            try:
+                db.flush()
+            except IntegrityError:
+                return message
+            url = origin.rstrip("/") + "/activate#" + raw
+            try:
+                deliver(payload.email, "Create your SmartServe business",
+                        f"Open this one-use link within 30 minutes to create your owner account:\n\n{url}\n\nIf you did not request this, ignore this email.",
+                        {"activation_url": url})
+            except Exception:
+                raise HTTPException(503, "Signup email is temporarily unavailable. Please try again later.")
+            db.commit()
+        return message
+
     @app.post("/auth/activate")
     def activate(payload: ActivateInput, request: Request, response: Response):
         with identity_db() as db:
             throttle(db, request, "activate", token_hash(payload.token))
             invite = db.scalar(select(Invitation).where(Invitation.token_hash == token_hash(payload.token)).with_for_update())
-            if not invite or invite.consumed or invite.expires_at < time.time():
-                raise HTTPException(400, "This invitation is invalid or expired")
-            user = db.scalar(select(User).where(User.id == invite.user_id).with_for_update())
-            if not user or not user.active or user.password_hash:
-                raise HTTPException(400, "This invitation is no longer available")
+            signup = None
+            if invite:
+                if invite.consumed or invite.expires_at < time.time():
+                    raise HTTPException(400, "This invitation is invalid or expired")
+                user = db.scalar(select(User).where(User.id == invite.user_id).with_for_update())
+                if not user or not user.active or user.password_hash:
+                    raise HTTPException(400, "This invitation is no longer available")
+                invite.consumed = True
+            else:
+                signup = db.scalar(select(OwnerSignup).where(OwnerSignup.token_hash == token_hash(payload.token)).with_for_update())
+                if not signup or signup.expires_at < time.time():
+                    raise HTTPException(400, "This activation link is invalid or expired")
             try:
-                user.password_hash = password_hash(payload.password)
+                encoded_password = password_hash(payload.password)
             except ValueError as error:
                 raise HTTPException(422, str(error))
+            if signup:
+                user = create_signup_owner(db, signup, payload.name, encoded_password)
+            else:
+                user.password_hash = encoded_password
             user.name = payload.name.strip() or user.email
-            invite.consumed = True
             db.execute(update(LoginSession).where(LoginSession.user_id == user.id).values(revoked=True))
             purpose = "verify_email" if mfa_required(db, user) else "full"
             created = new_session(db, user, response, request, purpose)
