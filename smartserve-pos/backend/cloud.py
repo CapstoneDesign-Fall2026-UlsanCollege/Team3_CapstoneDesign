@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 
+from fastapi import Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
@@ -18,6 +19,15 @@ from app.main import app  # noqa: E402
 dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 
+@app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+def homepage(request: Request):
+    headers = {"Cache-Control": "no-store"}
+    if request.query_params.get("refresh-home") == "1":
+        # Clear previously cached responses without touching cookies or saved workspace data.
+        headers["Clear-Site-Data"] = '"cache"'
+    return FileResponse(dist / "index.html", headers=headers)
+
+
 @app.get("/etalogin", include_in_schema=False)
 @app.get("/etalogin/", include_in_schema=False)
 @app.get("/setup", include_in_schema=False)
@@ -30,7 +40,7 @@ dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 @app.get("/pos/{page}", include_in_schema=False)
 @app.get("/pos/orders/trash", include_in_schema=False)
 def owner_page():
-    return FileResponse(dist / "index.html")
+    return FileResponse(dist / "index.html", headers={"Cache-Control": "no-store"})
 
 
 app.mount("/", StaticFiles(directory=dist, html=True), name="frontend")

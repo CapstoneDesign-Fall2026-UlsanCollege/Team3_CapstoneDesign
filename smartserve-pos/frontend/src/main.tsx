@@ -363,6 +363,10 @@ function Workspace({ account }: { account: AccountSession }) {
   return <App key={`${account.user?.id}:${account.store_id}`} account={account}/>;
 }
 
+if (window.location.pathname === "/" && window.location.search === "?refresh-home=1") {
+  window.history.replaceState(null, "", "/" + window.location.hash);
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>{window.location.pathname === "/" ? <Home/> : <AccountAccess>{account => <Workspace account={account}/>}</AccountAccess>}</StrictMode>,
 );
