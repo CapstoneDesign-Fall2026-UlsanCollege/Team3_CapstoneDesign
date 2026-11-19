@@ -1,6 +1,33 @@
 # SmartServe POS
 
-Café POS built with React/TypeScript/Vite, FastAPI/SQLAlchemy, PostgreSQL, and Docker Compose.
+Invite-only multi-business POS built with React/TypeScript/Vite, FastAPI/SQLAlchemy, PostgreSQL, and Docker Compose.
+
+## Business setup and presets
+
+See [secure account and Gmail setup](SECURITY-SETUP.md) before running this version. Shared demo passwords have been removed. Only the designated platform administrator can create businesses and run `/setup`; owners and cashiers receive individual invitations.
+
+New stores start with a profile-first setup after platform-admin sign-in:
+
+1. Choose Café, Restaurant, Bakery, Retail, Grocery, Barbershop, Salon/Beauty, Repair, Professional Services, or Custom setup.
+2. Choose your operating model. Food businesses support takeaway only, tables only, or both. Retail supports in-store, pickup, or both. Barbershops/salons support walk-ins, appointments, or both. Repair shops support immediate service, jobs, or both. Custom setup lets you select your tools.
+3. Set the business name, address, optional phone/HTTPS logo URL, and receipt footer. Checkout currently uses KRW.
+4. Keep your current catalog, use editable sample items, or start empty. Sample/empty choices archive existing catalog items rather than deleting history or stock. Archived catalog items can be restored in owner management. Review sample opening stock and prices before use.
+5. Review the profile and open the configured POS. Edit it later from the owner dashboard. Settle open bills and complete/cancel work before disabling its workflow.
+
+**Working tools:** table selection, saved table bills, additional items on open table bills, product/recipe stock deductions, fixed-price services, staff/resource appointment scheduling with overlapping-time rejection, walk-in queue, repair-job status tracking, and linked service checkout. A paid work bill completes its work item; cancelled unpaid bills can be replaced. Appointments/job details require an owner session. The floor table board and ordinary checkout follow the existing public demo model.
+
+Catalog items support prepared recipes, stocked products (one connected `pcs` inventory item per sale), and services without stock consumption. Search by name/category/SKU. Tables are released when their bill is paid/cancelled. Changes to business type never rewrite order item snapshots or totals. Configuration changes preserve stock and use additive tables.
+
+Each business has isolated data and owner/cashier memberships. Privileged accounts require a passphrase plus an emailed verification code. Payments remain simulated, amounts are KRW, and appointments have fixed durations per staff/resource. Real payment providers, tax/refund processing, product variants, booking reminders, recurring appointments, parts purchasing, and offline checkout are not implemented.
+
+Acceptance checks (build frontend first):
+
+```bash
+python -m unittest discover -s backend -v
+python verify_business.py --output ../docs/output/profile-onboarding
+```
+
+Install backend requirements and Playwright; install `backend/requirements-dev.txt` for backend security tests; run `python -m playwright install chromium` first. `--browser` selects an installed Chromium executable. `--postgres-bin` optionally points to PostgreSQL binaries for a fresh local PostgreSQL test cluster; otherwise the browser run uses temporary SQLite. Test data is isolated from the shared store. The suite walks through onboarding, table bills, retail, appointments/overlap rejection, walk-ins, repair checkout, Custom setup, retained history, and mobile layout. CI runs this plus the original café transaction regression.
 
 ## Render deployment
 
@@ -8,16 +35,9 @@ Select the `fullstack` branch in Render's New Blueprint screen. The Blueprint
 file is `render.yaml` at the repository root. Paste a Neon PostgreSQL connection
 string into Render's `DATABASE_URL` setting and keep the Free plan.
 
-The website and API share the resulting public origin. Owner login is at
-`/etalogin` with username `admin`. The Blueprint configures the requested demo
-password using `SMARTSERVE_OWNER_PASSWORD_SHA256`, so a previously generated
-`SMARTSERVE_OWNER_PASSWORD` does not override it. For another password, update
-the hash environment variable. Without a configured hash, local development
-uses `SMARTSERVE_OWNER_PASSWORD` if set, or the demo default.
-`SMARTSERVE_SESSION_SECRET` is generated for signed sessions. Keep it private.
-The dashboard does not appear in public navigation. The cloud database starts
-with demo data, not local history.
-Payments are simulated, and all visitors use the same demo database.
+The website and API share the same public origin. Configure the Gmail HTTPS API and security environment variables in [SECURITY-SETUP.md](SECURITY-SETUP.md) before deploying. On the first properly configured startup, only the designated admin receives an activation link. The admin chooses a private passphrase and verifies their email; owners are invited per business and must also verify email codes. Cashiers have separate credentials and can be required to verify email too.
+
+There is no default shared owner password. `/platform` is admin-only, `/setup` is admin-only, and ordinary sign-in sends each user to their authorized workspace. The legacy database is preserved as an unassigned business for the admin to claim/manage. Other businesses use isolated PostgreSQL schemas. All payments are simulated.
 
 The free service can sleep when idle, so its first response may be slow.
 
@@ -69,11 +89,11 @@ In Owner dashboard → Manage menu & inventory:
 3. Add a menu item, price in KRW, and recipe amounts for one serving.
 4. Recipe quantities use each ingredient's stored unit. Editing g/kg or ml/l converts the existing recipe quantities automatically.
 
-Removed items disappear from active lists while historical records remain. Ingredients used by active menu items or open orders cannot be removed until dependencies are settled. Archived names remain reserved. Owner-only access is not enforced yet.
+Removed items disappear from active lists while historical records remain. Ingredients used by active menu items or open orders cannot be removed until dependencies are settled. Archived names remain reserved. Owner management and sales endpoints require an owner session.
 
 ## Sales and appearance
 
-Choose a Sales date: totals and paid-order rows use the same Korea-time day. All users share the database, so test purchases and teammate purchases contribute to sales. The app does not identify individual cashiers. Refresh sales to fetch changes.
+Choose a Sales date: totals and paid-order rows use the same Korea-time day. Each business has an isolated data namespace. Paid orders are visible only within the selected authorized business; test purchases contribute to that business's sales. Account activity is audited; per-cashier sales attribution is not implemented. Refresh sales to fetch changes.
 
 The bottom-left palette button switches White, Dark, and Code themes. The current browser remembers the choice; Escape closes the selector.
 

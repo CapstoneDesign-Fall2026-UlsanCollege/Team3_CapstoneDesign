@@ -4,3 +4,9 @@ docs/week-05/mixed-order-evidence/
 # Python cache files
 __pycache__/
 *.py[cod]
+
+# Local security keys, invitation links, private tenant databases and test artifacts
+.smartserve-local/
+.env
+.env.*
+!.env.example

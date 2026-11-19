@@ -7,12 +7,18 @@ on:
       - ".github/workflows/week9-validation.yml"
       - "smartserve-pos/backend/**"
       - "smartserve-pos/frontend/**"
+      - "smartserve-pos/verify_business.py"
+      - "smartserve-pos/business_scenarios.py"
+      - "smartserve-pos/security_browser_scenarios.py"
       - "smartserve-pos/requirements*.txt"
       - "docs/week-09/run_validation.py"
   pull_request:
     paths:
       - "smartserve-pos/backend/**"
       - "smartserve-pos/frontend/**"
+      - "smartserve-pos/verify_business.py"
+      - "smartserve-pos/business_scenarios.py"
+      - "smartserve-pos/security_browser_scenarios.py"
   workflow_dispatch:
 
 permissions:
@@ -31,13 +37,18 @@ jobs:
           python-version: "3.12"
       - name: Install backend dependencies
         working-directory: smartserve-pos/backend
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -r requirements-dev.txt
       - name: Run backend test suite
         working-directory: smartserve-pos/backend
         shell: bash
         run: |
           set -o pipefail
-          python -m unittest -v test_issue3 test_owner_management test_trash test_week10_ualsom test_week11_ualsom 2>&1 | tee backend-test-results.txt
+          python -m unittest discover -v 2>&1 | tee backend-test-results.txt
+      - name: Audit backend runtime dependencies
+        working-directory: smartserve-pos/backend
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit -r requirements.txt
       - name: Upload backend test output
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,6 +79,9 @@ jobs:
         run: |
           set -o pipefail
           npm run build 2>&1 | tee frontend-build-results.txt
+      - name: Audit frontend dependencies
+        working-directory: smartserve-pos/frontend
+        run: npm audit --audit-level=high
       - name: Upload frontend build output
         if: always()
         uses: actions/upload-artifact@v4
@@ -97,13 +111,14 @@ jobs:
       - name: Install frontend dependencies
         working-directory: smartserve-pos/frontend
         run: npm install
-
       - name: Build frontend
         run: npm --prefix smartserve-pos/frontend run build
       - name: Run isolated browser/API regression checks
         run: |
           set -o pipefail
           python -B docs/week-09/run_validation.py --output docs/week-09/evidence/latest 2>&1 | tee week9-browser-results.txt
+      - name: Run business preset browser checks
+        run: python -B smartserve-pos/verify_business.py --output business-preset-evidence
       - name: Upload browser/API results and screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -112,4 +127,5 @@ jobs:
           path: |
             docs/week-09/evidence/latest/
             week9-browser-results.txt
+            business-preset-evidence/
           if-no-files-found: warn

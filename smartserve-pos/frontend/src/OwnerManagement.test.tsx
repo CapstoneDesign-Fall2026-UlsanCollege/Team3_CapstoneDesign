@@ -107,9 +107,9 @@ describe("OwnerManagement", () => {
 
     await screen.findByText("Latte");
 
-    fireEvent.click(screen.getByText("Add ingredient", { selector: "summary" }));
+    fireEvent.click(screen.getByText("Add stock item", { selector: "summary" }));
 
-    fireEvent.change(screen.getByPlaceholderText("e.g. Matcha powder"), {
+    fireEvent.change(screen.getByLabelText("Stock item name"), {
       target: { value: "Matcha powder" },
     });
 
@@ -121,7 +121,7 @@ describe("OwnerManagement", () => {
       target: { value: "100" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Add ingredient" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add stock item" }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -156,9 +156,9 @@ describe("OwnerManagement", () => {
 
     await screen.findByText("Latte");
 
-    fireEvent.click(screen.getByText("Add menu item", { selector: "summary" }));
+    fireEvent.click(screen.getByText("Add item", { selector: "summary" }));
 
-    fireEvent.change(screen.getByPlaceholderText("e.g. Matcha Latte"), {
+    fireEvent.change(screen.getByLabelText("Item name"), {
       target: { value: "Matcha Latte" },
     });
 
@@ -174,7 +174,7 @@ describe("OwnerManagement", () => {
       target: { value: "200" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Add menu item" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add item" }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -184,6 +184,9 @@ describe("OwnerManagement", () => {
           body: JSON.stringify({
             name: "Matcha Latte",
             price: 5500,
+            item_type: "prepared",
+            category: "General",
+            sku: "",
             recipe: [
               { ingredient_id: 1, quantity: 200, unit: "ml" },
             ],
@@ -213,7 +216,7 @@ describe("OwnerManagement", () => {
 
     await screen.findByText("Latte");
 
-    const menuCard = screen.getByRole("heading", { name: "Menu items" }).closest("article");
+    const menuCard = screen.getByRole("heading", { name: "Items & services" }).closest("article");
     fireEvent.click(within(menuCard!).getByRole("button", { name: "Remove" }));
 
     expect(window.confirm).toHaveBeenCalledOnce();
