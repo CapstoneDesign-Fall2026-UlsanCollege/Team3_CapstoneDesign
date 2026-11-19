@@ -56,8 +56,8 @@ export function Home() {
               <h2>{view.title}</h2>
               <p>{view.detail}</p>
               <table aria-label={selected + " example"}>
-                <thead><tr>{view.columns.map(column => <th scope="col" key={column}>{column}</th>)}</tr></thead>
-                <tbody>{view.rows.map(row => <tr key={row[0]}><th scope="row">{row[0]}</th><td>{row[1]}</td><td>{row[2]}</td></tr>)}</tbody>
+                <thead><tr>{view.columns.map((column, index) => <th className={index === 0 ? undefined : "numeric-cell"} scope="col" key={column}>{column}</th>)}</tr></thead>
+                <tbody>{view.rows.map(row => <tr key={row[0]}><th scope="row">{row[0]}</th><td className="numeric-cell">{row[1]}</td><td className="numeric-cell">{row[2]}</td></tr>)}</tbody>
               </table>
               <div className="home-preview-total"><span>{view.summary[0]}</span><strong>{view.summary[1]}</strong></div>
             </div>

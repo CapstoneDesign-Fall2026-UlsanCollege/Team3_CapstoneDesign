@@ -266,9 +266,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 :root[data-theme="code"] .app-shell :is(h1, h2, h3) { color: #89dceb; }
 :root[data-theme="code"] .eyebrow { color: #f5c2e7; }
 :root[data-theme="code"] .menu-card strong { color: #f9e2af; }
-.theme-control { position: fixed; left: 14px; bottom: 20px; z-index: 50; display: flex; align-items: end; gap: 10px; }
+.theme-control { position: relative; z-index: 2; justify-self: end; }
 .theme-toggle { display: grid; place-items: center; width: 48px; height: 48px; background: var(--surface); color: var(--accent); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 5px 20px #0002; }
-.theme-options { width: 240px; margin: 0; padding: 12px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 8px 30px #0003; }
+.theme-options { position: absolute; top: calc(100% + 8px); right: 0; width: min(240px, calc(100vw - 64px)); margin: 0; padding: 12px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 8px 30px #0003; }
 .theme-options legend { background: var(--surface); padding: 0 8px; font-weight: 700; }
 .theme-option { display: flex; align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 9px; padding: 10px; margin: 4px 0; cursor: pointer; }
 .theme-option.selected { background: var(--surface-soft); border-color: var(--accent); }
@@ -278,7 +278,6 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 .swatch-white { background: linear-gradient(135deg, #fff 50%, #e2e8f0 50%); }
 .swatch-dark { background: linear-gradient(135deg, #121e30 50%, #9ab8ff 50%); }
 .swatch-code { background: linear-gradient(135deg, #252537 50%, #cba6f7 50%); }
-@media (max-width: 700px) { .theme-control { left: 10px; bottom: 12px; } .app-shell { padding-bottom: 90px; } }
 
 /* Compact store interface. */
 .app-shell h1 { font-size: clamp(1.4rem, 2.4vw, 1.8rem); letter-spacing: 0; }
@@ -411,4 +410,68 @@ th, td { padding: 10px 12px; }
 }
 @supports (corner-shape: bevel) {
   .app-shell > header, .auth-card, .setup-review { corner-shape: bevel round bevel round; }
+}
+
+
+/* Shared spacing and alignment */
+:root {
+  --space-xs: .375rem;
+  --space-sm: .75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --content-gutter: clamp(1rem, 3vw, 2rem);
+  --panel-padding: clamp(1rem, 2vw, 1.5rem);
+}
+:is(.app-shell, .setup-shell, .auth-page) { line-height: 1.5; }
+:is(.app-shell, .setup-shell, .auth-page) :is(h1, h2, h3) { line-height: 1.2; }
+:is(.app-shell, .setup-shell, .auth-page) :is(button, select, input, textarea) { font: inherit; }
+.numeric-cell { text-align: end; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.app-shell { padding-inline: var(--content-gutter); }
+.app-shell > header, .app-shell :is(.panel, .receipt, .stats article) { padding: var(--panel-padding); }
+.app-shell > header:has(.theme-control) { grid-template-columns: minmax(0, 1fr) auto; }
+.app-shell > header nav { grid-column: 1 / -1; padding-top: var(--space-sm); }
+.app-shell > header nav > :is(button, a, select), .app-shell .toolbar :is(button, input, select) { min-height: 42px; }
+.app-shell :is(.cashier-grid, .management-grid, .work-layout) { gap: var(--space-lg); }
+.app-shell .cashier-grid > *, .app-shell .work-layout > * { min-width: 0; }
+.app-shell .section-heading { align-items: flex-start; gap: var(--space-sm) var(--space-lg); margin-bottom: var(--space-md); }
+.app-shell .section-heading h2 { margin-bottom: var(--space-xs); }
+.app-shell :is(.section-heading, .panel, .setup-review) p:last-child { margin-bottom: 0; }
+.app-shell .toolbar { align-items: flex-end; gap: var(--space-sm); }
+.app-shell .toolbar > .muted { align-self: flex-end; padding-block: .625rem; }
+.app-shell .dashboard-actions { flex-flow: row wrap; justify-content: flex-end; flex: 0 1 auto; }
+.app-shell .dashboard-actions > :is(a, button) { width: auto; min-height: 42px; justify-content: center; }
+.app-shell :is(th, td) { padding-block: .75rem; padding-inline: clamp(.625rem, 1.5vw, 1rem); }
+.app-shell .table-wrap td { vertical-align: middle; }
+.app-shell :is(.stats strong, .total strong, .cart-line strong, .menu-card > span) { font-variant-numeric: tabular-nums; }
+.app-shell .stats article { align-content: start; }
+.app-shell .menu-card { gap: var(--space-xs); padding: var(--space-sm); align-content: start; }
+.app-shell .menu-card strong, .app-shell .work-card h3 { overflow-wrap: anywhere; }
+.app-shell .management-row { gap: var(--space-sm); }
+.app-shell .row-actions { align-items: center; }
+.app-shell .row-actions button { line-height: 1.3; }
+.app-shell :is(.table-wrap, textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.auth-page { padding: clamp(1.5rem, 5vw, 3rem) var(--content-gutter); }
+.auth-page > .setup-brand { margin-bottom: var(--space-lg); }
+.auth-card { margin: 0 auto; padding: clamp(1.25rem, 4vw, 2.5rem); }
+.auth-card :is(h1, p) { margin-bottom: var(--space-sm); }
+.auth-card form { gap: var(--space-md); margin-top: var(--space-lg); }
+.auth-card label { margin: 0; gap: var(--space-xs); }
+.auth-card input:not([type="checkbox"]) { min-height: 44px; width: 100%; }
+.auth-card .setup-primary { min-height: 46px; }
+.auth-card .auth-footnote { margin: var(--space-lg) 0 0; padding-top: var(--space-md); }
+.setup-shell .setup-content { padding-top: var(--space-lg); }
+.setup-shell .setup-topline { margin-bottom: var(--space-lg); }
+.setup-shell .setup-heading > p:last-child { margin-bottom: var(--space-lg); }
+.setup-shell .profile-fields { gap: var(--space-sm); }
+.setup-shell .profile-fields label { margin: 0; }
+.setup-shell .setup-footer { flex-wrap: wrap; padding-top: var(--space-md); margin-top: var(--space-lg); }
+@media (max-width: 700px) {
+  .app-shell :is(.cashier-grid, .management-grid, .work-layout) { gap: var(--space-md); }
+  .app-shell .dashboard-actions { justify-content: flex-start; }
+  .app-shell .toolbar > .muted { align-self: center; padding-block: 0; }
+  .app-shell .menu-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 128px), 1fr)); }
+}
+@media (max-width: 380px) {
+  .setup-shell .setup-footer .setup-primary { flex: 1 1 100%; }
+  .setup-shell .business-choice { min-width: 0; overflow-wrap: anywhere; }
 }

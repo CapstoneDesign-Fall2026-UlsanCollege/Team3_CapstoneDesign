@@ -70,3 +70,12 @@
 @supports (corner-shape: bevel) {
   .home-preview { corner-shape: bevel round bevel round; }
 }
+
+.home-header nav > a { display: inline-flex; align-items: center; min-height: 42px; }
+.home-preview-nav button { min-height: 40px; }
+.home-preview th, .home-preview td { padding: .625rem .5rem; }
+.home-preview .numeric-cell { text-align: end; }
+.home-preview-total { padding: .75rem .5rem; }
+.home-workflow-grid dl div { align-items: baseline; }
+.home-workflow-grid h2 + p { margin-top: .75rem; }
+.home-setup ol > li { padding-inline-start: .25rem; }
