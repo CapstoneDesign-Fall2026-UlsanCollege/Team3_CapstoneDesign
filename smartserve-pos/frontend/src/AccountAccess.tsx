@@ -6,6 +6,7 @@ export function AccountAccess({ children }: { children: (session: AccountSession
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [businessName, setBusinessName] = useState("");
+  const [signupSubmitted, setSignupSubmitted] = useState(false);
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -37,22 +38,38 @@ export function AccountAccess({ children }: { children: (session: AccountSession
     }, 1000);
     return () => { clearInterval(timer); window.removeEventListener("pointerdown", touch); window.removeEventListener("keydown", touch); };
   }, [session?.authenticated, session?.user?.role]);
+  async function requestSignup() {
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const result = await apiRequest<{ message: string }>("/auth/register", jsonBody({ email, business_name: businessName.trim() }));
+      setSignupSubmitted(true);
+      setResendAt(Date.now() + 60000);
+      setMessage(result.message);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Could not request an account.");
+    } finally { setBusy(false); }
+  }
   const challenge = session?.challenge === "verify_email";
   const registering = window.location.pathname.replace(/\/+$/, "") === "/register" && !challenge;
   if (!session) return <main className="auth-page"><p role="status">Checking your secure session…</p></main>;
   if (session.authenticated && !recovery.length) return <>{children(session)}</>;
   return <main className="auth-page"><a className="setup-brand" href="/"><span>S</span> SmartServe</a><section className="auth-card">
-    <p className="setup-kicker">YOUR BUSINESS, PROTECTED</p><h1>{recovery.length ? "Keep your recovery codes safe." : challenge ? "Check your email." : invitation ? "Activate your SmartServe account" : registering ? "Create your business" : "Welcome back."}</h1>
-    <p className="muted">{recovery.length ? "Save these one-use codes offline. You will need your passphrase as well if email is unavailable." : challenge ? `Enter the code sent to ${session.user?.email}. It expires in five minutes.` : invitation ? "Choose a private passphrase to activate your account." : registering ? "Use your email address to create an owner account and set up your own workspace." : "Sign in to the workspace your account is authorized to use."}</p>
+    <p className="setup-kicker">YOUR BUSINESS, PROTECTED</p><h1>{recovery.length ? "Keep your recovery codes safe." : challenge ? "Check your email." : invitation ? "Activate your SmartServe account" : registering ? (signupSubmitted ? "Check your inbox" : "Create your business") : "Welcome back."}</h1>
+    <p className="muted">{recovery.length ? "Save these one-use codes offline. You will need your passphrase as well if email is unavailable." : challenge ? `Enter the code sent to ${session.user?.email}. It expires in five minutes.` : invitation ? "Choose a private passphrase to activate your account." : registering ? (signupSubmitted ? "Open the latest signup link within 30 minutes. If it hasn’t arrived, check Spam or resend below." : "Use your email address to create an owner account and set up your own workspace.") : "Sign in to the workspace your account is authorized to use."}</p>
     {error && <p className="setup-error" role="alert">{error}</p>}{message && <p className="notice" role="status">{message}</p>}
-    {recovery.length ? <><div className="recovery-codes">{recovery.map(value => <code key={value}>{value}</code>)}</div><button onClick={() => { const blob = new Blob(["SmartServe one-use recovery codes\nKeep offline and private.\n\n" + recovery.join("\n")], { type: "text/plain" }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "smartserve-recovery-codes.txt"; link.click(); URL.revokeObjectURL(url); }}>Download recovery codes</button><label className="inline-check"><input type="checkbox" checked={saved} onChange={event => setSaved(event.target.checked)}/>I have saved my recovery codes privately</label><button className="setup-primary" disabled={!saved} onClick={() => window.location.replace("/login")}>Enter my workspace →</button></> : registering ? <form onSubmit={async event => {
-      event.preventDefault(); setBusy(true); setError(""); setMessage("");
-      try {
-        const result = await apiRequest<{ message: string }>("/auth/register", jsonBody({ email, business_name: businessName.trim() }));
-        setMessage(result.message);
-      } catch (failure) { setError(failure instanceof Error ? failure.message : "Could not request an account."); }
-      finally { setBusy(false); }
-    }}><label>Business name<input maxLength={120} autoComplete="organization" value={businessName} onChange={event => setBusinessName(event.target.value)} required/></label><label>Email address<input type="email" maxLength={254} autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required/></label><button className="setup-primary" disabled={busy || !!message}>Email me a signup link</button></form> : <form onSubmit={async event => { event.preventDefault(); setBusy(true); setError(""); setMessage(""); try {
+    {recovery.length ? <><div className="recovery-codes">{recovery.map(value => <code key={value}>{value}</code>)}</div><button onClick={() => { const blob = new Blob(["SmartServe one-use recovery codes\nKeep offline and private.\n\n" + recovery.join("\n")], { type: "text/plain" }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "smartserve-recovery-codes.txt"; link.click(); URL.revokeObjectURL(url); }}>Download recovery codes</button><label className="inline-check"><input type="checkbox" checked={saved} onChange={event => setSaved(event.target.checked)}/>I have saved my recovery codes privately</label><button className="setup-primary" disabled={!saved} onClick={() => window.location.replace("/login")}>Enter my workspace →</button></> : registering ? (signupSubmitted ?
+      <div className="signup-next">
+        <p><strong>Email address</strong><br/>{email}</p>
+        <button className="setup-primary" type="button" disabled={busy || clock < resendAt} onClick={() => void requestSignup()}>
+          {clock < resendAt ? `Resend in ${Math.ceil((resendAt - clock) / 1000)}s` : "Resend signup link"}
+        </button>
+        <button type="button" disabled={busy} onClick={() => { setSignupSubmitted(false); setMessage(""); setError(""); }}>Change email address</button>
+      </div> :
+      <form onSubmit={event => { event.preventDefault(); void requestSignup(); }}>
+        <label>Business name<input maxLength={120} autoComplete="organization" value={businessName} onChange={event => setBusinessName(event.target.value)} required/></label>
+        <label>Email address<input type="email" maxLength={254} autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required/></label>
+        <button className="setup-primary" disabled={busy}>Email me a signup link</button>
+      </form>) : <form onSubmit={async event => { event.preventDefault(); setBusy(true); setError(""); setMessage(""); try {
       if (challenge) {
         const result = await apiRequest<{ recovery_codes: string[] }>("/auth/mfa/verify", jsonBody({ code }));
         setCode(""); if (result.recovery_codes?.length) setRecovery(result.recovery_codes); await refresh();

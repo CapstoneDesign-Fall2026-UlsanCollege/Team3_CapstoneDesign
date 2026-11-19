@@ -9,9 +9,9 @@ export function useLocation() {
   return useSyncExternalStore(subscribe, () => window.location.pathname + window.location.search);
 }
 
-export function navigate(url: string, replace = false) {
+export function navigate(url: string, replace = false, state: unknown = null) {
   if (url === window.location.pathname + window.location.search) return;
-  if (replace) window.history.replaceState(null, "", url);
-  else window.history.pushState(null, "", url);
+  if (replace) window.history.replaceState(state, "", url);
+  else window.history.pushState(state, "", url);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }

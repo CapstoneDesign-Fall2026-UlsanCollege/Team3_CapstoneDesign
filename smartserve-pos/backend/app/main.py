@@ -580,6 +580,24 @@ def list_inventory(db: Session = Depends(get_db)):
     return [ingredient_view(ingredient) for ingredient in ingredients]
 
 
+@app.get("/dashboard/overview")
+def owner_overview(db: Session = Depends(get_db)):
+    korea = timezone(timedelta(hours=9))
+    today = datetime.now(korea).date()
+    start = datetime.combine(today, time.min, tzinfo=korea).astimezone(timezone.utc)
+    end = start + timedelta(days=1)
+    sales = db.scalar(select(func.coalesce(func.sum(models.Order.total), 0)).where(
+        models.Order.status == "paid", models.Order.paid_at >= start, models.Order.paid_at < end
+    ))
+    open_orders = db.scalar(select(func.count(models.Order.id)).where(
+        models.Order.status == "open", models.Order.trashed_at.is_(None)
+    ))
+    low_stock = db.scalar(select(func.count(models.Ingredient.id)).where(
+        models.Ingredient.active.is_(True), models.Ingredient.stock_quantity <= models.Ingredient.reorder_level
+    ))
+    return {"date": today.isoformat(), "sales_total": float(sales), "open_orders": open_orders, "low_stock": low_stock}
+
+
 @app.get("/dashboard/sales")
 def sales_dashboard(db: Session = Depends(get_db), selected_date: date | None = None):
     korea = timezone(timedelta(hours=9))

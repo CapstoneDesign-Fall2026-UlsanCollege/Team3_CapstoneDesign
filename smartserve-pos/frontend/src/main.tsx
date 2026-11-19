@@ -17,6 +17,7 @@ type MenuRecipe = { id: number; recipe: { ingredient_id: number; quantity: numbe
 type CartLine = MenuItem & { quantity: number };
 type InventoryItem = { id: number; name: string; unit: string; stock_quantity: number; reorder_level: number; low_stock: boolean };
 type Order = { table_number?: number | null; ticket_id?: number | null; id: number; order_type: string; status: string; total: number; created_at: string; paid_at?: string | null; trashed_at?: string | null; delete_after?: string | null; items: { menu_item_id: number; name: string; quantity: number; unit_price: number }[]; payment_method?: string; simulated_reference?: string };
+type OwnerOverview = { date: string; sales_total: number; open_orders: number; low_stock: number };
 type Dashboard = { date: string; paid_orders: number; sales_total: number; recent_sales: Order[] };
 type Tab = "cashier" | "orders" | "inventory" | "owner" | "tables" | "work";
 const tabPaths: Record<Tab, string> = {
@@ -38,7 +39,12 @@ function App({ account }: { account: AccountSession }) {
   const canConfigure = account.user?.role === "platform_admin";
   const canManage = canConfigure || account.user?.role === "owner";
   const pendingStorageKey = `smartserve.pendingOrder.${account.store_id}.${account.user?.id}`;
-  const path = useLocation().split("?")[0].replace(/\/+$/, "") || "/";
+  const [pathname, query] = useLocation().split("?");
+  const path = pathname.replace(/\/+$/, "") || "/";
+  const filters = new URLSearchParams(query);
+  const requestedOrderStatus = filters.get("status") || "";
+  const orderFilter = ["open", "paid", "cancelled"].includes(requestedOrderStatus) ? requestedOrderStatus : "all";
+  const lowStockOnly = path === tabPaths.inventory && filters.get("stock") === "low";
   const isSetupPage = path === "/setup";
   const ordersTrash = path === "/pos/orders/trash";
   const defaultTab = account.user?.role === "owner" || (canConfigure && path === "/etalogin") ? "owner" : "cashier";
@@ -60,9 +66,12 @@ function App({ account }: { account: AccountSession }) {
     if (account.user?.role === "owner" && !business.onboarding_complete) {
       if (!isSetupPage) navigate("/setup", true);
     } else if (!isSetupPage || !canManage) {
-      navigate(ordersTrash ? "/pos/orders/trash" : tabPaths[tab], true);
+      const target = ordersTrash ? "/pos/orders/trash" : tabPaths[tab];
+      navigate(target + (target === path && query ? "?" + query : ""), true);
     }
-  }, [path, businessReady, business.onboarding_complete, account.user?.role, canManage, isSetupPage, ordersTrash, tab]);
+  }, [path, query, businessReady, business.onboarding_complete, account.user?.role, canManage, isSetupPage, ordersTrash, tab]);
+  const paymentPanel = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All items");
   const [catalogVersion, setCatalogVersion] = useState(0);
@@ -95,6 +104,8 @@ function App({ account }: { account: AccountSession }) {
   const [receipt, setReceipt] = useState<Order | null>(null);
   const [message, setMessage] = useState("");
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [overview, setOverview] = useState<OwnerOverview | null>(null);
+  const [overviewError, setOverviewError] = useState(false);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [salesDate, setSalesDate] = useState(koreaDate);
   const [salesLoading, setSalesLoading] = useState(false);
@@ -102,10 +113,10 @@ function App({ account }: { account: AccountSession }) {
   const [salesRefresh, setSalesRefresh] = useState(0);
   const salesRequest = useRef(0);
   const [orderDate, setOrderDate] = useState("");
+  const [orderRefresh, setOrderRefresh] = useState(0);
   const [orders, setOrders] = useState<Order[]>([]);
 
   const [monthOpen, setMonthOpen] = useState<Record<string, boolean>>({});
-  const [orderFilter, setOrderFilter] = useState("all");
   const [savedOrder, setSavedOrder] = useState<Order | null>(null);
   const paying = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -120,6 +131,19 @@ function App({ account }: { account: AccountSession }) {
   const filteredMenu = menu.filter(item => (category === "All items" || item.category === category) && `${item.name} ${item.sku} ${item.category}`.toLowerCase().includes(search.trim().toLowerCase()));
   const total = useMemo(() => cart.reduce((sum, line) => sum + line.price * line.quantity, 0), [cart]);
 
+  useEffect(() => {
+    if (tab !== "owner" || !businessReady || !business.onboarding_complete || isSetupPage) return;
+    let active = true;
+    const refresh = () => {
+      void readData<OwnerOverview>("/dashboard/overview").then(result => {
+        if (active) { setOverview(result); setOverviewError(false); }
+      }).catch(() => { if (active) setOverviewError(true); });
+    };
+    refresh();
+    window.addEventListener("focus", refresh);
+    const interval = window.setInterval(refresh, 60000);
+    return () => { active = false; window.removeEventListener("focus", refresh); window.clearInterval(interval); };
+  }, [tab, businessReady, business.onboarding_complete, isSetupPage, salesRefresh]);
   useEffect(() => { void loadMenu().catch(() => setMessage("Could not load the menu. Check the connection and refresh.")); }, []);
   useEffect(() => {
     if (tab !== "owner") return;
@@ -231,12 +255,13 @@ function App({ account }: { account: AccountSession }) {
   useEffect(() => {
     if (tab !== "orders" || !businessReady || isSetupPage) return;
     let active = true;
-    setOrders([]); setOrderFilter("all"); setOrderDate("");
+    setOrders([]);
     void readData<Order[]>(`/orders?trash=${ordersTrash}`).then(result => {
       if (active) setOrders(result);
     }).catch(() => { if (active) setMessage("Could not load orders. Please refresh."); });
     return () => { active = false; };
-  }, [tab, ordersTrash, businessReady, isSetupPage]);
+  }, [tab, ordersTrash, businessReady, isSetupPage, orderRefresh]);
+  useEffect(() => { setOrderDate(""); }, [tab, ordersTrash]);
   useEffect(() => {
     if (tab === "inventory") void loadInventory().catch(() => setMessage("Could not load inventory."));
   }, [tab]);
@@ -292,9 +317,9 @@ function App({ account }: { account: AccountSession }) {
   const monthLabel = (month: string) => new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Asia/Seoul" }).format(new Date(month + "-01T00:00:00+09:00"));
 
   if (!businessReady) return <main className="auth-page"><p role="status">{businessError || "Loading your workspace…"}</p></main>;
-  if (canManage && (business.onboarding_complete ? isSetupPage : account.user?.role === "owner")) return <BusinessSetup profile={business} onClose={business.onboarding_complete ? () => navigate(tabPaths[defaultTab]) : undefined} onChanged={async profile => { setBusiness(profile); setCategory("All items"); await loadMenu(); setCatalogVersion(value => value + 1); }} />;
+  if (canManage && (business.onboarding_complete ? isSetupPage : account.user?.role === "owner")) return <BusinessSetup profile={business} draftKey={!business.onboarding_complete ? `smartserve.setup.${account.store_id}.${account.user?.id}` : undefined} onClose={business.onboarding_complete ? () => navigate(tabPaths[defaultTab]) : undefined} onChanged={async profile => { setBusiness(profile); setCategory("All items"); await loadMenu(); setCatalogVersion(value => value + 1); }} />;
   if (!business.onboarding_complete) return <main className="auth-page"><section className="auth-card"><h1>Your business is being set up.</h1><p>Your business owner needs to finish the business profile before the workspace opens.</p><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/login"); }}>Sign out</button></section></main>;
-  return <main className="app-shell">
+  return <main className={`app-shell${tab === "cashier" && (cart.length > 0 || pendingOrder) ? " has-checkout-bar" : ""}`}>
     <header><div><p className="eyebrow">SMARTSERVE · {businessLabels[business.business_type] ?? "POINT OF SALE"}</p><h1>{business.logo_url && <img className="business-logo" src={business.logo_url} alt="" onError={event => { event.currentTarget.hidden = true; }}/>} {business.name}</h1></div>
     <aside className="theme-control" ref={themePanel} onKeyDown={event => { if (event.key === "Escape") { setThemeMenuOpen(false); themePanel.current?.querySelector<HTMLButtonElement>(".theme-toggle")?.focus(); } }}>
       <button className="theme-toggle" aria-label="Change theme" title="Change theme" aria-expanded={themeMenuOpen} aria-controls="theme-options" onClick={() => setThemeMenuOpen(open => !open)}><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.7-3.1 1.5 1.5 0 0 1 1.3-2.3h2a3 3 0 0 0 3-3A9.6 9.6 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="11" cy="6.8" r="1"/><circle cx="15.5" cy="8" r="1"/></svg></button>
@@ -305,13 +330,13 @@ function App({ account }: { account: AccountSession }) {
     {businessError && <p role="alert" className="notice">{businessError}</p>}
     {message && <p className="notice" role="status">{message}</p>}
     {tab === "cashier" && <section className="cashier-grid">
-      <div><div className="section-heading"><div><p className="eyebrow">CHECKOUT</p><h2>{foodBusiness ? "Menu" : "Item library"}</h2><p className="muted">Choose items, then take a simulated payment.</p></div><button disabled={busy} onClick={() => void loadMenu().catch(() => setStockReady(false))}>Refresh availability</button></div><label className="catalog-search">Search items<input type="search" placeholder="Search by name, category or SKU" value={search} onChange={event => setSearch(event.target.value)} /></label><div className="category-tabs" role="group" aria-label="Catalog categories">{categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? "active" : ""} onClick={() => setCategory(value)}>{value}</button>)}</div><div className="menu-grid">{filteredMenu.map(item => { const shortages = shortagesFor([{ id: item.id, quantity: 1 }]); return <button className="menu-card" disabled={busy || (pendingOrder !== null && !savedOrder?.table_number) || !stockReady || shortages.length > 0} onClick={() => addToCart(item)} key={item.id}><strong>{item.name}</strong><span>{won(item.price)}</span><span className="catalog-item-meta">{item.category}{item.item_type === "service" ? " · Service" : ""}{item.sku ? ` · ${item.sku}` : ""}</span><small>{shortages.length ? "Unavailable — " + shortages.join("; ") : "Add to order"}</small></button>; })}</div>{filteredMenu.length === 0 && <p className="empty-state">{menu.length ? "No items match your search. Try another name or category." : "Your catalog is empty. Add items or choose a business preset in owner settings."}</p>}</div>
+      <div><div className="section-heading"><div><p className="eyebrow">CHECKOUT</p><h2>{foodBusiness ? "Menu" : "Item library"}</h2><p className="muted">Choose items, then take a simulated payment.</p></div><button disabled={busy} onClick={() => void loadMenu().catch(() => setStockReady(false))}>Refresh availability</button></div><label className="catalog-search">Search items<input ref={searchInput} type="search" placeholder="Search by name, category or SKU" value={search} onChange={event => setSearch(event.target.value)} /></label><div className="category-tabs" role="group" aria-label="Catalog categories">{categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? "active" : ""} onClick={() => setCategory(value)}>{value}</button>)}</div><div className="menu-grid">{filteredMenu.map(item => { const shortages = shortagesFor([{ id: item.id, quantity: 1 }]); return <button className="menu-card" disabled={busy || (pendingOrder !== null && !savedOrder?.table_number) || !stockReady || shortages.length > 0} onClick={() => addToCart(item)} key={item.id}><strong>{item.name}</strong><span>{won(item.price)}</span><span className="catalog-item-meta">{item.category}{item.item_type === "service" ? " · Service" : ""}{item.sku ? ` · ${item.sku}` : ""}</span><small>{shortages.length ? "Unavailable — " + shortages.join("; ") : "Add to order"}</small></button>; })}</div>{filteredMenu.length === 0 && <p className="empty-state">{menu.length ? "No items match your search. Try another name or category." : "Your catalog is empty. Add items or choose a business preset in owner settings."}</p>}</div>
       <aside className="panel"><div className="section-heading"><h2>{pendingOrder ? `Order #${pendingOrder}` : "Current order"}</h2>{pendingOrder && <span className="badge open">Open</span>}</div><label>Order type <select disabled={busy || pendingOrder !== null} value={savedOrder?.order_type ?? orderType} onChange={e => setOrderType(e.target.value)}>{business.order_types.map(value => <option value={value} key={value}>{orderLabels[value]}</option>)}{savedOrder && !business.order_types.includes(savedOrder.order_type) && <option value={savedOrder.order_type}>{orderLabels[savedOrder.order_type] || savedOrder.order_type}</option>}</select></label>
         {(savedOrder?.order_type ?? orderType) === "dine_in" && business.features.includes("tables") && <label>Table<select aria-label="Table" disabled={busy || pendingOrder !== null} value={savedOrder?.table_number ?? tableNumber ?? ""} onChange={event => setTableNumber(Number(event.target.value) || null)}><option value="">Choose a table</option>{Array.from({ length: business.table_count }, (_, index) => <option key={index + 1} value={index + 1}>Table {index + 1}</option>)}</select></label>}
         {workTicket && <p className="notice">Checkout for #{workTicket.id}: {workTicket.customer} · {workTicket.title}</p>}
-        {pendingOrder && savedOrder ? <>{savedOrder.items.map((item, index) => <div className="cart-line" key={`${item.menu_item_id}-${index}`}><span>{item.name}<small>{won(item.unit_price)} each</small></span><strong>× {item.quantity}</strong></div>)}<div className="total"><strong>Total</strong><strong>{won(savedOrder.total)}</strong></div><p className="muted">Saved order. Retry payment or manage it from Orders.</p>{savedOrder.table_number && cart.length > 0 && <div className="notice"><strong>Items to add</strong>{cart.map(line => <p key={line.id}>{line.name} × {line.quantity} · {won(line.price * line.quantity)}</p>)}<button disabled={busy || orderShortages.length > 0} onClick={() => void appendOnly()}>Add items to bill</button></div>}</> : cart.length ? <>{cart.map(line => <div className="cart-line" key={line.id}><span>{line.name}<small>{won(line.price)} each</small></span><div><button disabled={busy} onClick={() => changeQty(line.id, -1)} aria-label={`Remove one ${line.name}`}>−</button>{line.quantity}<button disabled={busy} onClick={() => changeQty(line.id, 1)} aria-label={`Add one ${line.name}`}>+</button></div></div>)}<div className="total"><strong>Total</strong><strong>{won(total)}</strong></div><button className="text-button" disabled={busy} onClick={() => setCart([])}>Clear cart</button></> : <p className="muted">Choose items or services to start.</p>}
+        {pendingOrder && savedOrder ? <>{savedOrder.items.map((item, index) => <div className="cart-line" key={`${item.menu_item_id}-${index}`}><span>{item.name}<small>{won(item.unit_price)} each</small></span><strong>× {item.quantity}</strong></div>)}<div className="total"><strong>Total</strong><strong>{won(savedOrder.total)}</strong></div><p className="muted">Saved order. Retry payment or manage it from Orders.</p>{savedOrder.table_number && cart.length > 0 && <div className="notice"><strong>Items to add</strong>{cart.map(line => <p key={line.id}>{line.name} × {line.quantity} · {won(line.price * line.quantity)}</p>)}<button disabled={busy || orderShortages.length > 0} onClick={() => void appendOnly()}>Add items to bill</button></div>}</> : cart.length ? <>{cart.map(line => <div className="cart-line" key={line.id}><span>{line.name}<small>{won(line.price)} each</small></span><div className="quantity-control"><button disabled={busy} onClick={() => changeQty(line.id, -1)} aria-label={`Remove one ${line.name}`}>−</button>{line.quantity}<button disabled={busy} onClick={() => changeQty(line.id, 1)} aria-label={`Add one ${line.name}`}>+</button></div></div>)}<div className="total"><strong>Total</strong><strong>{won(total)}</strong></div><button className="text-button" disabled={busy} onClick={() => setCart([])}>Clear cart</button></> : <p className="muted">Choose items or services to start.</p>}
         {orderShortages.length > 0 && <div className="notice" role="alert"><strong>This order is unavailable</strong>{orderShortages.map(text => <p key={text}>{text}</p>)}<p>Reduce the quantity or update ingredient stock.</p></div>}{!stockReady && <p role="alert">Stock availability could not be confirmed. Refresh availability before ordering.</p>}{cart.length > 0 && !pendingOrder && <button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => void createOnly()}>Create order</button>}
-        {(cart.length > 0 || pendingOrder) && <div className="payments"><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("cash")}>Pay cash</button><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("card")}>Pay card</button><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("qr")}>Pay QR</button></div>}
+        {(cart.length > 0 || pendingOrder) && <div className="payments" ref={paymentPanel} tabIndex={-1} aria-label="Payment methods"><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("cash")}>Pay cash</button><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("card")}>Pay card</button><button disabled={busy || !stockReady || orderShortages.length > 0} onClick={() => createAndPay("qr")}>Pay QR</button></div>}
       </aside>
       {receipt && <section className="receipt"><p className="eyebrow">{business.name}</p>{business.address && <p>{business.address}</p>}{business.phone && <p>{business.phone}</p>}<p className="eyebrow">PAYMENT COMPLETE</p><h2>Receipt #{receipt.id}</h2><p className="muted">Paid {dateTime(receipt.paid_at)} · KST</p>{receipt.items.map((item, index) => <p key={`${item.menu_item_id}-${index}`}>{item.name} × {item.quantity}</p>)}<strong>{won(receipt.total)} · {receipt.payment_method?.toUpperCase()}</strong><p className="muted">{receipt.simulated_reference}</p>{receipt.table_number && <p>Table {receipt.table_number}</p>}<p>{business.receipt_footer}</p></section>}
     </section>}
@@ -325,9 +350,14 @@ function App({ account }: { account: AccountSession }) {
       if (ticket.order_status === "open" && ticket.order_id) resumeOrder(await readData<Order>(`/orders/${ticket.order_id}`));
       else { setWorkTicket(ticket); setTableNumber(null); setOrderType("service"); setCart([]); setReceipt(null); setTab("cashier"); setMessage(`Choose the items or services to bill for ${ticket.customer}.`); }
     }} />}
+    {tab === "cashier" && (cart.length > 0 || pendingOrder) && <div className="mobile-checkout-bar">
+      <div><span>{pendingOrder ? "Saved order" : "Cart total"}</span><strong>{pendingOrder && !savedOrder ? "Loading…" : won((savedOrder?.total ?? 0) + total)}</strong></div>
+      <button type="button" onClick={() => searchInput.current?.focus()}>Find items</button>
+      <button className="primary" type="button" onClick={() => { paymentPanel.current?.scrollIntoView({ block: "center" }); paymentPanel.current?.focus({ preventScroll: true }); }}>Review &amp; pay</button>
+    </div>}
     {tab === "orders" && <section>
       <div className="section-heading"><div><p className="eyebrow">ORDER MANAGEMENT</p><h2>{ordersTrash ? "Order Trash" : "Orders"}</h2><p className="muted">{ordersTrash ? "Trashed cancelled orders are permanently deleted after 30 days. Restore returns them as cancelled." : "Resume or cancel unpaid orders. Move cancelled orders to Trash to remove them from this list."}</p></div>
-      <div className="toolbar"><label>Status<select value={orderFilter} onChange={event => setOrderFilter(event.target.value)}><option value="all">All orders</option><option value="open">Open</option><option value="paid">Paid</option><option value="cancelled">Cancelled</option></select></label><label>Order date<input type="date" value={orderDate} onChange={event => setOrderDate(event.target.value)} /></label><button onClick={() => { setOrderDate(""); setOrderFilter("all"); }}>Clear filters</button><button onClick={() => openTab("orders")}>Refresh orders</button></div></div>
+      <div className="toolbar"><label>Status<select value={orderFilter} onChange={event => navigate(path + (event.target.value === "all" ? "" : "?status=" + event.target.value))}><option value="all">All orders</option><option value="open">Open</option><option value="paid">Paid</option><option value="cancelled">Cancelled</option></select></label><label>Order date<input type="date" value={orderDate} onChange={event => setOrderDate(event.target.value)} /></label><button onClick={() => { setOrderDate(""); navigate(path); }}>Clear filters</button><button onClick={() => setOrderRefresh(value => value + 1)}>Refresh orders</button></div></div>
       <div className="toolbar" role="group" aria-label="Order folders"><button className={!ordersTrash ? "folder-active" : ""} disabled={busy} onClick={() => void showOrderFolder(false)}>Orders list</button><button className={ordersTrash ? "folder-active" : ""} disabled={busy} onClick={() => void showOrderFolder(true)}>Trash</button><span className="muted">Dates shown in Korea time (KST)</span></div><div className="month-folders">{orderMonths.map((month, index) => {
         const key = (ordersTrash ? "trash:" : "orders:") + month;
         return <details className="month-folder" key={key} open={monthOpen[key] ?? index === 0} onToggle={event => { const open = event.currentTarget.open; setMonthOpen(current => current[key] === open ? current : { ...current, [key]: open }); }}>
@@ -336,14 +366,23 @@ function App({ account }: { account: AccountSession }) {
         </details>;
       })}</div>{visibleOrders.length === 0 && <p className="empty-state">{ordersTrash ? "Trash is empty." : "No orders match these filters."}</p>}
     </section>}
-    {tab === "inventory" && <section><h2>Inventory</h2><p className="muted">Stock is reduced only after a successful simulated payment.</p><div className="table-wrap" role="region" aria-label="Inventory stock levels" tabIndex={0}><table><thead><tr><th scope="col">Stock item</th><th className="numeric-cell" scope="col">In stock</th><th className="numeric-cell" scope="col">Reorder level</th><th>Status</th></tr></thead><tbody>{inventory.map(item => <tr key={item.id}><td>{item.name}</td><td className="numeric-cell">{item.stock_quantity} {item.unit}</td><td className="numeric-cell">{item.reorder_level} {item.unit}</td><td><span className={item.low_stock ? "badge low" : "badge"}>{item.low_stock ? "Low stock" : "OK"}</span></td></tr>)}</tbody></table></div></section>}
+    {tab === "inventory" && <section><h2>Inventory</h2><p className="muted">Stock is reduced only after a successful simulated payment.</p><label className="inline-check"><input type="checkbox" checked={lowStockOnly} onChange={event => navigate(tabPaths.inventory + (event.target.checked ? "?stock=low" : ""))}/>Show low stock only</label><div className="table-wrap" role="region" aria-label="Inventory stock levels" tabIndex={0}><table><thead><tr><th scope="col">Stock item</th><th className="numeric-cell" scope="col">In stock</th><th className="numeric-cell" scope="col">Reorder level</th><th>Status</th></tr></thead><tbody>{inventory.filter(item => !lowStockOnly || item.low_stock).map(item => <tr key={item.id}><td>{item.name}</td><td className="numeric-cell">{item.stock_quantity} {item.unit}</td><td className="numeric-cell">{item.reorder_level} {item.unit}</td><td><span className={item.low_stock ? "badge low" : "badge"}>{item.low_stock ? "Low stock" : "OK"}</span></td></tr>)}</tbody></table>{lowStockOnly && !inventory.some(item => item.low_stock) && <p className="empty-state">No items at or below their reorder level.</p>}</div></section>}
     {canManage && tab === "owner" && <section>
       <div className="section-heading"><div><h2>Owner sales dashboard</h2><p className="muted">Daily totals include every paid order in the shared store, including test purchases.</p></div><div className="dashboard-actions"><a className="primary-link" href="#owner-management">Manage catalog &amp; inventory</a><button className="primary" aria-expanded={showFeedback} aria-controls="dashboard-feedback" onClick={() => setShowFeedback(open => !open)}>{showFeedback ? "Hide feedback form" : "Give feedback"}</button></div></div>
       <section id="dashboard-feedback" className="dashboard-feedback" hidden={!showFeedback} aria-labelledby="feedback-heading">
         <h3 id="feedback-heading">Share your feedback</h3>
         <iframe title="SmartServe feedback form" src="https://docs.google.com/forms/d/e/1FAIpQLScRpmihHlNK9OvHRW0wjTLktS0NJnQ4WAz-pzQmr9QvdVaeSw/viewform?embedded=true" loading="lazy">Loading feedback form…</iframe>
       </section>
-      <div className="toolbar"><label>Sales date<input type="date" value={salesDate} onChange={event => { if (event.target.value) setSalesDate(event.target.value); }} /></label><button disabled={salesLoading} onClick={() => setSalesRefresh(value => value + 1)}>Refresh sales</button><span className="muted">Korea time (KST)</span></div>
+      {overviewError && <p role="status" className="muted">Live overview couldn’t refresh. Use Refresh sales to retry.</p>}
+      <div className="owner-overview" aria-label="Business overview">
+        <button type="button" onClick={() => {
+          setSalesDate(overview?.date || koreaDate());
+          document.getElementById("paid-sales")?.focus();
+        }}><span>Today’s sales</span><strong>{overview ? won(overview.sales_total) : "—"}</strong><small>View sales today</small></button>
+        <button type="button" onClick={() => navigate(tabPaths.orders + "?status=open")}><span>Open orders</span><strong>{overview?.open_orders ?? "—"}</strong><small>View orders awaiting payment</small></button>
+        {business.features.includes("inventory") && <button type="button" onClick={() => navigate(tabPaths.inventory + "?stock=low")}><span>Low stock</span><strong>{overview?.low_stock ?? "—"}</strong><small>View items to reorder</small></button>}
+      </div>
+      <div id="paid-sales" tabIndex={-1} className="toolbar"><label>Sales date<input type="date" value={salesDate} onChange={event => { if (event.target.value) setSalesDate(event.target.value); }} /></label><button disabled={salesLoading} onClick={() => setSalesRefresh(value => value + 1)}>Refresh sales</button><span className="muted">Korea time (KST)</span></div>
       {salesLoading && <p role="status">Loading sales…</p>}{salesError && <p role="alert" className="notice">{salesError}</p>}
       {dashboard && <><div className="stats"><article><span>{"Sales on " + dashboard.date}</span><strong>{won(dashboard.sales_total)}</strong></article><article><span>Paid orders on {dashboard.date}</span><strong>{dashboard.paid_orders}</strong></article></div><h3>Paid sales on {dashboard.date}</h3><div className="table-wrap"><table><thead><tr><th>Order</th><th>Paid (KST)</th><th>Items</th><th>Type</th><th className="numeric-cell" scope="col">Total</th><th>Payment</th></tr></thead><tbody>{dashboard.recent_sales.map(order => <tr key={order.id}><td>#{order.id}</td><td>{dateTime(order.paid_at)}</td><td>{order.items.map(item => item.name + " × " + item.quantity).join(", ")}</td><td>{(order.table_number ? `Table ${order.table_number}` : orderLabels[order.order_type] || order.order_type.replace("_", " "))}</td><td className="numeric-cell">{won(order.total)}</td><td>{order.payment_method?.toUpperCase()}</td></tr>)}</tbody></table>{dashboard.paid_orders === 0 && <p className="empty-state">No paid sales on this date.</p>}</div></>}
       <section className="panel profile-summary"><div><p className="eyebrow">BUSINESS PROFILE</p><h3>{business.name}</h3><p className="muted">{businessLabels[business.business_type]} · {business.operation_mode.replace(/_/g, " ")} · {business.features.join(" / ")}</p></div><button className="primary" onClick={() => navigate("/setup")}>Edit business profile</button></section>

@@ -232,6 +232,16 @@ def owner_settings(payload: SettingsInput, request: Request, db: Session = Depen
     return get_profile(db)
 
 
+@router.get("/platform/signup-email-status")
+def signup_email_status(request: Request):
+    principal(request, "platform_admin")
+    with identity_db() as db:
+        result = db.scalar(select(Audit).where(Audit.action.in_(
+            ("signup_email_sent", "signup_email_failed")
+        )).order_by(Audit.id.desc()).limit(1))
+        return {"unavailable": bool(result and result.action == "signup_email_failed")}
+
+
 @router.get("/platform/audit")
 def platform_audit(request: Request):
     principal(request, "platform_admin")

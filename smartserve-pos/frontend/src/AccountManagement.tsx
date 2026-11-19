@@ -20,6 +20,18 @@ export function PlatformConsole({ session }: { session: AccountSession }) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [email, setEmail] = useState(""); const [ownerName, setOwnerName] = useState(""); const [store, setStore] = useState("");
   const [message, setMessage] = useState(""); const [busy, setBusy] = useState(false);
+  const [signupEmailUnavailable, setSignupEmailUnavailable] = useState(false);
+  useEffect(() => {
+    let active = true;
+    const refresh = () => {
+      void apiRequest<{ unavailable: boolean }>("/platform/signup-email-status")
+        .then(result => { if (active) setSignupEmailUnavailable(result.unavailable); })
+        .catch(() => {});
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 60000);
+    return () => { active = false; window.clearInterval(interval); };
+  }, []);
   const load = () => apiRequest<Business[]>("/platform/businesses").then(setBusinesses).catch(failure => setMessage(failure.message));
   useEffect(() => { void load(); }, []);
   const openBusiness = async (business: Business) => {
@@ -50,6 +62,7 @@ export function PlatformConsole({ session }: { session: AccountSession }) {
     }
   };
   return <main className="app-shell platform-console"><header><div><p className="eyebrow">SMARTSERVE PLATFORM · ADMINISTRATOR ONLY</p><h1>Your business platform</h1><p className="muted">Signed in as {session.user?.email}</p></div><button onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/"); }}>Sign out</button></header><p className="notice">Manage businesses across SmartServe. Each business has isolated POS data.</p>{message && <p role="status" className="notice">{message}</p>}
+    {signupEmailUnavailable && <p className="setup-error" role="alert">Signup email delivery failed on the latest attempt. Check the Gmail sender authorization in Render.</p>}
     <div className="management-grid">
     <form className="panel management-form" onSubmit={async event => { event.preventDefault(); setBusy(true); try { const result = await apiRequest<{ message: string }>("/platform/invitations", jsonBody({ email, name: ownerName, store_id: store, role: "owner", require_mfa: true })); setEmail(""); setOwnerName(""); setMessage(result.message); await load(); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not invite owner."); } finally { setBusy(false); } }}><h2>Invite a business owner</h2><label>Business<select aria-label="Business" required value={store} onChange={event => setStore(event.target.value)}><option value="">Choose a business</option>{businesses.filter(item => item.active).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><label>Owner name<input required maxLength={120} value={ownerName} onChange={event => setOwnerName(event.target.value)}/></label><label>Owner email<input required type="email" value={email} onChange={event => setEmail(event.target.value)}/></label><p className="muted">The owner receives an activation email for the selected business.</p><button disabled={busy} className="primary">Email owner invitation</button></form></div>
     <section className="business-account-list">

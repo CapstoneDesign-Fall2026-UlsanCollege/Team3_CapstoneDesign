@@ -171,6 +171,10 @@ class ActivateInput(BaseModel):
     password: str = Field(min_length=14, max_length=128)
 
 
+SIGNUP_LINK_LIFETIME = 30 * 60
+SIGNUP_RESEND_COOLDOWN = 60
+
+
 class OwnerSignupInput(BaseModel):
     email: str = Field(max_length=254)
     business_name: str = Field(min_length=1, max_length=120)
@@ -385,14 +389,14 @@ def install_owner_auth(app):
             if reserved_admin_email(payload.email) or db.scalar(select(User.id).where(User.email == payload.email)):
                 return message
             signup = db.scalar(select(OwnerSignup).where(OwnerSignup.email == payload.email).with_for_update())
-            if signup and signup.expires_at > time.time():
+            if signup and signup.expires_at - SIGNUP_LINK_LIFETIME + SIGNUP_RESEND_COOLDOWN > time.time():
                 return message
             raw = secrets.token_urlsafe(48)
             if not signup:
                 signup = OwnerSignup(email=payload.email)
                 db.add(signup)
             signup.business_name = payload.business_name
-            signup.token_hash, signup.expires_at = token_hash(raw), time.time() + 1800
+            signup.token_hash, signup.expires_at = token_hash(raw), time.time() + SIGNUP_LINK_LIFETIME
             try:
                 db.flush()
             except IntegrityError:
@@ -403,7 +407,11 @@ def install_owner_auth(app):
                         f"Open this one-use link within 30 minutes to create your owner account:\n\n{url}\n\nIf you did not request this, ignore this email.",
                         {"activation_url": url})
             except Exception:
+                db.rollback()
+                audit(db, "signup_email_failed")
+                db.commit()
                 raise HTTPException(503, "Signup email is temporarily unavailable. Please try again later.")
+            audit(db, "signup_email_sent")
             db.commit()
         return message
 

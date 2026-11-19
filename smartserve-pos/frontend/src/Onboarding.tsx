@@ -1,6 +1,6 @@
 import { apiFetch } from "./api";
 import { Reauthentication } from "./AccountManagement";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navigate, useLocation } from "./navigation";
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 export type BusinessProfile = { name: string; business_type: string; currency: string; operation_mode: string; features: string[]; order_types: string[]; address: string; phone: string; logo_url: string; receipt_footer: string; table_count: number; onboarding_complete: boolean };
@@ -22,35 +22,65 @@ function modesFor(type: string): { id: string; title: string; detail: string }[]
 function featuresFor(type: string, mode: string) {
   return ["checkout", "inventory", ...(["cafe", "restaurant", "bakery"].includes(type) && mode !== "takeaway" ? ["tables"] : []), ...(["barbershop", "beauty", "services"].includes(type) && ["appointments", "both"].includes(mode) ? ["appointments"] : []), ...(["barbershop", "beauty"].includes(type) && ["walk_ins", "both"].includes(mode) ? ["walk_ins"] : []), ...(type === "repair" && ["jobs", "both"].includes(mode) ? ["jobs"] : [])];
 }
-export function BusinessSetup({ profile, onChanged, onClose }: { profile: BusinessProfile; onChanged: (profile: BusinessProfile) => Promise<void>; onClose?: () => void }) {
+type SetupDraft = Partial<BusinessSetupInput> & { step?: number; furthestStep?: number };
+
+function readSetupDraft(key?: string): SetupDraft {
+  if (!key) return {};
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) || "null") as SetupDraft | null;
+    return saved && typeof saved === "object" ? saved : {};
+  } catch { return {}; }
+}
+
+export function BusinessSetup({ profile, onChanged, onClose, draftKey }: {
+  profile: BusinessProfile;
+  onChanged: (profile: BusinessProfile) => Promise<void>;
+  onClose?: () => void;
+  draftKey?: string;
+}) {
   const location = useLocation();
   const [path, query] = location.split("?");
   const requestedStep = Number(new URLSearchParams(query).get("step"));
-  const [furthestStep, setFurthestStep] = useState(0);
+  const [draft] = useState(() => readSetupDraft(draftKey));
+  const [furthestStep, setFurthestStep] = useState(draft.furthestStep ?? 0);
   const step = Number.isInteger(requestedStep) && requestedStep >= 2 && requestedStep <= furthestStep + 1 ? requestedStep - 1 : 0;
+  const restoredDraft = useRef(false);
+  useEffect(() => {
+    if (path !== "/setup" || restoredDraft.current) return;
+    restoredDraft.current = true;
+    if (!query && (draft.step === 1 || draft.step === 2)) navigate(path + "?step=" + (draft.step + 1), true);
+  }, [path, query, draft.step]);
   useEffect(() => {
     if (query && step === 0) navigate(path, true);
   }, [path, query, step]);
-  const [type, setType] = useState(profile.onboarding_complete ? profile.business_type : "");
-  const [mode, setMode] = useState(profile.operation_mode);
-  const [name, setName] = useState(profile.name === "SmartServe POS" ? "" : profile.name);
-  const [address, setAddress] = useState(profile.address);
-  const [phone, setPhone] = useState(profile.phone);
-  const [logo, setLogo] = useState(profile.logo_url);
-  const [footer, setFooter] = useState(profile.receipt_footer);
-  const [tables, setTables] = useState(profile.table_count);
-  const [customFeatures, setCustomFeatures] = useState(profile.features);
-  const [catalog, setCatalog] = useState("keep");
+  const [type, setType] = useState(draft.business_type ?? (profile.onboarding_complete ? profile.business_type : ""));
+  const [mode, setMode] = useState(draft.operation_mode ?? profile.operation_mode);
+  const [name, setName] = useState(draft.name ?? (profile.name === "SmartServe POS" ? "" : profile.name));
+  const [address, setAddress] = useState(draft.address ?? profile.address);
+  const [phone, setPhone] = useState(draft.phone ?? profile.phone);
+  const [logo, setLogo] = useState(draft.logo_url ?? profile.logo_url);
+  const [footer, setFooter] = useState(draft.receipt_footer ?? profile.receipt_footer);
+  const [tables, setTables] = useState(draft.table_count ?? profile.table_count);
+  const [customFeatures, setCustomFeatures] = useState(draft.features ?? profile.features);
+  const [catalog, setCatalog] = useState(draft.catalog_action ?? "keep");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  useEffect(() => {
+    if (!draftKey || done || path !== "/setup") return;
+    const current: SetupDraft = {
+      step, furthestStep, business_type: type, operation_mode: mode, name, address, phone,
+      logo_url: logo, receipt_footer: footer, table_count: tables, features: customFeatures, catalog_action: catalog,
+    };
+    try { localStorage.setItem(draftKey, JSON.stringify(current)); } catch { /* Setup stays usable without storage. */ }
+  }, [draftKey, done, path, step, furthestStep, type, mode, name, address, phone, logo, footer, tables, customFeatures, catalog]);
   const features = type === "custom" ? customFeatures : featuresFor(type, mode);
   const titles = ["Your business", "Your workflow", "Details & review"];
   const next = () => {
     setError("");
     if (step === 0 && !type) return setError("Choose a business to continue.");
     setFurthestStep(value => Math.max(value, step + 1));
-    navigate(path + "?step=" + (step + 2));
+    navigate(path + "?step=" + (step + 2), false, { setupPrevious: location });
   };
   const save = async () => {
     if (!name.trim()) { setError("Enter your business name."); return; }
@@ -60,7 +90,9 @@ export function BusinessSetup({ profile, onChanged, onClose }: { profile: Busine
       const response = await apiFetch(`${API}/owner/business/setup`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const result = await response.json();
       if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : "Check your profile details and logo URL, then try again.");
-      await onChanged(result.profile); setDone(true);
+      if (draftKey) { try { localStorage.removeItem(draftKey); } catch { /* Setup was saved on the server. */ } }
+      setDone(true);
+      await onChanged(result.profile);
     } catch (failure) { setError(failure instanceof Error ? failure.message : "Could not save setup."); }
     finally { setBusy(false); }
   };
@@ -101,7 +133,12 @@ export function BusinessSetup({ profile, onChanged, onClose }: { profile: Busine
           </section>
         </div>
       </div>}
-      <footer className="setup-footer"><button disabled={busy || step === 0} onClick={() => { setError(""); window.history.back(); }}>← Back</button><span>{step + 1} of 3</span>{step < 2 ? <button className="setup-primary" onClick={next}>Continue →</button> : <button className="setup-primary" disabled={busy} onClick={() => void save()}>{busy ? "Saving your workspace…" : profile.onboarding_complete ? "Save business profile →" : "Create my workspace →"}</button>}</footer>
+      <footer className="setup-footer"><button disabled={busy || step === 0} onClick={() => {
+        setError("");
+        const previous = step === 1 ? path : path + "?step=" + step;
+        if (window.history.state?.setupPrevious === previous) window.history.back();
+        else navigate(previous, true);
+      }}>← Back</button><span>{step + 1} of 3</span>{step < 2 ? <button className="setup-primary" onClick={next}>Continue →</button> : <button className="setup-primary" disabled={busy} onClick={() => void save()}>{busy ? "Saving your workspace…" : profile.onboarding_complete ? "Save business profile →" : "Create my workspace →"}</button>}</footer>
       </>}
     </section>
   </main>;

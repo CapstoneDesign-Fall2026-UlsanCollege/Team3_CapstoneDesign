@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor
+from unittest.mock import patch
 
 if os.getenv("SMARTSERVE_ENV") != "test":
     raise RuntimeError("Security acceptance must use SMARTSERVE_ENV=test and isolated databases")
@@ -12,7 +13,7 @@ if os.getenv("SMARTSERVE_ENV") != "test":
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from app.main import app
-from app.identity_models import ArchivedStore, EmailChallenge, LoginSession, Store, User
+from app.identity_models import ArchivedStore, EmailChallenge, LoginSession, Store, User, OwnerSignup
 from app.tenancy import purge_archived_stores
 from app.security import identity_db
 from app.security_primitives import COOKIE, password_valid, token_hash
@@ -91,6 +92,26 @@ def main():
         except RuntimeError:
             check("second platform admin bootstrap blocked", True, True)
         check("platform cannot create a workspace", 405, post(admin, "/platform/businesses", {"name": "Blocked"}).status_code)
+        with patch("app.mailer.deliver", side_effect=RuntimeError("Test mail outage")):
+            check("signup reports email delivery outage", 503, post(public, "/auth/register",
+                  {"business_name": "Unavailable", "email": "mail-outage@example.test"}).status_code)
+        check("platform sees signup mail outage", {"unavailable": True}, admin.get("/platform/signup-email-status").json())
+        signup_payload = {"business_name": "Resend Demo", "email": "resend@example.test"}
+        check("signup succeeds after mail recovery", 202, post(public, "/auth/register", signup_payload).status_code)
+        original_link = latest_mail(signup_payload["email"], "activation_url")
+        check("platform clears email alert after successful delivery", {"unavailable": False},
+              admin.get("/platform/signup-email-status").json())
+        check("early resend uses generic response", 202, post(public, "/auth/register", signup_payload).status_code)
+        check("cooldown keeps previous link valid", original_link, latest_mail(signup_payload["email"], "activation_url"))
+        with identity_db() as db:
+            db.get(OwnerSignup, signup_payload["email"]).expires_at -= 61
+            db.commit()
+        check("resend delivers a new link after cooldown", 202, post(public, "/auth/register", signup_payload).status_code)
+        latest_link = latest_mail(signup_payload["email"], "activation_url")
+        check("resend rotates signup link", True, original_link != latest_link)
+        check("prior signup link is invalid after resend", 400, public.post("/auth/activate", json={
+            "token": original_link.split("#")[1], "name": "Test Owner", "password": PASSWORD,
+        }).status_code)
         stores, owners = [], []
         for name, email in zip(("Business A", "Business B"), ("ownera@example.test", "ownerb@example.test")):
             result = post(public, "/auth/register", {"business_name": name, "email": email})
