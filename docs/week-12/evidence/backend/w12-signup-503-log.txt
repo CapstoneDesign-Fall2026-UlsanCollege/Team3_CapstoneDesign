@@ -1,0 +1,4 @@
+api-1  | INFO:     172.19.0.1:44632 - "POST /auth/register HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     172.19.0.1:48442 - "POST /auth/register HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     172.19.0.1:51876 - "POST /auth/register HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     172.19.0.1:60246 - "POST /auth/register HTTP/1.1" 503 Service Unavailable
