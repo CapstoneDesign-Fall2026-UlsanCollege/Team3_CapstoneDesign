@@ -81,3 +81,12 @@ These steps address the traceable evidence and individual ownership criteria des
 ## Decision and Week 13 handoff
 
 **Demo transaction readiness:** Local checks passed. Before sign-off, confirm the deployed SHA and record the independent Render walkthrough in Issue #22 with the tester's login, KST timestamp, workspace, order or ticket IDs, and evidence. Carry those live workspaces and receipts into Week 13 so the team can verify owner access and reconcile the daily sales totals. [Week 13 roadmap](../week-10/final-roadmap.md)
+
+
+## November 24 follow-up — owner registration email failure
+
+A separate Week 12 QA target was recorded on November 24 in the local Docker Compose environment. The owner registration page displayed “Signup email is temporarily unavailable. Please try again later.” The API log excerpt showed OPTIONS /auth/register returning 200 and POST /auth/register returning 503.
+
+The issue is tracked in [Issue #27](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/27). The root cause is not confirmed, no fix or controlled retest is recorded, and independent peer verification remains pending. The repository HEAD reviewed was e89acd3ac1912446144cb93f1dba769ab721ea9f; backend/app/tenancy.py also had an uncommitted local modification, and the exact running container provenance was not established.
+
+See the [QA checklist](qa-checklist.md), [bug report](bug-report-27.md), [peer-test notes](peer-test-notes.md), and [evidence index](evidence-index.md). The original browser screenshot is embedded in the QA checklist and evidence index from the attachment already present on Issue #27. It is evidence of the failed attempt, not a post-fix result.
