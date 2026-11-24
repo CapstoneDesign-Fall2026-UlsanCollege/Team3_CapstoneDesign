@@ -11,6 +11,7 @@ This index separates evidence already available from artifacts still to capture.
 |---|---|---|---|---|
 | E12-01 | Owner signup error screenshot | Frontend displays temporary signup-email-unavailable message | Nov 24, 2026; Docker local run | [Issue #27](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/27) |
 | E12-02 | API request log excerpt | OPTIONS preflight 200; POST /auth/register 503 | Nov 24, 2026; Docker local run | [Issue #27](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/27) |
+| E12-01a | Original signup error screenshot (embedded below) | Browser error message from the failed registration attempt; not a post-fix result | Nov 24, 2026 | [Issue #27](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/27) |
 | E12-03 | Backend unit test summary | 46 tests passed in recorded local run | Nov 23, 2026; bcd1f3a | [Weekly report](weekly-report.md) |
 | E12-04 | Café browser/API runner | 27 checks passed, including checkout, stock, duplicate payment, recipe units, receipt history | Nov 23, 2026; bcd1f3a | [Weekly report](weekly-report.md) |
 | E12-05 | Business browser/API runner | 37 checks passed for retail and service checkout | Nov 23, 2026; bcd1f3a | [Weekly report](weekly-report.md) |
@@ -39,3 +40,10 @@ docs/week-12/
 ```
 
 Do not create placeholder screenshots or fabricated logs. Add each real artifact with description, date, revision, and source.
+
+
+## Existing screenshot preview
+
+![Owner registration showing the temporary signup-email-unavailable message](https://github.com/user-attachments/assets/f44b7140-73d4-4bca-bb9d-09593ac24ff7)
+
+This is the original screenshot attached to Issue #27. The repository documentation embeds the existing issue attachment; the image has not been separately uploaded as a binary file under the evidence directory.
