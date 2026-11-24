@@ -1,0 +1,4 @@
+API environment variables:
+DATABASE_URL: PRESENT
+Gmail variables configured: False
+API env_file: not configured
