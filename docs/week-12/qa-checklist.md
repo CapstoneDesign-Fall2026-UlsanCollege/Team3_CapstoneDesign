@@ -52,3 +52,12 @@ The November 23 café, retail, appointment, and repair checks are historical reg
 3. Post-fix browser screenshot and corresponding API output.
 4. Independent teammate retest.
 5. Link each real artifact from evidence-index.md.
+
+
+## Screenshot evidence — original failed signup attempt
+
+The screenshot below is the original browser evidence attached to Issue #27. It documents the failure observed on November 24; it is not a post-fix screenshot.
+
+![Owner registration showing the temporary signup-email-unavailable message](https://github.com/user-attachments/assets/f44b7140-73d4-4bca-bb9d-09593ac24ff7)
+
+Source: [GitHub Issue #27](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/27).
