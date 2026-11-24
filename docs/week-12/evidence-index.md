@@ -53,3 +53,13 @@ Do not create placeholder screenshots or fabricated logs. Add each real artifact
 ![Owner registration showing the temporary signup-email-unavailable message](https://github.com/user-attachments/assets/f44b7140-73d4-4bca-bb9d-09593ac24ff7)
 
 This is the original screenshot attached to Issue #27. The repository documentation embeds the existing issue attachment; the image has not been separately uploaded as a binary file under the evidence directory.
+
+## E12 automated test evidence — November 24, 2026
+
+| ID | Evidence | Result | Location |
+|---|---|---|---|
+| E12-13 | Backend automated tests (pytest) | 46 passed, 0 failed; 6 deprecation warnings; 2 subtests passed | [Backend pytest log](evidence/backend/w12-backend-pytest.txt) |
+| E12-14 | Frontend automated tests (Vitest) | 4 passed, 0 failed | [Frontend Vitest log](evidence/frontend/w12-frontend-vitest.txt) |
+| E12-15 | Frontend production build | TypeScript check and Vite production build passed; 25 modules transformed | [Frontend build log](evidence/frontend/w12-frontend-build.txt) |
+
+**Environment and limitations:** Backend tests ran with Python 3.13.7 and pytest 9.2.0. Frontend tests and build ran with Vitest 4.1.12 and Vite 8.3.6. The logs include non-blocking FastAPI lifecycle and Vite configuration deprecation warnings. These automated tests do not resolve or verify the outstanding owner signup email/HTTP 503 issue (Issue #27).
