@@ -23,6 +23,7 @@ The November 23 café, retail, appointment, and repair checks are historical reg
 | Browser result | “Signup email is temporarily unavailable. Please try again later.” |
 | API log excerpt | OPTIONS /auth/register returned 200; POST /auth/register returned 503 |
 | Independent tester | Pending |
+| Gmail runtime configuration | API container inspection showed `GMAIL_SENDER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, and `GMAIL_REFRESH_TOKEN` all missing; `MAIL_PROVIDER` defaults to `gmail_api`; `SMARTSERVE_ENV` is unset. |
 
 ## Test cases
 
@@ -40,14 +41,14 @@ The November 23 café, retail, appointment, and repair checks are historical reg
 
 ## Defect and retest rules
 
-- Issue #27 tracks the signup 503. Root cause is unknown; provider configuration, connectivity, and exception handling are investigation hypotheses, not confirmed causes.
+- Issue #27 tracks the signup 503. Missing Gmail runtime configuration is confirmed: all four required variables are absent in the API container, and Compose does not pass them. The exact exception for the observed request was not captured; no successful delivery or fix is recorded.
 - Do not close the issue based only on a later successful attempt. Repeat the same controlled conditions and record revision, environment, request outcome, and email-delivery evidence.
 - Keep historical November 23 transaction results tied to their original SHA.
 - Record bug severity separately from work priority. Every open priority item needs an owner and next check.
 
 ## Evidence still required
 
-1. Redacted traceback for a controlled registration request.
+1. Redacted exception output for a controlled registration request after Gmail configuration is supplied.
 2. Runtime image/build provenance and confirmation whether the local tenancy edit was mounted.
 3. Post-fix browser screenshot and corresponding API output.
 4. Independent teammate retest.
