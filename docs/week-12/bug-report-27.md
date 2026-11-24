@@ -2,7 +2,7 @@
 
 **GitHub issue:** [#27](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/27)  
 **Observed:** November 24, 2026 (KST)  
-**Status:** Open; root cause not confirmed.
+**Status:** Open; missing Gmail runtime configuration confirmed; exact request exception not captured; no fix or retest.
 
 ## Summary
 
@@ -40,12 +40,12 @@ Submitting the owner registration form to request the signup/activation email re
 
 ## Investigation status
 
-Root cause is **unknown**. Inspect runtime email-provider configuration, API-container connectivity, registration endpoint exception handling, and activation-link settings. These are investigation areas, not findings. Inspect variable names/status only; never publish credentials, tokens, or secrets.
+The confirmed configuration defect is that the running API container lacks all required Gmail settings, and the resolved Compose configuration does not provide them. The code inspection shows that `mailer.py` requires `GMAIL_SENDER` plus `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, and `GMAIL_REFRESH_TOKEN`; `security.py` catches delivery exceptions and returns the observed 503. The exact exception thrown during the captured registration request was not logged, so do not claim a directly captured traceback or successful Gmail API call. The immediate sender guard is expected to fail first while `GMAIL_SENDER` is absent. Inspect variable presence only; never publish credentials, tokens, or secrets.
 
 ## Owner and next check
 
 - GitHub issue assignee: Unassigned when reviewed.
-- Next check: backend owner to inspect registration endpoint and container-side configuration, capture the exception from one controlled request, and update Issue #27 with the confirmed cause.
+- Next check: configure valid Gmail sender/OAuth settings through a private, untracked environment file; recreate the API container; capture redacted delivery outcome; then repeat owner signup and activation.
 - Retest owner: teammate who did not implement the fix.
 
 ## Acceptance criteria
