@@ -1,0 +1,73 @@
+Started: 2026-11-24T15:33:24+09:00 (KST)
+Environment: local Windows, Python 3.13.7, SQLite, simulated payments
+Dependencies: FastAPI 0.162.0, Starlette 1.10.0, SQLAlchemy 2.0.38, httpx 0.28.1
+Base HEAD: e89acd3ac1912446144cb93f1dba769ab721ea9f
+Uncommitted test SHA-256: b1445ae4fb46c996acc036cab5febed5942bfb828317f95c4b93aee3f9223bf9
+Working directory: smartserve-pos/backend
+SMARTSERVE_ENV=test; DATABASE_URL=sqlite://
+> python -B -m unittest discover -v
+
+C:\Users\ualson\Documents\Codex\2026-11-24\inspect-the-current-smartserve-pos-repository\work\week12-venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+test_all_presets_coexist_and_unknown_preset_has_no_effect (test_business.BusinessTests.test_all_presets_coexist_and_unknown_preset_has_no_effect) ... ok
+test_conflicting_stock_rolls_back_entire_preset (test_business.BusinessTests.test_conflicting_stock_rolls_back_entire_preset) ... ok
+test_preset_is_repeatable_without_restocking_or_overwriting (test_business.BusinessTests.test_preset_is_repeatable_without_restocking_or_overwriting) ... ok
+test_product_and_service_recipe_rules (test_business.BusinessTests.test_product_and_service_recipe_rules) ... ok
+test_profile_persists_and_rejects_blank_name (test_business.BusinessTests.test_profile_persists_and_rejects_blank_name) ... ok
+test_service_payment_has_no_inventory_movement_and_duplicate_is_rejected (test_business.BusinessTests.test_service_payment_has_no_inventory_movement_and_duplicate_is_rejected) ... ok
+test_cancelled_order_cannot_be_paid_or_counted_as_sale (test_issue3.InventoryPaymentTests.test_cancelled_order_cannot_be_paid_or_counted_as_sale) ... ok
+test_failed_payment_then_retry (test_issue3.InventoryPaymentTests.test_failed_payment_then_retry) ... ok
+test_insufficient_stock (test_issue3.InventoryPaymentTests.test_insufficient_stock) ... ok
+test_latte_and_duplicate_after_new_session (test_issue3.InventoryPaymentTests.test_latte_and_duplicate_after_new_session) ... ok
+test_ledger_guard_even_if_status_is_inconsistent (test_issue3.InventoryPaymentTests.test_ledger_guard_even_if_status_is_inconsistent) ... ok
+test_order_keeps_original_unit_price_after_menu_price_change (test_issue3.InventoryPaymentTests.test_order_keeps_original_unit_price_after_menu_price_change) ... ok
+test_paid_order_cannot_be_cancelled (test_issue3.InventoryPaymentTests.test_paid_order_cannot_be_cancelled) ... ok
+test_sales_date_uses_korea_midnight_and_filters_rows (test_issue3.InventoryPaymentTests.test_sales_date_uses_korea_midnight_and_filters_rows) ... ok
+test_two_latte_order_deducts_recipe_once_after_cash_retry (test_issue3.InventoryPaymentTests.test_two_latte_order_deducts_recipe_once_after_cash_retry) ... ok
+test_unique_order_ids (test_issue3.InventoryPaymentTests.test_unique_order_ids) ... ok
+test_email_code_hash_is_bound_to_its_session (test_mailer.GmailDeliveryTests.test_email_code_hash_is_bound_to_its_session) ... ok
+test_email_header_injection_and_multiple_recipients_rejected (test_mailer.GmailDeliveryTests.test_email_header_injection_and_multiple_recipients_rejected) ... ok
+test_gmail_uses_https_token_refresh_and_send_only_endpoint (test_mailer.GmailDeliveryTests.test_gmail_uses_https_token_refresh_and_send_only_endpoint) ... ok
+test_add_menu_with_recipe_pay_and_archive_without_losing_history (test_owner_management.OwnerManagementTests.test_add_menu_with_recipe_pay_and_archive_without_losing_history) ... ok
+test_cannot_archive_ingredient_used_by_active_menu_or_open_order (test_owner_management.OwnerManagementTests.test_cannot_archive_ingredient_used_by_active_menu_or_open_order) ... ok
+test_compatible_conversion_preserves_recipe_payment_and_ledger (test_owner_management.OwnerManagementTests.test_compatible_conversion_preserves_recipe_payment_and_ledger) ... ok
+test_edit_alternate_unit_preserves_availability_and_payment (test_owner_management.OwnerManagementTests.test_edit_alternate_unit_preserves_availability_and_payment) ... ok
+test_edit_menu_and_ingredient_with_open_order_guards (test_owner_management.OwnerManagementTests.test_edit_menu_and_ingredient_with_open_order_guards) ... ok
+test_edit_rejects_incompatible_unit_without_changing_recipe (test_owner_management.OwnerManagementTests.test_edit_rejects_incompatible_unit_without_changing_recipe) ... ok
+test_readd_removed_ingredient_protects_historical_unit (test_owner_management.OwnerManagementTests.test_readd_removed_ingredient_protects_historical_unit) ... ok
+test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused (test_owner_management.OwnerManagementTests.test_readd_removed_ingredient_reuses_id_and_accepts_new_unit_if_unused) ... ok
+test_recipe_input_converts_grams_and_millilitres_to_stored_units (test_owner_management.OwnerManagementTests.test_recipe_input_converts_grams_and_millilitres_to_stored_units) ... ok
+test_reject_duplicate_names_and_inactive_recipe_ingredient (test_owner_management.OwnerManagementTests.test_reject_duplicate_names_and_inactive_recipe_ingredient) ... ok
+test_rename_keeps_old_receipt_name_and_price_but_new_order_uses_edit (test_owner_management.OwnerManagementTests.test_rename_keeps_old_receipt_name_and_price_but_new_order_uses_edit) ... ok
+test_legacy_schema_is_upgraded_and_backfill_runs_only_once (test_owner_management.ReceiptMigrationTests.test_legacy_schema_is_upgraded_and_backfill_runs_only_once) ... ok
+test_account_mfa_permissions_and_cross_business_isolation (test_security.SecurityAcceptanceTests.test_account_mfa_permissions_and_cross_business_isolation) ... ok
+test_private_automatic_admin_bootstrap (test_security.SecurityAcceptanceTests.test_private_automatic_admin_bootstrap) ... ok
+test_auto_expiry_and_payment_guard (test_trash.OrderTrashTests.test_auto_expiry_and_payment_guard) ... ok
+test_open_and_paid_orders_cannot_be_trashed (test_trash.OrderTrashTests.test_open_and_paid_orders_cannot_be_trashed) ... ok
+test_trash_restore_and_permanent_delete (test_trash.OrderTrashTests.test_trash_restore_and_permanent_delete) ... ok
+test_two_lattes_duplicate_payment_same_session (test_week10_ualsom.Week10UalsomTests.test_two_lattes_duplicate_payment_same_session) ... ok
+test_two_lattes_retry_from_new_session_does_not_deduct_twice (test_week11_ualsom.UalsomWeek11PaymentRetryTest.test_two_lattes_retry_from_new_session_does_not_deduct_twice) ... ok
+test_two_latte_http_retry_preserves_receipt_and_ledger (test_week12_ualsom.Week12PaymentRetryTest.test_two_latte_http_retry_preserves_receipt_and_ledger) ... 
+Order 1: create HTTP 201; 2 lattes, KRW 9000; cash HTTP 200; reference SIM-3FFA24DFEA
+Milk: 5000 -> 4500 ml
+Coffee beans: 1200 -> 1164 g
+Payment row 1: cash, KRW 9000
+Movement row 1: Milk -500.000000 (paid_order)
+Movement row 2: Coffee beans -36.000000 (paid_order)
+Card retry HTTP 409; receipt and stock unchanged; 1 payment and 2 movements unchanged
+ok
+test_appointment_overlap_and_distinct_staff (test_workflows.WorkflowTests.test_appointment_overlap_and_distinct_staff) ... ok
+test_cancelled_table_order_can_be_deleted_without_orphaned_context (test_workflows.WorkflowTests.test_cancelled_table_order_can_be_deleted_without_orphaned_context) ... ok
+test_configuration_validation_and_disabled_workflow (test_workflows.WorkflowTests.test_configuration_validation_and_disabled_workflow) ... ok
+test_job_bill_status_checkout_and_cancelled_bill_retry (test_workflows.WorkflowTests.test_job_bill_status_checkout_and_cancelled_bill_retry) ... ok
+test_setup_cannot_orphan_open_bills_or_active_work (test_workflows.WorkflowTests.test_setup_cannot_orphan_open_bills_or_active_work) ... ok
+test_setup_keeps_history_and_reactivates_samples_without_restock (test_workflows.WorkflowTests.test_setup_keeps_history_and_reactivates_samples_without_restock) ... ok
+test_table_bill_occupancy_append_and_release_after_payment (test_workflows.WorkflowTests.test_table_bill_occupancy_append_and_release_after_payment) ... ok
+test_takeaway_only_rejects_table_sales_and_tables_only_requires_table (test_workflows.WorkflowTests.test_takeaway_only_rejects_table_sales_and_tables_only_requires_table) ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 7.269s
+
+OK
+
+Exit code: 0
