@@ -1,0 +1,235 @@
+{
+  "environment": "isolated local SQLite, built frontend, simulated payments",
+  "checks": [
+    {
+      "check": "business writes require owner",
+      "expected": 401,
+      "actual": 401,
+      "passed": true
+    },
+    {
+      "check": "preset writes require owner",
+      "expected": 401,
+      "actual": 401,
+      "passed": true
+    },
+    {
+      "check": "no public admin registration link",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "admin password does not bypass email verification",
+      "expected": 401,
+      "actual": 401,
+      "passed": true
+    },
+    {
+      "check": "platform has no business creation button",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "platform cannot create a workspace by API",
+      "expected": 405,
+      "actual": 405,
+      "passed": true
+    },
+    {
+      "check": "setup has exactly three steps",
+      "expected": 3,
+      "actual": 3,
+      "passed": true
+    },
+    {
+      "check": "incomplete setup creates no additional business",
+      "expected": 2,
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "check": "mobile details and review fit the screen",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "check": "interrupted setup preserves one resumable business",
+      "expected": 2,
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "check": "completed setup provisions exactly one business",
+      "expected": 2,
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "check": "admin can select an existing business",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "check": "owner has no platform link",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "owner can edit business setup",
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    {
+      "check": "cashier has no owner dashboard nav",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "cashier sales API denied",
+      "expected": 403,
+      "actual": 403,
+      "passed": true
+    },
+    {
+      "check": "cashier staff API denied",
+      "expected": 403,
+      "actual": 403,
+      "passed": true
+    },
+    {
+      "check": "cashier setup API denied",
+      "expected": 403,
+      "actual": 403,
+      "passed": true
+    },
+    {
+      "check": "cross-business selection denied for owner",
+      "expected": 403,
+      "actual": 403,
+      "passed": true
+    },
+    {
+      "check": "signup request does not provision a workspace",
+      "expected": 2,
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "check": "self-service signup has only its own owner membership",
+      "expected": [
+        "owner"
+      ],
+      "actual": [
+        "owner"
+      ],
+      "passed": true
+    },
+    {
+      "check": "self-service signup cannot access platform",
+      "expected": 403,
+      "actual": 403,
+      "passed": true
+    },
+    {
+      "check": "ten business choices including custom",
+      "expected": 10,
+      "actual": 10,
+      "passed": true
+    },
+    {
+      "check": "profile completed",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "check": "only cafe starter catalog visible",
+      "expected": 3,
+      "actual": 3,
+      "passed": true
+    },
+    {
+      "check": "table freed after payment",
+      "expected": null,
+      "actual": null,
+      "passed": true
+    },
+    {
+      "check": "takeaway-only order type",
+      "expected": [
+        "takeaway"
+      ],
+      "actual": [
+        "takeaway"
+      ],
+      "passed": true
+    },
+    {
+      "check": "no tables nav for takeaway-only",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "retail deducts one piece",
+      "expected": 39,
+      "actual": 39.0,
+      "passed": true
+    },
+    {
+      "check": "overlapping staff booking rejected",
+      "expected": 409,
+      "actual": 409,
+      "passed": true
+    },
+    {
+      "check": "appointment completed after payment",
+      "expected": "completed",
+      "actual": "completed",
+      "passed": true
+    },
+    {
+      "check": "repair job completed after payment",
+      "expected": "completed",
+      "actual": "completed",
+      "passed": true
+    },
+    {
+      "check": "custom empty catalog",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "previous sales retained",
+      "expected": 6,
+      "actual": 6,
+      "passed": true
+    },
+    {
+      "check": "custom catalog checkout",
+      "expected": 22000,
+      "actual": 22000.0,
+      "passed": true
+    },
+    {
+      "check": "mobile setup fits screen",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "check": "no uncaught browser errors",
+      "expected": [],
+      "actual": [],
+      "passed": true
+    }
+  ]
+}
