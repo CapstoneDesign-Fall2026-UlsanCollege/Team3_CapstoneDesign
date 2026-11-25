@@ -2,7 +2,7 @@
 
 **Team 3 · November 19–25, 2026 (KST)**
 
-**Status as of November 23:** Local QA passed on the reviewed commit. Independent Render verification and team sign-off are pending.
+**Status as of November 25:** Local checkout QA passed on the reviewed commit. The active Render revision is confirmed. Independent Render checkout and team sign-off remain pending.
 
 **GitHub baseline reviewed:** `main` at [`bcd1f3a`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/bcd1f3a12c8891d3a669fdd9f4e96251f500d3de).
 
@@ -17,7 +17,7 @@ Verify café, retail, and service sales on the final-demo build using simulated 
 | [Week 11 Render verification](../week-11/live-two-latte-verification.md) | A developer-coordinated browser run on `eb2c88e` recorded café order #1 at ₩9,000, milk 5,000 → 4,500 ml, and beans 1,000 → 964 g. | Confirm the deployed SHA and get a teammate who did not author the relevant change to repeat the check. |
 | [Week 11 PR CI #9](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/actions/runs/43902224014) | Ualson's isolated retry regression recorded HTTP 409 and a single stock deduction. | Re-run the regression on the Week 12 candidate. The Week 11 Render UI run left duplicate payment untested. |
 | [Business workflow scenarios](../../smartserve-pos/business_scenarios.py) and [validation workflow](../../.github/workflows/week9-validation.yml) | The current repository already has automated retail checkout, appointment, and repair checks. | Capture results for the new revision and get a human walkthrough on the demo workspaces. |
-| [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22) | The issue was open with zero comments at review. Its acceptance calls for a named non-author result and individual evidence. | Have the tester post their own result and link it below. |
+| [Issue #22](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22#issuecomment-7153545486) | The November 25 handoff records the live SHA and requests a non-author test. | The assigned next check is an independent café, retail, and service walkthrough. |
 
 ## Week 12 results
 
@@ -62,17 +62,17 @@ The café runner reported **27 passing checks**, including a simulated decline f
 | Historical receipt | Caffè Latte, ₩4,500 unit price, ₩9,000 total |
 | Stock after next sale | 4,250 ml milk and 1.146 kg beans |
 
-Source for the browser/API assertions and screenshot steps. [Café validation runner](../week-09/run_validation.py)
+[Local café receipt screenshot](evidence/screenshots/w12-local-cafe-receipt.png). Source for the browser/API assertions and screenshot steps. [Café validation runner](../week-09/run_validation.py)
 
 ### Business browser/API run
 
 The business runner reported **37 passing checks**. The retail receipt screenshot showed **Payment Complete**, **Receipt #3**, **Cotton T-shirt × 1**, and **₩19,000 cash**. The runner recorded a remaining stock count of 39. Both the appointment and repair scenarios displayed a receipt and returned `completed` for the linked work after checkout.
 
-Sources for the retail and service assertions. [Business runner](../../smartserve-pos/verify_business.py) · [Checkout scenarios](../../smartserve-pos/business_scenarios.py)
+[Local retail receipt screenshot](evidence/screenshots/w12-local-retail-receipt.png). Sources for the retail and service assertions. [Business runner](../../smartserve-pos/verify_business.py) · [Checkout scenarios](../../smartserve-pos/business_scenarios.py)
 
 ## What would support an Exceed submission
 
-1. **Close the independent verification gap.** As `daydevil80`, confirm the Render revision and coordinate the run. Ask a teammate who did not author the checkout change to carry out C1, R1, and S1 and post their own results in Issue #22. Link the comment here. Include receipt totals, before-and-after stock, and final ticket status. This is the clearest missing evidence in the GitHub record.
+1. **Close the independent verification gap.** The live SHA and peer-test request are recorded below. The remaining evidence is the tester’s own results for C1, R1, and S1, including receipt totals, before-and-after stock, and final ticket status.
 2. **Make your own contribution traceable.** Personally reproduce C2–C5 on the candidate build, then post your environment, exact SHA, expected and actual values, and screenshots or output under your own login. A PR containing only this report falls outside the validation workflow's path filters. Link an existing run for the candidate SHA or manually dispatch the workflow on the candidate branch.
 3. **Document one result end to end.** If the live walkthrough exposes a regression, link the failing evidence, issue, focused fix, and passing retest. If the walkthrough passes, ask the tester to record the simulated decline and retry wherever the demo tools support it, including the same order ID and before-and-after stock. The local run above provides the expected values for that comparison.
 
@@ -80,7 +80,25 @@ These steps address the traceable evidence and individual ownership criteria des
 
 ## Decision and Week 13 handoff
 
-**Demo transaction readiness:** Local checks passed. Before sign-off, confirm the deployed SHA and record the independent Render walkthrough in Issue #22 with the tester's login, KST timestamp, workspace, order or ticket IDs, and evidence. Carry those live workspaces and receipts into Week 13 so the team can verify owner access and reconcile the daily sales totals. [Week 13 roadmap](../week-10/final-roadmap.md)
+**Demo transaction readiness:** Local checks passed and the Render revision was confirmed. Team sign-off awaits the independent results. Carry the tested live workspaces and receipts into Week 13 for owner-access and daily sales reconciliation. [Week 13 roadmap](../week-10/final-roadmap.md)
+
+## November 25 feedback follow-up
+
+Render lists commit `a9a35d2a8fe6425e05a4ac8d8feeb54048ba80fd` as live. A public GET to `/health` timed out after 35 seconds at 14:12 KST. A retry returned HTTP 200 with `{"status":"ok"}`. [Render deployment record](https://dashboard.render.com/web/srv-dbc8jbifngtc739d85q0/deploys/dep-dbvafnh42hec73b7u5u0)
+
+| GitHub login | Contribution | Direct evidence |
+|---|---|---|
+| `daydevil80` | Authored and published the Week 12 report, documented the automated local outcomes for C1–C5, R1, and S1, and coordinated the Render handoff. The local suites were executed by automated runners. | [Report commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/e89acd3ac1912446144cb93f1dba769ab721ea9f) · [Render handoff](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22#issuecomment-7153545486) |
+| `ualsom` | Reported a November 24 local HTTP retry regression. The focused test passed and backend discovery passed 47/47 at `e89acd3` with the added test in the working tree. The retry returned HTTP 409 and preserved payment and stock records. | [Individual result](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22#issuecomment-7124147327) |
+| `Sammygit15` | Recorded the local signup-email failure and added backend, frontend, and build evidence. The post-fix signup retest is pending. | [Individual receipt](receipts/LamaMuskan%28Sammygit15%29.md) · [Evidence index](evidence-index.md) |
+
+| Priority | Owner | Expected on Render | Actual / status | Next check |
+|---|---|---|---|---|
+| P1 | `daydevil80` coordinates | Two lattes produce a ₩9,000 receipt and deduct 500 ml milk and 36 g beans with the demo recipe. | Independent run **Not tested**. | Non-author posts receipt and stock before and after. |
+| P1 | `daydevil80` coordinates | One retail sale produces a paid receipt and deducts one unit. | Independent run **Not tested**. | Non-author posts receipt and stock before and after. |
+| P1 | `daydevil80` coordinates | Service checkout produces a paid receipt and the linked ticket reaches Completed. | Independent run **Not tested**. | Non-author posts receipt, ticket ID, and final status. |
+
+`Shuzita` was invited to test if eligible, with another non-author teammate as backup. Capture KST time, active SHA, workspace, expected and actual values, and direct proof in the tester’s own reply. [Peer-test request](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22#issuecomment-7153545486)
 
 
 ## November 24 follow-up — owner registration email failure
