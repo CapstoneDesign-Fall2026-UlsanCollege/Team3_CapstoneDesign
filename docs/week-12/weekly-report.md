@@ -84,6 +84,8 @@ These steps address the traceable evidence and individual ownership criteria des
 
 ## November 25 feedback follow-up
 
+At about 14:16 KST, the PowerShell HTTP preflight returned HTTP 200 for the health and sign-in endpoints. The menu, inventory, and service-work endpoints returned HTTP 401 and required sign-in with two-factor verification. Checkout was blocked before any transaction, so the independent walkthrough remains pending. [Issue #22 preflight results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22#issuecomment-7153696090)
+
 Render lists commit `a9a35d2a8fe6425e05a4ac8d8feeb54048ba80fd` as live. A public GET to `/health` timed out after 35 seconds at 14:12 KST. A retry returned HTTP 200 with `{"status":"ok"}`. [Render deployment record](https://dashboard.render.com/web/srv-dbc8jbifngtc739d85q0/deploys/dep-dbvafnh42hec73b7u5u0)
 
 | GitHub login | Contribution | Direct evidence |
