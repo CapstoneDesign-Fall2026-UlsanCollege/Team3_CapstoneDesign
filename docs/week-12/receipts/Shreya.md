@@ -2,7 +2,7 @@
 
 **Prepared:** 2026-11-26 (catch-up record)  
 **Team:** Team 3 — SmartServe POS  
-**Status:** Shared automated baseline documented; my own service check remains pending
+**Status:** Shared automated baseline documented; personal service check blocked for this submission
 
 ## Area and expected result
 
