@@ -70,6 +70,22 @@ The business runner reported **37 passing checks**. The retail receipt screensho
 
 [Local retail receipt screenshot](evidence/screenshots/w12-local-retail-receipt.png). Sources for the retail and service assertions. [Business runner](../../smartserve-pos/verify_business.py) · [Checkout scenarios](../../smartserve-pos/business_scenarios.py)
 
+## Individual contributions
+
+| Contributor | Week 12 contribution | Tested revision and environment | Result and evidence | Independent verification |
+|---|---|---|---|---|
+| Ualson Tamang (`ualsom`) | Added one HTTP regression for C1/C3 that checks the persisted receipt and exact payment and inventory ledger rows across a duplicate retry. | [`e89acd3`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/e89acd3ac1912446144cb93f1dba769ab721ea9f) with the uncommitted test in the working tree. November 24 KST, local Windows, Python 3.13.7, temporary SQLite, simulated payments. | **Pass · Local. Blocked · Deployed.** [Individual report](receipts/UalsonTamang%28ualsom%29.md) · [Test source](../../smartserve-pos/backend/test_week12_ualsom.py) · [Focused terminal output](evidence/ualsom-focused.txt) · [Full backend terminal output](evidence/ualsom-backend-suite.txt) | **Pending.** [Teammate procedure](ualsom-manual-verification.md) · [@ualsom’s result and request for an independent milk check](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/22#issuecomment-7124147327) |
+
+| Check | Expected | Observed in the November 24 local run |
+|---|---|---|
+| Create and pay for two lattes | HTTP 201 and an open order at 2 × KRW 4,500 with unchanged stock. Cash payment returns HTTP 200 and a paid receipt for KRW 9,000. | Order #1 opened at KRW 9,000 with stock and ledgers unchanged. Cash returned HTTP 200 and the saved paid receipt matched the payment response. |
+| Stock and ledger after payment | Milk −500 ml, beans −36 g, one KRW 9,000 cash payment tied to the receipt reference and two `paid_order` movements tied to the order. | Milk 5,000 → 4,500 ml, beans 1,200 → 1,164 g. One cash payment for KRW 9,000 and two movements for the expected ingredients and quantities. |
+| Retry the same order by card | HTTP 409. Original cash receipt, reference, payment timestamp, stock and ledger rows remain unchanged. | HTTP 409. The saved receipt and inventory snapshots matched exactly, as did the one payment row and two movement rows. |
+
+Week 10 covered a same-session handler retry, and Week 11 covered a fresh-session handler retry. This contribution exercises the HTTP create, pay, read-back, inventory and retry routes through FastAPI TestClient, with a signed-in principal and workspace engine supplied by the test fixture. It compares persisted receipt fields and exact ledger rows before and after retry. The focused run passed 1 test, and backend discovery passed all 47 tests, including the Week 10 and 11 regressions. The pinned HTTP client emitted a Starlette deprecation warning in both runs. The local focused rerun also passed. [Rerun output](evidence/ualsom-focused-rerun.txt)
+
+**Deployed manual check · Blocked (November 24 KST).** Ualson reached the 2FA prompt and requested a new code after the first verification email failed to arrive. Neither email arrived during the attempt. The payment and inventory steps were not reached. Independent teammate verification remains **Pending**.
+
 ## What would support an Exceed submission
 
 1. **Close the independent verification gap.** The live SHA and peer-test request are recorded below. The remaining evidence is the tester’s own results for C1, R1, and S1, including receipt totals, before-and-after stock, and final ticket status.
