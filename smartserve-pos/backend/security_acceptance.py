@@ -278,10 +278,48 @@ def main():
             check("expired workspace is deleted", None, db.get(Store, stores[0]["id"]))
             check("other workspace survives purge", True, db.get(Store, stores[1]["id"]) is not None)
         second_path = "/platform/businesses/" + stores[1]["id"]
+        previous_signup = latest_mail("ownerb@example.test", "activation_url")
         check("active business cannot be permanently deleted", 409, post(admin, second_path + "/permanent", method="DELETE").status_code)
         check("platform can archive second business", 200, post(admin, second_path, method="DELETE").status_code)
+        post(public, "/auth/register", {"business_name": "Replacement", "email": "ownerb@example.test"})
+        check("archived business still reserves owner email", previous_signup, latest_mail("ownerb@example.test", "activation_url"))
         check("platform can permanently delete an archived business before expiry", 200,
               post(admin, second_path + "/permanent", method="DELETE").status_code)
+        check("deleted workspace email can register again", 202,
+              post(public, "/auth/register", {"business_name": "Replacement", "email": "ownerb@example.test"}).status_code)
+        replacement_signup = latest_mail("ownerb@example.test", "activation_url")
+        check("reused owner email receives a fresh activation link", True, replacement_signup != previous_signup)
+        replacement, replacement_codes = activate(replacement_signup, "ownerb@example.test")
+        check("reused owner email gets fresh recovery codes", 10, len(replacement_codes))
+        check("reused owner email only has the new workspace", ["Replacement"],
+              [store["name"] for store in replacement.get("/auth/session").json()["businesses"]])
+        reset_client = TestClient(app)
+        reset_email = "reset-owner@example.test"
+        signup = post(public, "/auth/register", {"business_name": "Reset Demo", "email": reset_email})
+        check("reset test owner created", 202, signup.status_code)
+        existing, _ = activate(latest_mail(reset_email, "activation_url"), reset_email)
+        request_path = "/auth/password/reset/request"
+        confirm_path = "/auth/password/reset/confirm"
+        request_reset = reset_client.post(request_path, json={"email": reset_email})
+        check("owner can request a passphrase reset", 202, request_reset.status_code)
+        unknown = reset_client.post(request_path, json={"email": "unknown@example.test"})
+        check("unknown email receives the same reset message", request_reset.json()["message"], unknown.json()["message"])
+        check("reset request does not authenticate", False, reset_client.get("/auth/session").json()["authenticated"])
+        reset_code = latest_mail(reset_email, "reset_code")
+        reset_password = PASSWORD + "-reset"
+        reset_payload = {"email": reset_email, "reset_token": request_reset.json()["reset_token"],
+                         "code": reset_code, "new_password": reset_password}
+        wrong_code = "000001" if reset_code == "000000" else "000000"
+        check("incorrect reset code rejected", 400, reset_client.post(confirm_path, json=reset_payload | {"code": wrong_code}).status_code)
+        check("reset token is bound to owner", 400, reset_client.post(confirm_path, json=reset_payload | {"email": "ownera@example.test"}).status_code)
+        check("existing owner session is active before reset", 200, existing.get("/menu").status_code)
+        check("valid reset changes passphrase", 200, reset_client.post(confirm_path, json=reset_payload).status_code)
+        check("reset revokes an existing owner session", 401, existing.get("/menu").status_code)
+        check("reset code cannot be replayed", 400, reset_client.post(confirm_path, json=reset_payload).status_code)
+        check("old passphrase rejected after reset", 401, existing.post("/auth/login", json={"email": reset_email, "password": PASSWORD}).status_code)
+        login_reset = existing.post("/auth/login", json={"email": reset_email, "password": reset_password})
+        check("new passphrase still requires email verification", "verify_email", login_reset.json().get("challenge"))
+        check("new sign-in email code restores owner access", 200, post(existing, "/auth/mfa/verify", {"code": latest_mail(reset_email)}).status_code)
     Path(os.environ["SMARTSERVE_SECURITY_RESULTS"]).write_text(json.dumps(RESULTS, indent=2), encoding="utf-8")
     print(f"PASS: {len(RESULTS)} isolated security assertions")
 

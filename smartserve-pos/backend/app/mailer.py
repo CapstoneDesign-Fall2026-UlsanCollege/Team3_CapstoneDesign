@@ -58,6 +58,13 @@ def send_login_code(recipient, code):
     deliver(recipient, "Your SmartServe sign-in code", f"Your SmartServe verification code is:\n\n{code}\n\nIt expires in 5 minutes and can be used once. Never share this code. SmartServe support will never ask you for it. If you did not request it, do not use it.\n", {"code": code})
 
 
+def send_password_reset_code(recipient, code):
+    deliver(recipient, "Your SmartServe passphrase reset code",
+            f"Your SmartServe passphrase reset code is:\n\n{code}\n\n"
+            "It expires in 5 minutes and can be used once. If you did not request it, ignore this email.",
+            {"reset_code": code})
+
+
 def send_activation_link(recipient, url):
     deliver(recipient, "Activate your private SmartServe platform-admin account", f"Your private platform-admin account is ready.\n\nOpen this one-use link to choose your own passphrase:\n{url}\n\nThis link expires after 24 hours. You must also verify an email code before accessing the platform. Do not share this link or your codes.\n", {"activation_url": url})
 

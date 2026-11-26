@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { apiRequest, jsonBody, type AccountSession } from "./api";
 
+import { PasswordReset } from "./PasswordReset";
+
 export function AccountAccess({ children }: { children: (session: AccountSession) => ReactNode }) {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [email, setEmail] = useState("");
@@ -8,6 +10,7 @@ export function AccountAccess({ children }: { children: (session: AccountSession
   const [businessName, setBusinessName] = useState("");
   const [signupSubmitted, setSignupSubmitted] = useState(false);
   const [password, setPassword] = useState("");
+  const [resetting, setResetting] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -54,6 +57,7 @@ export function AccountAccess({ children }: { children: (session: AccountSession
   if (!session) return <main className="auth-page"><p role="status">Checking your secure session…</p></main>;
   if (session.authenticated && !recovery.length) return <>{children(session)}</>;
   return <main className="auth-page"><a className="setup-brand" href="/"><span>S</span> SmartServe</a><section className="auth-card">
+    {resetting ? <PasswordReset initialEmail={email} onBack={result => { setResetting(false); setMessage(result); }} /> : <>
     <p className="setup-kicker">YOUR BUSINESS, PROTECTED</p><h1>{recovery.length ? "Keep your recovery codes safe." : challenge ? "Check your email." : invitation ? "Activate your SmartServe account" : registering ? (signupSubmitted ? "Check your inbox" : "Create your business") : "Welcome back."}</h1>
     <p className="muted">{recovery.length ? "Save these one-use codes offline. You will need your passphrase as well if email is unavailable." : challenge ? `Enter the code sent to ${session.user?.email}. It expires in five minutes.` : invitation ? "Choose a private passphrase to activate your account." : registering ? (signupSubmitted ? "Open the latest signup link within 30 minutes. If it hasn’t arrived, check Spam or resend below." : "Use your email address to create an owner account and set up your own workspace.") : "Sign in to the workspace your account is authorized to use."}</p>
     {error && <p className="setup-error" role="alert">{error}</p>}{message && <p className="notice" role="status">{message}</p>}
@@ -84,5 +88,7 @@ export function AccountAccess({ children }: { children: (session: AccountSession
       {challenge && <><button type="button" disabled={busy || clock < resendAt} onClick={async () => { setBusy(true); setError(""); try { await apiRequest("/auth/mfa/resend", { method: "POST" }); setResendAt(Date.now() + 60000); setMessage("A new code was sent. The previous code no longer works."); } catch (failure) { setError(failure instanceof Error ? failure.message : "Could not resend."); } finally { setBusy(false); } }}>{clock < resendAt ? `Resend in ${Math.ceil((resendAt - clock) / 1000)}s` : "Resend email code"}</button><button type="button" disabled={busy} onClick={async () => { await apiRequest("/auth/logout", { method: "POST" }); window.location.assign("/login"); }}>Use a different account</button></>}
     </form>}
     {!challenge && !invitation && !recovery.length && <p className="auth-footnote">{registering ? <a href="/login">Sign in to an existing account</a> : <a href="/register">Create your own business</a>}</p>}
+    {!challenge && !invitation && !recovery.length && !registering && <button type="button" disabled={busy} onClick={() => { setPassword(""); setError(""); setMessage(""); setResetting(true); }}>Forgot password?</button>}
+    </>}
   </section></main>;
 }

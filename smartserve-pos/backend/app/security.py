@@ -8,7 +8,7 @@ import time
 from contextlib import contextmanager
 from uuid import uuid4
 
-from fastapi import HTTPException, Request, Response
+from fastapi import BackgroundTasks, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select, update
@@ -67,7 +67,7 @@ def resolve_session(request):
         return None
     with identity_db() as db:
         session = db.get(LoginSession, token_hash(raw))
-        if not session or session.revoked or session.expires_at <= time.time():
+        if not session or session.revoked or session.purpose == "password_reset" or session.expires_at <= time.time():
             return None
         user = db.get(User, session.user_id)
         if not user or not user.active:
@@ -196,11 +196,27 @@ def reserved_admin_email(email):
     return email == config("SMARTSERVE_PLATFORM_ADMIN_EMAIL", "").strip().lower()
 
 
+def signup_email_available(db, email, user):
+    if reserved_admin_email(email):
+        return False
+    if not user:
+        return True
+    if not user.active or user.platform_admin:
+        return False
+    return db.scalar(select(Membership.id).where(Membership.user_id == user.id).limit(1)) is None
+
+
 def create_signup_owner(db, signup, name, encoded_password):
-    if reserved_admin_email(signup.email) or db.scalar(select(User.id).where(User.email == signup.email)):
+    user = db.scalar(select(User).where(User.email == signup.email).with_for_update())
+    if not signup_email_available(db, signup.email, user):
         raise HTTPException(400, "This signup link is no longer available. Sign in or use your invitation.")
-    user = User(id=uuid4().hex, email=signup.email, name=name.strip() or signup.email, password_hash=encoded_password,
-                active=True, platform_admin=False, mfa_required=True, created_at=time.time())
+    if user is None:
+        user = User(id=uuid4().hex, email=signup.email, name=name.strip() or signup.email,
+                    active=True, platform_admin=False, created_at=time.time())
+    user.password_hash = encoded_password
+    user.mfa_required = True
+    user.email_verified_at = None
+    user.recovery_hashes = "[]"
     store_id = signup.token_hash[:32]
     store = Store(id=store_id, name=signup.business_name, namespace="store_" + store_id,
                   active=True, created_at=time.time())
@@ -227,6 +243,21 @@ class ReauthInput(FactorInput):
 
 
 class PasswordChangeInput(ReauthInput):
+    new_password: str = Field(min_length=14, max_length=128)
+
+
+class PasswordResetRequest(BaseModel):
+    email: str = Field(max_length=254)
+
+    @field_validator("email")
+    @classmethod
+    def valid_email(cls, value):
+        return email_address(value)
+
+
+class PasswordResetInput(PasswordResetRequest):
+    reset_token: str = Field(min_length=64, max_length=64)
+    code: str = Field(pattern=r"^[0-9]{6}$")
     new_password: str = Field(min_length=14, max_length=128)
 
 
@@ -258,7 +289,7 @@ def accept_factor(db, user, code, session_hash, purpose):
 
 
 def issue_email(db, user, session, purpose):
-    from .mailer import send_login_code
+    from .mailer import send_login_code, send_password_reset_code
     previous = db.get(EmailChallenge, session.token_hash)
     if previous and time.time() - previous.sent_at < 60:
         raise HTTPException(429, "Please wait 60 seconds before requesting another code", headers={"Retry-After": "60"})
@@ -271,7 +302,8 @@ def issue_email(db, user, session, purpose):
     challenge.sent_at, challenge.attempts, challenge.used = time.time(), 0, False
     db.add(challenge)
     try:
-        send_login_code(user.email, code)
+        send_code = send_password_reset_code if purpose == "password_reset" else send_login_code
+        send_code(user.email, code)
         audit(db, "email_code_sent", user.id, session.store_id)
         return True
     except Exception:
@@ -279,6 +311,27 @@ def issue_email(db, user, session, purpose):
         challenge.used = True
         audit(db, "email_delivery_failed", user.id, session.store_id)
         return False
+
+
+def reset_owner(db, email):
+    user = db.scalar(select(User).where(User.email == email, User.active.is_(True),
+                                       User.platform_admin.is_(False)).with_for_update())
+    if user and user.password_hash and any(store["role"] == "owner" for store in memberships(db, user.id)):
+        return user
+    return None
+
+
+def deliver_password_reset(email, session_hash):
+    with identity_db() as db:
+        user = reset_owner(db, email)
+        if not user:
+            return
+        now = time.time()
+        reset = LoginSession(token_hash=session_hash, user_id=user.id, purpose="password_reset",
+                             csrf_token=secrets.token_urlsafe(32), expires_at=now + 600, last_seen=now)
+        db.add(reset)
+        issue_email(db, user, reset, "password_reset")
+        db.commit()
 
 
 def install_owner_auth(app):
@@ -359,7 +412,7 @@ def install_owner_auth(app):
         email = payload.email.strip().lower()
         with identity_db() as db:
             throttle(db, request, "login", email)
-            user = db.scalar(select(User).where(User.email == email))
+            user = db.scalar(select(User).where(User.email == email).with_for_update())
             valid = password_valid(user.password_hash if user else None, payload.password)
             if not user or not user.active or not valid:
                 audit(db, "login_failed")
@@ -375,6 +428,34 @@ def install_owner_auth(app):
             db.commit()
             return {"authenticated": purpose == "full", "challenge": purpose if purpose != "full" else None, "email_sent": sent}
 
+    @app.post("/auth/password/reset/request", status_code=202)
+    def request_password_reset(payload: PasswordResetRequest, request: Request, background: BackgroundTasks):
+        with identity_db() as db:
+            throttle(db, request, "password_reset_request", payload.email, limit=3)
+        reset_token = secrets.token_urlsafe(48)
+        background.add_task(deliver_password_reset, payload.email, token_hash(reset_token))
+        return {"reset_token": reset_token, "message": "If this email belongs to an active owner account, a reset code will be sent."}
+
+    @app.post("/auth/password/reset/confirm")
+    def confirm_password_reset(payload: PasswordResetInput, request: Request):
+        with identity_db() as db:
+            throttle(db, request, "password_reset_confirm", payload.email)
+            user = reset_owner(db, payload.email)
+            reset = db.get(LoginSession, token_hash(payload.reset_token)) if user else None
+            if (not reset or reset.user_id != user.id or reset.purpose != "password_reset" or reset.revoked
+                    or reset.expires_at <= time.time()
+                    or not accept_factor(db, user, payload.code, reset.token_hash, "password_reset")):
+                db.commit()
+                raise HTTPException(400, "The reset code is invalid or expired. Request a new code if needed.")
+            try:
+                user.password_hash = password_hash(payload.new_password)
+            except ValueError as error:
+                raise HTTPException(422, str(error))
+            db.execute(update(LoginSession).where(LoginSession.user_id == user.id).values(revoked=True))
+            audit(db, "password_reset_sessions_revoked", user.id)
+            db.commit()
+            return {"message": "Passphrase reset. Sign in with your new passphrase."}
+
     @app.post("/auth/register", status_code=202)
     def register_owner(payload: OwnerSignupInput, request: Request):
         from .mailer import deliver
@@ -386,7 +467,8 @@ def install_owner_auth(app):
         message = {"message": "If this email is available, you’ll receive a link to create your owner account."}
         with identity_db() as db:
             throttle(db, request, "owner_signup", payload.email, limit=3)
-            if reserved_admin_email(payload.email) or db.scalar(select(User.id).where(User.email == payload.email)):
+            user = db.scalar(select(User).where(User.email == payload.email))
+            if not signup_email_available(db, payload.email, user):
                 return message
             signup = db.scalar(select(OwnerSignup).where(OwnerSignup.email == payload.email).with_for_update())
             if signup and signup.expires_at - SIGNUP_LINK_LIFETIME + SIGNUP_RESEND_COOLDOWN > time.time():
@@ -457,6 +539,9 @@ def install_owner_auth(app):
         with identity_db() as db:
             throttle(db, request, "factor", identity.user_id)
             user = db.scalar(select(User).where(User.id == identity.user_id).with_for_update())
+            session = db.get(LoginSession, identity.token_hash)
+            if not user.active or not session or session.revoked or session.expires_at <= time.time():
+                raise HTTPException(401, "This sign-in expired. Sign in again.")
             if not accept_factor(db, user, payload.code, identity.token_hash, "login"):
                 audit(db, "email_verification_failed", user.id)
                 db.commit()
