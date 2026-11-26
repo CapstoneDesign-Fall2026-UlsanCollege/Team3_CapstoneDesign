@@ -16,7 +16,7 @@ The Week 12 shared report records a local automated run on November 23 using fre
 The summary does not preserve a repair receipt screenshot, receipt contents/amount, or ticket ID. I do not claim those details or claim to have personally run the check.
 
 - [Week 12 S1 result and business run notes](../weekly-report.md#week-12-results)
-- [Repair scenario source](../../smartserve-pos/business_scenarios.py)
+- [Repair scenario source](../../../smartserve-pos/business_scenarios.py)
 - [QA checklist, W12-REG-05](../qa-checklist.md)
 - [My repeatable check, Issue #31](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/31)
 
