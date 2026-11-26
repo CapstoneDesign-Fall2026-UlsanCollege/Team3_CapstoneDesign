@@ -6,7 +6,7 @@
 
 **Date:** 2026-09-22
 
-**Last updated:** 2026-09-30
+**Last updated:** 2026-11-26 (Week 3 follow-up receipt; original report dated 2026-09-22)
 
 ## This week's goal
 
@@ -44,7 +44,7 @@ Define a small midterm demo path, describe its main screens, and connect the Wee
 | Lama Muskan | Updated the architecture sketch to identify FastAPI as the backend and align the proposed stack with the implementation. Additional evidence from my Week 2 work covers order-total calculation, payment and inventory protection, and the technology-stack investigation. | [Architecture update commit `16efb35`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/16efb35); [Week 2 individual evidence receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-02/individual_evidence.md/Lama_Muskan.md)
 | Ualson Tamang | Week 3 contribution receipt pending. | Add an issue, sketch, review, or research link. |
 | Shuzita Majhi | Created the Week 4 Chuseok checkpoint with sketches, the midterm-demo sentence, a Week 5 question, and the first action after the break. Uploaded the automated two-Latte demo evidence, including six screenshots and expected-versus-actual results. The automated demo was performed by browser automation; personal review or reproduction is not yet recorded. | [Chuseok checkpoint](../week-04-chuseok/chuseok-checkpoint.md); [two-Latte demo evidence](evidence/two-latte-demo/README.md) |
-| Shreya | Proposed verification support. Week 3 contribution receipt pending. | Add a test note, issue, or review link. |
+| Shreya (`shrey776`) | **Week 3 verification support — task assigned, independent review pending.** Follow-up [Issue #29](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/29) was opened by `ualsom` on 2026-11-26 to give Shreya an owned check: personally review the recorded two-Latte order, ₩9,000 simulated payment/receipt, milk −500 ml, beans −36 g, daily sales +₩9,000, and duplicate-payment safeguards. Existing team automation evidence must not be attributed to Shreya; no personal rerun or review result has yet been recorded. **Next action:** Shreya independently reviews the linked evidence, logs actual observations (or a concrete blocker), and updates this receipt herself. | [Owned follow-up Issue #29](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/29); [Week 3 automated demo evidence](evidence/two-latte-demo/README.md); [Issue #3 test record](issues/issue-03/README.md) |
 
 
 ## Blockers or risks
