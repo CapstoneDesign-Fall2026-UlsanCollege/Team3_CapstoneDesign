@@ -3,6 +3,7 @@
 **Team:** Team 3  
 **Week:** 7  
 **Date:** 2026-10-19  
+**Catch-up evidence update:** 2026-11-26  
 **Project:** SmartServe POS
 
 ## This week's goal
@@ -41,7 +42,7 @@ The main objective was to review the café workflow from order creation to simul
 | Sherap Hyolmo (`daydevil80`) | Completed the recipe-edit and receipt-history fixes with coding-agent assistance. Recipe editing now converts 18 g to 0.018 kg, and new orders preserve their original item names after menu renaming. Added four regression tests and recorded fresh verification: 24 backend tests passed, the frontend build passed, and the two-latte check confirmed the expected payment, stock and sales results. Prepared my Week 7 receipt and tracked the remaining independent test and rehearsal in Issue #21. | [Implementation commit](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/0d5fecdf827deb12b7d4d560e392bfb06d868591), [24 passing tests](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0d5fecdf827deb12b7d4d560e392bfb06d868591/docs/week-07-docs/Week7/evidence/2026-10-21/backend-tests.txt), [Expected/actual results](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0d5fecdf827deb12b7d4d560e392bfb06d868591/docs/week-07-docs/Week7/evidence/2026-10-21/demo-results.json), [Individual receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/0d5fecdf827deb12b7d4d560e392bfb06d868591/docs/week-07-docs/Week7/receipts/daydevil80.md), [Midterm Prep Issue #21](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/21) |
 | Ualson Tamang (`ualsom`) | Week 7 contribution to be confirmed by the member. | |
 | Shuzita Majhi (`Shuzita`) | Week 7 payment-failure and recovery evidence package prepared with coding-agent assistance. The recorded browser checks show that failed simulated payment returns HTTP 402, keeps the order open, and leaves stock and sales unchanged. Successful cash retry pays the same ₩9,000 order and deducts 500 ml milk and 36 g beans. Duplicate payment returns HTTP 409 without another deduction. Personal review or independent retest remains to be confirmed. | [Actual results](./shuzita_ben/03-result.md), [Individual receipt](./shuzita_ben/receipt.md), [Screenshot evidence](./shuzita_ben/evidence/agent-run-2026-10-21/SCREENSHOTS.md), [Raw browser checks](./shuzita_ben/evidence/agent-run-2026-10-21/results.json) |
-| Shreya (`shrey776`) | Week 7 contribution to be confirmed by the member. |  |
+| Shreya (`shrey776`) | Catch-up presentation-evidence audit prepared with Codex assistance on 2026-11-26. The audit reviewed the existing agent-run results, screenshots, and speaking notes; it confirms that the automated happy-path evidence is labeled correctly and that no personal test or timed rehearsal is evidenced. Member review and an actual rehearsal or independent failure-state check remain pending. | [Catch-up evidence audit](receipts/shreya/06-catch-up-audit.md); [agent-run receipt](receipts/shreya/receipt.md) |
 
 ## Blockers or risks
 
