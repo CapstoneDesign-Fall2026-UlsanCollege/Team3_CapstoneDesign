@@ -6,7 +6,7 @@
 
 **Date:** 2026-09-22
 
-**Last updated:** 2026-09-30
+**Last updated:** 2026-11-26
 
 ## This week's goal
 
@@ -30,7 +30,7 @@ Define a small midterm demo path, describe its main screens, and connect the Wee
 | Issue(s) | [Inventory-deduction investigation #2](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/2) and [implementation issue #3](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/3); links for the other proposed build issues are pending. |
 | PR(s) / commits | [MVP implementation commit `c78af82`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/c78af82); branch: `smartserve-mvp`. Add a PR link if one is opened. |
 | Screenshot / demo | [Cashier wireframe](wireframe-Landing-page.jpg), [inventory wireframe](wireframe-Inventory.jpg), and [owner dashboard wireframe](wireframe-Owner-dashboard.jpg); [Two-Latte demo and six screenshots](evidence/two-latte-demo/README.md) are recorded from a automated run. |
-| Test/check note | [Issue #3 test results](issues/issue-03/README.md): five local backend tests passed, including one-Latte deduction, duplicate prevention, failed payment, and insufficient stock; frontend build passed. PostgreSQL concurrency, browser rapid-click, and refresh/retry checks passed. The [two-Latte demo](evidence/two-latte-demo/README.md) also passed; independent teammate review remains pending. |
+| Test/check note | [Shrey's independent reproduction check #30](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/30) is open; no reproduction result is claimed yet. [Issue #3 test results](issues/issue-03/README.md): five local backend tests passed, including one-Latte deduction, duplicate prevention, failed payment, and insufficient stock; frontend build passed. PostgreSQL concurrency, browser rapid-click, and refresh/retry checks passed. The [two-Latte demo](evidence/two-latte-demo/README.md) also passed; independent teammate review remains pending. |
 | Sprint 0 and checklists | [Sprint 0 Report](sprint-0-report.md), [Quality Quick Checks](sprint-quality-quick-checks.md), and [Week 3 Work Checklist](week-03-work-checklist.md). |
 | Document update | [Candidate Vertical Slice](candidate-vertical-slice.md), [Wireframe Notes](wireframe-notes.md), and [Design Doc v1](../week-02/design-doc-v1.md). |
 | Week 4 checkpoint | [Chuseok Checkpoint](../week-04-chuseok/chuseok-checkpoint.md) |
@@ -44,14 +44,14 @@ Define a small midterm demo path, describe its main screens, and connect the Wee
 | Lama Muskan | Updated the architecture sketch to identify FastAPI as the backend and align the proposed stack with the implementation. Additional evidence from my Week 2 work covers order-total calculation, payment and inventory protection, and the technology-stack investigation. | [Architecture update commit `16efb35`](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/16efb35); [Week 2 individual evidence receipt](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/blob/smartserve-mvp/docs/week-02/individual_evidence.md/Lama_Muskan.md)
 | Ualson Tamang | Week 3 contribution receipt pending. | Add an issue, sketch, review, or research link. |
 | Shuzita Majhi | Created the Week 4 Chuseok checkpoint with sketches, the midterm-demo sentence, a Week 5 question, and the first action after the break. Uploaded the automated two-Latte demo evidence, including six screenshots and expected-versus-actual results. The automated demo was performed by browser automation; personal review or reproduction is not yet recorded. | [Chuseok checkpoint](../week-04-chuseok/chuseok-checkpoint.md); [two-Latte demo evidence](evidence/two-latte-demo/README.md) |
-| Shreya | Proposed verification support. Week 3 contribution receipt pending. | Add a test note, issue, or review link. |
+| `shrey776` (Shreya) | Review-window follow-up: opened and took ownership of a check to independently reproduce the recorded two-Latte demo. The run is pending; this row records the owned next step, not a completed test. | [Owned reproduction check #30](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/30) |
 
 
 ## Blockers or risks
 
 | Blocker/risk | Owner | Next action |
 |---|---|---|
-| Independent teammate reproduction of the recorded demo remains pending. | Team; confirm runner | Follow the setup instructions, reproduce the two-Latte scenario, and personally record the result. Automated evidence is already linked above. |
+| Independent teammate reproduction of the recorded demo remains pending. | `shrey776` (check owner); team | Follow the setup instructions and record expected/actual values and evidence in Issue #30. If blocked by setup or access, capture the exact error and ask `daydevil80` for the missing details; resume once available. |
 | Proposed build issues and ownership are not fully linked. | Team | Create or identify issues and add their links to the slice and design doc. |
 | Personal review of the uploaded two-Latte evidence is not yet recorded. | Shuzita Majhi | Review the six screenshots and results, note findings, and personally confirm her contribution row with her exact GitHub login. |
 
