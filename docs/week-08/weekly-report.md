@@ -229,7 +229,7 @@ The current automated evidence supports the simulated sale. The team still needs
 
 ### Shreya — `shrey776`
 
-**Week 8 catch-up status (2026-11-26):** The existing Week 8 receipt described a personal evidence review. Shreya has since said the Week 8 assignment was not completed, so that review is unconfirmed and is not counted here as personal completion. No personal test or rehearsal is claimed.
+**Week 8 catch-up status (2026-11-26):** The existing Week 8 receipt described a personal evidence review. Shreya has since said the Week 8 assignment was not completed, so that review is unconfirmed and is not counted here as personal completion. No personal test or rehearsal is claimed. The existing team evidence may be used as a baseline, but it does not substitute for Shreya's review.
 
 **Evidence available for review:** [October 28 summary](evidence/2026-10-28/README.md), [browser/API results](evidence/2026-10-28/browser-results.json), and [screenshot gallery](evidence/2026-10-28/SCREENSHOTS.md).
 
