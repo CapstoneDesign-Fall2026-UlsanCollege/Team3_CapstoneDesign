@@ -3,20 +3,17 @@
 **GitHub login:** shrey776  
 **Team:** 3  
 **Week:** 6, Sprint 1  
-**Prepared:** October 14, 2026  
-**Status:** Member entry/confirmation pending
+**Prepared:** 2026-11-26 (catch-up entry)  
+**Status:** Owned check recorded; member-run result pending
 
-## Linked existing record
+## Owned action
 
-The member's Week 6 contribution and proof link still need to be supplied. This template does not claim that no work was done.
+I am responsible for a clean-start cashier reproduction check linked in [Issue #30](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/30). The issue records the steps, expected order/payment/stock/sales behavior, and what to do if setup or access blocks the check.
 
-## Member to complete
+## Result
 
-- Contribution sentence: Pending member confirmation.
-- Exact evidence link: Pending.
-- How the work was checked: Pending member entry.
-- Expected and actual result, or exact blocker: Pending member entry.
-- What was learned or changed: Pending member entry.
-- Next action: Confirm or complete the personal row in [the shared report](../weekly-report.md).
+No Week 6 personal test result is claimed here. The existing Week 6 automated report is team evidence and is not a personal run.
 
-This receipt is not a record of an independent test unless the actual tester and result are added. See [tested-by-note.md](../tested-by-note.md).
+## Next action
+
+Follow the setup and record the source/commit, exact command, expected and actual behavior, and first confusing or missing step. If blocked, capture the exact command/error and ask `daydevil80` for the missing setup or access details. Then update the shared [Week 6 report](../weekly-report.md) with the observed result.
