@@ -281,7 +281,7 @@ The core workflow has automated evidence. The next milestone is to reproduce it 
 
 | Team Member | Week 8 Contribution | Evidence |
 |---|---|---|
-| Ualson Tamang | |  |
+| Ualson Tamang (`ualsom`) | Catch-up status noted 2026-11-26: the member's own Week 8 contribution/lesson is still unconfirmed; no personal work is attributed here. Next action for `ualsom`: add their own lesson and direct evidence link, or record the exact blocker and next action. | [Week 7 report showing the prior confirmation status](../week-07-docs/Week7/weekly-report.md) |
 
 
 ---
