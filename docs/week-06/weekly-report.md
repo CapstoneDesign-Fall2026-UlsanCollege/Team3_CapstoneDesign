@@ -3,7 +3,7 @@
 **Team:** 3  
 **Week:** 6, Sprint 1  
 **Dates:** October 8–14, 2026  
-**Updated:** October 14, 2026, Korea time  
+**Updated:** October 14, 2026; catch-up entry added November 26, 2026, Korea time  
 **Status:** Evidence recorded; failures and independent test remain open
 
 ## This week's goal
@@ -69,7 +69,7 @@ These entries link visible records. They do not claim that all five people ran t
 | `Sammygit15` | Created/revised the Week 6 checklist/report files and posted menu/inventory editing observations on October 8. | [017fca3](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/017fca3), [f4e8a6d](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/commit/f4e8a6d), [editing comment](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/20#issuecomment-6054966665), [receipt draft](receipts/Sammygit15.md) | Confirm their entry; add exact expected/actual values for any new test. Commit display name LamaMuskan is not the canonical login |
 | `ualsom` | Reported a unit-change problem on Issue #20 on October 8 and supplied screenshots. | [unit-change comment](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/20#issuecomment-6055077744), [receipt draft](receipts/ualsom.md) | Confirm their entry and test g/kg separately from unsupported mass/volume conversion |
 | `Shuzita` | Week 6 contribution entry is still awaiting the member's own result or blocker. | [receipt template](receipts/Shuzita.md) | Enter a concrete contribution with a proof link; a success/failure payment check is a possible bounded task |
-| `shrey776` | Week 6 contribution entry is still awaiting the member's own result or blocker. | [receipt template](receipts/shrey776.md) | Enter a concrete contribution with a proof link; a clean-start cashier check is a possible bounded task |
+| `shrey776` | Catch-up update (2026-11-26): exact login recorded; owns the clean-start cashier reproduction check in Issue #30. Member-run result is pending. Next: follow setup and record the first confusing or missing behavior with expected/actual values. If blocked, capture the exact command/error and ask `daydevil80` for setup/access details. | [Issue #30](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/30); [receipt](receipts/shrey776.md) | Follow Issue #30 and add the personal result or exact blocker |
 
 The linked October 8 teammate comments are real earlier observations. They do not document that someone independently followed the new October 14 steps without coaching. That requirement remains incomplete.
 
