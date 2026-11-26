@@ -145,3 +145,8 @@ The original report and Lama Muskan's contribution above are retained. Read the 
 **Acceptance remains open:** Issue #22 still requires a confirmed non-author's exact login, source/deployment version, actual demo setup, starting stock, expected/actual transaction/edit/history values and screenshots. The [handoff result form](verification-handoff.md) is unexecuted. Each student's own confirmed entry is also required; the pending rows above do not satisfy that requirement by themselves.
 
 The [milestone supplement](feedback-follow-up.md#reviewable-milestone-checks) provides accountable coordination, observable checks, planned evidence destinations and fallbacks. Execution roles other than the existing coordinator remain proposals until confirmed. Payments remain simulated; CI and local results do not verify the live Render database, production security or concurrency.
+
+
+## November 26 catch-up — Shreya (`shrey776`)
+
+The existing Week 9 receipt links a shared Codex-run evidence package; it does not establish my personal review or independent execution. I have taken ownership of [Issue #30](https://github.com/CapstoneDesign-Fall2026-UlsanCollege/Team3_CapstoneDesign/issues/30) as the next small cashier-path check. The run is pending. Next: follow the setup, capture the source/environment, expected and actual values, and any first confusing or failed behavior. If setup or access blocks it, record the exact error and ask `daydevil80` for the missing details.
